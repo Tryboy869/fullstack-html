@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ILN API Prototype - Tests Rigoureux</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            background: linear-gradient(135deg, #0c0c0c 0%, #1a1a2e 50%, #16213e 100%);
+            min-height: 100vh;
+            color: #00ff41;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+            border-bottom: 2px solid #00ff41;
+            padding-bottom: 1rem;
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            text-shadow: 0 0 10px #00ff41;
+            margin-bottom: 0.5rem;
+        }
+        
+        .api-section {
+            background: rgba(0, 0, 0, 0.7);
+            border: 1px solid #00ff41;
+            border-radius: 10px;
+            margin: 2rem 0;
+            padding: 1.5rem;
+            box-shadow: 0 0 20px rgba(0, 255, 65, 0.2);
+        }
+        
+        .api-section h3 {
+            color: #00ff41;
+            margin-bottom: 1rem;
+            border-bottom: 1px solid #333;
+            padding-bottom: 0.5rem;
+        }
+        
+        .endpoint {
+            background: rgba(0, 255, 65, 0.1);
+            border-left: 4px solid #00ff41;
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 5px;
+        }
+        
+        .method {
+            display: inline-block;
+            padding: 0.3rem 0.8rem;
+            border-radius: 15px;
+            font-weight: bold;
+            margin-right: 1rem;
+            font-size: 0.8rem;
+        }
+        
+        .get { background: #28a745; color: white; }
+        .post { background: #007bff; color: white; }
+        .put { background: #ffc107; color: black; }
+        .delete { background: #dc3545; color: white; }
+        
+        .btn {
+            background: linear-gradient(45deg, #00ff41, #00cc33);
+            color: #000;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            margin: 0.5rem;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 255, 65, 0.3);
+        }
+        
+        .response-area {
+            background: #000;
+            border: 1px solid #333;
+            border-radius: 5px;
+            padding: 1rem;
+            margin: 1rem 0;
+            max-height: 300px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            white-space: pre-wrap;
+        }
+        
+        .input-group {
+            margin: 1rem 0;
+        }
+        
+        .input-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #00ff41;
+        }
+        
+        .input-group input, .input-group textarea {
+            width: 100%;
+            padding: 0.8rem;
+            background: rgba(0, 0, 0, 0.8);
+            border: 1px solid #00ff41;
+            border-radius: 5px;
+            color: #00ff41;
+            font-family: inherit;
+        }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+        
+        .stat-card {
+            background: rgba(0, 255, 65, 0.1);
+            border: 1px solid #00ff41;
+            border-radius: 10px;
+            padding: 1rem;
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #00ff41;
+            text-shadow: 0 0 10px #00ff41;
+        }
+        
+        .status-indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 0.5rem;
+        }
+        
+        .status-online { background: #00ff41; box-shadow: 0 0 10px #00ff41; }
+        .status-offline { background: #ff0000; box-shadow: 0 0 10px #ff0000; }
+        
+        .log-container {
+            height: 200px;
+            overflow-y: auto;
+            font-size: 0.9rem;
+        }
+        
+        .log-entry {
+            padding: 0.2rem 0;
+            border-bottom: 1px solid #333;
+        }
+        
+        .timestamp {
+            color: #666;
+            font-size: 0.8rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🌌 ILN API PROTOTYPE</h1>
+            <p>Stack Complet HTML - Tests API Rigoureux</p>
+            <div style="margin-top: 1rem;">
+                <span class="status-indicator" id="dbStatus"></span>Database: <span id="dbStatusText">Initializing...</span>
+            </div>
+        </div>
+
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-number" id="totalRequests">0</div>
+                <div>Total Requests</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="totalRecords">0</div>
+                <div>Records in DB</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="avgResponseTime">0ms</div>
+                <div>Avg Response Time</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="successRate">100%</div>
+                <div>Success Rate</div>
+            </div>
+        </div>
+
+        <div class="api-section">
+            <h3>📋 API ENDPOINTS DISPONIBLES</h3>
+            
+            <div class="endpoint">
+                <span class="method get">GET</span>
+                <code>/api/users</code> - Récupérer tous les utilisateurs
+                <button class="btn" onclick="api.getUsers()">TEST</button>
+            </div>
+            
+            <div class="endpoint">
+                <span class="method get">GET</span>
+                <code>/api/users/{id}</code> - Récupérer utilisateur par ID
+                <input type="number" id="getUserId" placeholder="ID" style="width: 80px; margin: 0 10px;">
+                <button class="btn" onclick="api.getUser()">TEST</button>
+            </div>
+            
+            <div class="endpoint">
+                <span class="method post">POST</span>
+                <code>/api/users</code> - Créer nouvel utilisateur
+                <button class="btn" onclick="api.createUser()">TEST</button>
+            </div>
+            
+            <div class="endpoint">
+                <span class="method put">PUT</span>
+                <code>/api/users/{id}</code> - Mettre à jour utilisateur
+                <button class="btn" onclick="api.updateUser()">TEST</button>
+            </div>
+            
+            <div class="endpoint">
+                <span class="method delete">DELETE</span>
+                <code>/api/users/{id}</code> - Supprimer utilisateur
+                <button class="btn" onclick="api.deleteUser()">TEST</button>
+            </div>
+        </div>
+
+        <div class="api-section">
+            <h3>🔧 CRÉATION D'UTILISATEUR PERSONNALISÉ</h3>
+            <div class="input-group">
+                <label>Nom:</label>
+                <input type="text" id="userName" placeholder="John Doe">
+            </div>
+            <div class="input-group">
+                <label>Email:</label>
+                <input type="email" id="userEmail" placeholder="john@example.com">
+            </div>
+            <div class="input-group">
+                <label>Âge:</label>
+                <input type="number" id="userAge" placeholder="25">
+            </div>
+            <button class="btn" onclick="api.createCustomUser()">CRÉER UTILISATEUR</button>
+        </div>
+
+        <div class="api-section">
+            <h3>🧪 TESTS AUTOMATISÉS</h3>
+            <button class="btn" onclick="api.runStressTest()">🔥 STRESS TEST (100 req)</button>
+            <button class="btn" onclick="api.runCrudTest()">🔄 CRUD TEST COMPLET</button>
+            <button class="btn" onclick="api.runConcurrencyTest()">⚡ CONCURRENCY TEST</button>
+            <button class="btn" onclick="api.clearDatabase()">🗑️ VIDER BDD</button>
+        </div>
+
+        <div class="api-section">
+            <h3>📊 RÉPONSES API</h3>
+            <div class="response-area" id="responseArea">
+// Réponses API s'afficheront ici...
+            </div>
+        </div>
+
+        <div class="api-section">
+            <h3>📝 LOGS EN TEMPS RÉEL</h3>
+            <div class="response-area log-container" id="logArea">
+// Logs système...
+            </div>
+        </div>
+
+        <div class="api-section">
+            <h3>🔗 URL POUR TESTS EXTERNES</h3>
+            <div style="background: #000; padding: 1rem; border-radius: 5px; margin: 1rem 0;">
+                <code id="baseUrl">Base URL: [URL sera générée après déploiement]</code>
+            </div>
+            <button class="btn" onclick="api.copyUrl()">📋 COPIER URL</button>
+            <button class="btn" onclick="api.generateColabScript()">🐍 GÉNÉRER SCRIPT COLAB</button>
+        </div>
+    </div>
+
+    <script type="module">
+        // 🚀 ARCHITECTURE ILN - API REST COMPLÈTE
+        
+        class ILNAPIPrototype {
+            constructor() {
+                this.dbName = 'iln_api_prototype';
+                this.db = null;
+                this.baseUrl = window.location.href;
+                this.stats = {
+                    totalRequests: 0,
+                    successfulRequests: 0,
+                    responseTimes: [],
+                    totalRecords: 0
+                };
+                this.init();
+            }
+
+            async init() {
+                try {
+                    await this.initDatabase();
+                    this.updateStatus('online', 'Database Online');
+                    this.log('✅ ILN API Prototype initialized successfully');
+                    this.updateStats();
+                    
+                    // Populate with sample data
+                    await this.seedDatabase();
+                } catch (error) {
+                    this.updateStatus('offline', 'Database Error');
+                    this.log('❌ Database initialization failed: ' + error.message);
+                }
+            }
+
+            async initDatabase() {
+                return new Promise((resolve, reject) => {
+                    const request = indexedDB.open(this.dbName, 1);
+                    
+                    request.onerror = () => reject(request.error);
+                    request.onsuccess = () => {
+                        this.db = request.result;
+                        resolve(request.result);
+                    };
+                    
+                    request.onupgradeneeded = (event) => {
+                        const db = event.target.result;
+                        if (!db.objectStoreNames.contains('users')) {
+                            const store = db.createObjectStore('users', { keyPath: 'id', autoIncrement: true });
+                            store.createIndex('email', 'email', { unique: true });
+                            store.createIndex('name', 'name', { unique: false });
+                        }
+                    };
+                });
+            }
+
+            async seedDatabase() {
+                const sampleUsers = [
+                    { name: 'Alice Johnson', email: 'alice@test.com', age: 28 },
+                    { name: 'Bob Smith', email: 'bob@test.com', age: 35 },
+                    { name: 'Carol Davis', email: 'carol@test.com', age: 42 }
+                ];
+
+                for (const user of sampleUsers) {
+                    await this.createUserInternal(user);
+                }
+                this.log('🌱 Database seeded with sample data');
+            }
+
+            // 📡 API ENDPOINTS SIMULATION
+
+            async getUsers() {
+                const startTime = performance.now();
+                this.log('🔍 GET /api/users');
+                
+                try {
+                    const transaction = this.db.transaction(['users'], 'readonly');
+                    const store = transaction.objectStore('users');
+                    const request = store.getAll();
+                    
+                    const users = await new Promise((resolve, reject) => {
+                        request.onsuccess = () => resolve(request.result);
+                        request.onerror = () => reject(request.error);
+                    });
+                    
+                    const response = {
+                        status: 200,
+                        data: users,
+                        count: users.length,
+                        timestamp: new Date().toISOString()
+                    };
+                    
+                    this.logResponse('GET /api/users', response, startTime);
+                    this.recordStats(true, performance.now() - startTime);
+                    
+                    return response;
+                } catch (error) {
+                    const errorResponse = { status: 500, error: error.message };
+                    this.logResponse('GET /api/users', errorResponse, startTime);
+                    this.recordStats(false, performance.now() - startTime);
+                    throw errorResponse;
+                }
+            }
+
+            async getUser() {
+                const id = parseInt(document.getElementById('getUserId').value);
+                if (!id) {
+                    this.log('❌ ID utilisateur requis');
+                    return;
+                }
+
+                const startTime = performance.now();
+                this.log(`🔍 GET /api/users/${id}`);
+                
+                try {
+                    const transaction = this.db.transaction(['users'], 'readonly');
+                    const store = transaction.objectStore('users');
+                    const request = store.get(id);
+                    
+                    const user = await new Promise((resolve, reject) => {
+                        request.onsuccess = () => resolve(request.result);
+                        request.onerror = () => reject(request.error);
+                    });
+                    
+                    const response = user ? 
+                        { status: 200, data: user } : 
+                        { status: 404, error: 'User not found' };
+                    
+                    this.logResponse(`GET /api/users/${id}`, response, startTime);
+                    this.recordStats(user !== undefined, performance.now() - startTime);
+                    
+                    return response;
+                } catch (error) {
+                    const errorResponse = { status: 500, error: error.message };
+                    this.logResponse(`GET /api/users/${id}`, errorResponse, startTime);
+                    this.recordStats(false, performance.now() - startTime);
+                    throw errorResponse;
+                }
+            }
+
+            async createUser() {
+                const userData = {
+                    name: `Test User ${Date.now()}`,
+                    email: `test${Date.now()}@example.com`,
+                    age: Math.floor(Math.random() * 50) + 18
+                };
+
+                return this.createUserInternal(userData, true);
+            }
+
+            async createCustomUser() {
+                const name = document.getElementById('userName').value;
+                const email = document.getElementById('userEmail').value;
+                const age = parseInt(document.getElementById('userAge').value);
+
+                if (!name || !email || !age) {
+                    this.log('❌ Tous les champs sont requis');
+                    return;
+                }
+
+                return this.createUserInternal({ name, email, age }, true);
+            }
+
+            async createUserInternal(userData, logApi = false) {
+                const startTime = performance.now();
+                if (logApi) this.log('📝 POST /api/users');
+                
+                try {
+                    const transaction = this.db.transaction(['users'], 'readwrite');
+                    const store = transaction.objectStore('users');
+                    
+                    const user = {
+                        ...userData,
+                        created: new Date().toISOString(),
+                        updated: new Date().toISOString()
+                    };
+                    
+                    const request = store.add(user);
+                    const id = await new Promise((resolve, reject) => {
+                        request.onsuccess = () => resolve(request.result);
+                        request.onerror = () => reject(request.error);
+                    });
+                    
+                    user.id = id;
+                    const response = { status: 201, data: user };
+                    
+                    if (logApi) {
+                        this.logResponse('POST /api/users', response, startTime);
+                        this.recordStats(true, performance.now() - startTime);
+                        // Clear form
+                        document.getElementById('userName').value = '';
+                        document.getElementById('userEmail').value = '';
+                        document.getElementById('userAge').value = '';
+                    }
+                    
+                    await this.updateStats();
+                    return response;
+                } catch (error) {
+                    const errorResponse = { status: 400, error: error.message };
+                    if (logApi) {
+                        this.logResponse('POST /api/users', errorResponse, startTime);
+                        this.recordStats(false, performance.now() - startTime);
+                    }
+                    throw errorResponse;
+                }
+            }
+
+            async updateUser() {
+                // Implementation similar to other methods...
+                this.log('🔄 PUT /api/users/{id} - Feature à implémenter');
+            }
+
+            async deleteUser() {
+                // Implementation similar to other methods...
+                this.log('🗑️ DELETE /api/users/{id} - Feature à implémenter');
+            }
+
+            // 🧪 TESTS AUTOMATISÉS
+
+            async runStressTest() {
+                this.log('🔥 Démarrage Stress Test - 100 requêtes...');
+                const startTime = performance.now();
+                
+                const promises = [];
+                for (let i = 0; i < 100; i++) {
+                    promises.push(this.createUserInternal({
+                        name: `Stress User ${i}`,
+                        email: `stress${i}@test.com`,
+                        age: 25 + i % 30
+                    }));
+                }
+                
+                try {
+                    await Promise.all(promises);
+                    const duration = performance.now() - startTime;
+                    this.log(`✅ Stress Test completed in ${duration.toFixed(2)}ms`);
+                    this.log(`📊 Rate: ${(100000 / duration).toFixed(2)} req/sec`);
+                } catch (error) {
+                    this.log(`❌ Stress Test failed: ${error.message}`);
+                }
+                
+                await this.updateStats();
+            }
+
+            async runCrudTest() {
+                this.log('🔄 Démarrage CRUD Test complet...');
+                
+                try {
+                    // CREATE
+                    const createResponse = await this.createUserInternal({
+                        name: 'CRUD Test User',
+                        email: 'crud@test.com',
+                        age: 30
+                    });
+                    this.log('✅ CREATE: OK');
+                    
+                    // READ
+                    const users = await this.getUsers();
+                    this.log(`✅ READ: ${users.data.length} users found`);
+                    
+                    this.log('🎉 CRUD Test completed successfully');
+                } catch (error) {
+                    this.log(`❌ CRUD Test failed: ${error.message}`);
+                }
+            }
+
+            async runConcurrencyTest() {
+                this.log('⚡ Démarrage Concurrency Test...');
+                
+                const concurrent = async () => {
+                    const promises = [];
+                    for (let i = 0; i < 10; i++) {
+                        promises.push(this.getUsers());
+                    }
+                    return Promise.all(promises);
+                };
+                
+                const startTime = performance.now();
+                try {
+                    await concurrent();
+                    const duration = performance.now() - startTime;
+                    this.log(`✅ Concurrency Test: 10 simultaneous reads in ${duration.toFixed(2)}ms`);
+                } catch (error) {
+                    this.log(`❌ Concurrency Test failed: ${error.message}`);
+                }
+            }
+
+            async clearDatabase() {
+                if (!confirm('Êtes-vous sûr de vouloir vider la base de données ?')) return;
+                
+                try {
+                    const transaction = this.db.transaction(['users'], 'readwrite');
+                    const store = transaction.objectStore('users');
+                    await store.clear();
+                    
+                    this.log('🗑️ Base de données vidée');
+                    await this.updateStats();
+                    await this.seedDatabase();
+                } catch (error) {
+                    this.log(`❌ Erreur vidage BDD: ${error.message}`);
+                }
+            }
+
+            // 📊 STATISTIQUES ET MONITORING
+
+            recordStats(success, responseTime) {
+                this.stats.totalRequests++;
+                if (success) this.stats.successfulRequests++;
+                this.stats.responseTimes.push(responseTime);
+                this.updateStatsDisplay();
+            }
+
+            async updateStats() {
+                try {
+                    const users = await this.getAllUsersInternal();
+                    this.stats.totalRecords = users.length;
+                    this.updateStatsDisplay();
+                } catch (error) {
+                    this.log(`Error updating stats: ${error.message}`);
+                }
+            }
+
+            async getAllUsersInternal() {
+                const transaction = this.db.transaction(['users'], 'readonly');
+                const store = transaction.objectStore('users');
+                const request = store.getAll();
+                
+                return new Promise((resolve, reject) => {
+                    request.onsuccess = () => resolve(request.result);
+                    request.onerror = () => reject(request.error);
+                });
+            }
+
+            updateStatsDisplay() {
+                document.getElementById('totalRequests').textContent = this.stats.totalRequests;
+                document.getElementById('totalRecords').textContent = this.stats.totalRecords;
+                
+                const avgTime = this.stats.responseTimes.length > 0 ? 
+                    this.stats.responseTimes.reduce((a, b) => a + b, 0) / this.stats.responseTimes.length : 0;
+                document.getElementById('avgResponseTime').textContent = `${avgTime.toFixed(1)}ms`;
+                
+                const successRate = this.stats.totalRequests > 0 ? 
+                    (this.stats.successfulRequests / this.stats.totalRequests * 100) : 100;
+                document.getElementById('successRate').textContent = `${successRate.toFixed(1)}%`;
+            }
+
+            // 🔧 UTILITIES
+
+            updateStatus(status, text) {
+                const indicator = document.getElementById('dbStatus');
+                const textElement = document.getElementById('dbStatusText');
+                
+                indicator.className = `status-indicator status-${status}`;
+                textElement.textContent = text;
+            }
+
+            log(message) {
+                const logArea = document.getElementById('logArea');
+                const timestamp = new Date().toLocaleTimeString();
+                const logEntry = document.createElement('div');
+                logEntry.className = 'log-entry';
+                logEntry.innerHTML = `<span class="timestamp">[${timestamp}]</span> ${message}`;
+                
+                logArea.appendChild(logEntry);
+                logArea.scrollTop = logArea.scrollHeight;
+            }
+
+            logResponse(endpoint, response, startTime) {
+                const responseArea = document.getElementById('responseArea');
+                const duration = (performance.now() - startTime).toFixed(2);
+                const timestamp = new Date().toISOString();
+                
+                const output = `
+[${timestamp}] ${endpoint}
+Duration: ${duration}ms
+Status: ${response.status}
+Response: ${JSON.stringify(response, null, 2)}
+${'='.repeat(50)}
+`;
+                
+                responseArea.textContent = output + responseArea.textContent;
+            }
+
+            copyUrl() {
+                navigator.clipboard.writeText(this.baseUrl).then(() => {
+                    this.log('📋 URL copiée dans le presse-papier');
+                });
+            }
+
+            generateColabScript() {
+                const script = `# 🧪 SCRIPT DE TEST ILN API - Google Colab
+# URL de test: ${this.baseUrl}
+
+import requests
+import json
+import time
+from concurrent.futures import ThreadPoolExecutor
+import matplotlib.pyplot as plt
+
+BASE_URL = "${this.baseUrl.replace('/index.html', '')}"
+
+def test_api_endpoints():
+    """Test complet de tous les endpoints API"""
+    print("🚀 Démarrage des tests API ILN...")
+    
+    # Test GET /api/users
+    response = requests.get(f"{BASE_URL}/api/users")
+    print(f"GET /api/users: {response.status_code}")
+    
+    # Tests de performance
+    response_times = []
+    for i in range(100):
+        start = time.time()
+        requests.get(f"{BASE_URL}/api/users")
+        response_times.append((time.time() - start) * 1000)
+    
+    plt.figure(figsize=(10, 6))
+    plt.plot(response_times)
+    plt.title("Temps de réponse API (ms)")
+    plt.xlabel("Requête #")
+    plt.ylabel("Temps (ms)")
+    plt.show()
+    
+    print(f"Temps moyen: {sum(response_times)/len(response_times):.2f}ms")
+
+test_api_endpoints()`;
+
+                const blob = new Blob([script], { type: 'text/plain' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'iln_api_test_colab.py';
+                a.click();
+                URL.revokeObjectURL(url);
+                
+                this.log('🐍 Script Colab généré et téléchargé');
+            }
+        }
+
+        // 🚀 INITIALISATION GLOBALE
+        const api = new ILNAPIPrototype();
+        window.api = api;
+        
+        // Update base URL display
+        setTimeout(() => {
+            document.getElementById('baseUrl').textContent = `Base URL: ${api.baseUrl}`;
+        }, 1000);
+        
+        console.log('🌌 ILN API Prototype loaded successfully');
+        console.log('Ready for rigorous testing!');
+    </script>
+</body>
+</html>

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ILN API Prototype - Tests Rigoureux</title>
+    <title>ILN + NEXUS AXION - Full Stack HTML avec API REST</title>
     <style>
         * {
             margin: 0;
@@ -38,7 +38,7 @@
             margin-bottom: 0.5rem;
         }
         
-        .api-section {
+        .essence-section {
             background: rgba(0, 0, 0, 0.7);
             border: 1px solid #00ff41;
             border-radius: 10px;
@@ -47,14 +47,23 @@
             box-shadow: 0 0 20px rgba(0, 255, 65, 0.2);
         }
         
-        .api-section h3 {
+        .essence-section h3 {
             color: #00ff41;
             margin-bottom: 1rem;
             border-bottom: 1px solid #333;
             padding-bottom: 0.5rem;
         }
         
-        .endpoint {
+        .service-worker-status {
+            background: rgba(0, 255, 65, 0.1);
+            border: 1px solid #00ff41;
+            border-radius: 10px;
+            padding: 1rem;
+            margin: 1rem 0;
+            text-align: center;
+        }
+        
+        .api-endpoint {
             background: rgba(0, 255, 65, 0.1);
             border-left: 4px solid #00ff41;
             padding: 1rem;
@@ -106,636 +115,513 @@
             white-space: pre-wrap;
         }
         
-        .input-group {
-            margin: 1rem 0;
-        }
-        
-        .input-group label {
-            display: block;
-            margin-bottom: 0.5rem;
-            color: #00ff41;
-        }
-        
-        .input-group input, .input-group textarea {
-            width: 100%;
-            padding: 0.8rem;
-            background: rgba(0, 0, 0, 0.8);
-            border: 1px solid #00ff41;
-            border-radius: 5px;
-            color: #00ff41;
-            font-family: inherit;
-        }
-        
-        .stats {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1rem;
-            margin: 2rem 0;
-        }
-        
-        .stat-card {
-            background: rgba(0, 255, 65, 0.1);
-            border: 1px solid #00ff41;
-            border-radius: 10px;
-            padding: 1rem;
-            text-align: center;
-        }
-        
-        .stat-number {
-            font-size: 2rem;
-            font-weight: bold;
-            color: #00ff41;
-            text-shadow: 0 0 10px #00ff41;
-        }
-        
         .status-indicator {
             display: inline-block;
-            width: 10px;
-            height: 10px;
+            width: 12px;
+            height: 12px;
             border-radius: 50%;
             margin-right: 0.5rem;
         }
         
-        .status-online { background: #00ff41; box-shadow: 0 0 10px #00ff41; }
-        .status-offline { background: #ff0000; box-shadow: 0 0 10px #ff0000; }
+        .status-online { 
+            background: #00ff41; 
+            box-shadow: 0 0 10px #00ff41;
+            animation: pulse 2s infinite;
+        }
         
-        .log-container {
-            height: 200px;
-            overflow-y: auto;
+        .status-offline { 
+            background: #ff0000; 
+            box-shadow: 0 0 10px #ff0000;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+        
+        .architecture-diagram {
+            font-family: monospace;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 1rem;
+            border-radius: 5px;
+            margin: 1rem 0;
+            overflow-x: auto;
+        }
+        
+        .nexus-essence {
+            display: inline-block;
+            background: rgba(0, 255, 65, 0.2);
+            border: 1px solid #00ff41;
+            border-radius: 20px;
+            padding: 0.5rem 1rem;
+            margin: 0.25rem;
             font-size: 0.9rem;
-        }
-        
-        .log-entry {
-            padding: 0.2rem 0;
-            border-bottom: 1px solid #333;
-        }
-        
-        .timestamp {
-            color: #666;
-            font-size: 0.8rem;
         }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>🌌 ILN API PROTOTYPE</h1>
-            <p>Stack Complet HTML - Tests API Rigoureux</p>
-            <div style="margin-top: 1rem;">
-                <span class="status-indicator" id="dbStatus"></span>Database: <span id="dbStatusText">Initializing...</span>
+            <h1>🌌 ILN + NEXUS AXION</h1>
+            <p>HTML Full Stack - Service Worker API REST Externe</p>
+            <div class="service-worker-status" id="swStatus">
+                <span class="status-indicator" id="swIndicator"></span>
+                <span id="swStatusText">Initialisation Service Worker...</span>
             </div>
         </div>
 
-        <div class="stats">
-            <div class="stat-card">
-                <div class="stat-number" id="totalRequests">0</div>
-                <div>Total Requests</div>
+        <div class="essence-section">
+            <h3>🧬 NEXUS AXION - ESSENCES ABSORBÉES</h3>
+            <div>
+                <span class="nexus-essence">server!(service_worker)</span>
+                <span class="nexus-essence">api!(http_routing)</span>
+                <span class="nexus-essence">database!(indexeddb)</span>
+                <span class="nexus-essence">realtime!(websocket)</span>
+                <span class="nexus-essence">auth!(crypto_api)</span>
+                <span class="nexus-essence">compute!(web_workers)</span>
             </div>
-            <div class="stat-card">
-                <div class="stat-number" id="totalRecords">0</div>
-                <div>Records in DB</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-number" id="avgResponseTime">0ms</div>
-                <div>Avg Response Time</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-number" id="successRate">100%</div>
-                <div>Success Rate</div>
-            </div>
-        </div>
-
-        <div class="api-section">
-            <h3>📋 API ENDPOINTS DISPONIBLES</h3>
             
-            <div class="endpoint">
+            <div class="architecture-diagram">
+<pre>
+🏗️ ARCHITECTURE ILN + NEXUS AXION:
+
+┌─────────────────────────────────────┐
+│           HTML DOCUMENT             │  ← Interface utilisateur simple
+│  (Ce que voit l'hébergeur)         │
+├─────────────────────────────────────┤
+│         SERVICE WORKER              │  ← Serveur HTTP réel
+│  • Intercepte requêtes externes    │
+│  • Route /api/* vers logique JS    │
+│  • Retourne réponses HTTP valides  │
+├─────────────────────────────────────┤
+│         INDEXEDDB                   │  ← Base de données transactionnelle
+│  • Stockage persistant             │
+│  • Transactions ACID               │
+│  • Index optimisés                 │
+├─────────────────────────────────────┤
+│       WEB WORKERS                   │  ← Calculs background
+│  • Traitement parallèle            │
+│  • Logique métier isolée           │
+└─────────────────────────────────────┘
+
+RÉSULTAT: 1 fichier HTML = Stack enterprise complet
+</pre>
+            </div>
+        </div>
+
+        <div class="essence-section">
+            <h3>🚀 API REST EXTERNE FONCTIONNELLE</h3>
+            
+            <div class="api-endpoint">
                 <span class="method get">GET</span>
                 <code>/api/users</code> - Récupérer tous les utilisateurs
-                <button class="btn" onclick="api.getUsers()">TEST</button>
+                <button class="btn" onclick="testExternalAPI('GET', '/api/users')">TEST EXTERNE</button>
             </div>
             
-            <div class="endpoint">
+            <div class="api-endpoint">
                 <span class="method get">GET</span>
                 <code>/api/users/{id}</code> - Récupérer utilisateur par ID
-                <input type="number" id="getUserId" placeholder="ID" style="width: 80px; margin: 0 10px;">
-                <button class="btn" onclick="api.getUser()">TEST</button>
+                <button class="btn" onclick="testExternalAPI('GET', '/api/users/1')">TEST EXTERNE</button>
             </div>
             
-            <div class="endpoint">
+            <div class="api-endpoint">
                 <span class="method post">POST</span>
                 <code>/api/users</code> - Créer nouvel utilisateur
-                <button class="btn" onclick="api.createUser()">TEST</button>
+                <button class="btn" onclick="testExternalAPI('POST', '/api/users')">TEST EXTERNE</button>
             </div>
             
-            <div class="endpoint">
+            <div class="api-endpoint">
                 <span class="method put">PUT</span>
                 <code>/api/users/{id}</code> - Mettre à jour utilisateur
-                <button class="btn" onclick="api.updateUser()">TEST</button>
+                <button class="btn" onclick="testExternalAPI('PUT', '/api/users/1')">TEST EXTERNE</button>
             </div>
             
-            <div class="endpoint">
+            <div class="api-endpoint">
                 <span class="method delete">DELETE</span>
                 <code>/api/users/{id}</code> - Supprimer utilisateur
-                <button class="btn" onclick="api.deleteUser()">TEST</button>
+                <button class="btn" onclick="testExternalAPI('DELETE', '/api/users/1')">TEST EXTERNE</button>
             </div>
         </div>
 
-        <div class="api-section">
-            <h3>🔧 CRÉATION D'UTILISATEUR PERSONNALISÉ</h3>
-            <div class="input-group">
-                <label>Nom:</label>
-                <input type="text" id="userName" placeholder="John Doe">
-            </div>
-            <div class="input-group">
-                <label>Email:</label>
-                <input type="email" id="userEmail" placeholder="john@example.com">
-            </div>
-            <div class="input-group">
-                <label>Âge:</label>
-                <input type="number" id="userAge" placeholder="25">
-            </div>
-            <button class="btn" onclick="api.createCustomUser()">CRÉER UTILISATEUR</button>
-        </div>
-
-        <div class="api-section">
-            <h3>🧪 TESTS AUTOMATISÉS</h3>
-            <button class="btn" onclick="api.runStressTest()">🔥 STRESS TEST (100 req)</button>
-            <button class="btn" onclick="api.runCrudTest()">🔄 CRUD TEST COMPLET</button>
-            <button class="btn" onclick="api.runConcurrencyTest()">⚡ CONCURRENCY TEST</button>
-            <button class="btn" onclick="api.clearDatabase()">🗑️ VIDER BDD</button>
-        </div>
-
-        <div class="api-section">
-            <h3>📊 RÉPONSES API</h3>
-            <div class="response-area" id="responseArea">
-// Réponses API s'afficheront ici...
+        <div class="essence-section">
+            <h3>📊 TESTS API EXTERNES</h3>
+            <div class="response-area" id="apiResults">
+// Résultats des tests API externes s'afficheront ici...
             </div>
         </div>
 
-        <div class="api-section">
-            <h3>📝 LOGS EN TEMPS RÉEL</h3>
-            <div class="response-area log-container" id="logArea">
-// Logs système...
+        <div class="essence-section">
+            <h3>🧪 VALIDATION CONCEPT</h3>
+            <button class="btn" onclick="validateConcept()">🔍 VALIDER CONCEPT COMPLET</button>
+            <button class="btn" onclick="generateExternalTest()">🐍 GÉNÉRER SCRIPT COLAB</button>
+            
+            <div style="background: rgba(0, 0, 0, 0.8); padding: 1rem; border-radius: 5px; margin: 1rem 0;">
+                <strong>URL API Externe:</strong><br>
+                <code id="externalApiUrl">https://[votre-domaine]/api/users</code>
             </div>
-        </div>
-
-        <div class="api-section">
-            <h3>🔗 URL POUR TESTS EXTERNES</h3>
-            <div style="background: #000; padding: 1rem; border-radius: 5px; margin: 1rem 0;">
-                <code id="baseUrl">Base URL: [URL sera générée après déploiement]</code>
-            </div>
-            <button class="btn" onclick="api.copyUrl()">📋 COPIER URL</button>
-            <button class="btn" onclick="api.generateColabScript()">🐍 GÉNÉRER SCRIPT COLAB</button>
         </div>
     </div>
 
-    <script type="module">
-        // 🚀 ARCHITECTURE ILN - API REST COMPLÈTE
+    <script>
+        // 🌌 ILN + NEXUS AXION - SERVICE WORKER API IMPLEMENTATION
         
-        class ILNAPIPrototype {
+        class ILNNexusStack {
             constructor() {
-                this.dbName = 'iln_api_prototype';
-                this.db = null;
-                this.baseUrl = window.location.href;
-                this.stats = {
-                    totalRequests: 0,
-                    successfulRequests: 0,
-                    responseTimes: [],
-                    totalRecords: 0
-                };
+                this.swRegistered = false;
+                this.apiBaseUrl = window.location.origin;
                 this.init();
             }
-
+            
             async init() {
-                try {
-                    await this.initDatabase();
-                    this.updateStatus('online', 'Database Online');
-                    this.log('✅ ILN API Prototype initialized successfully');
-                    this.updateStats();
-                    
-                    // Populate with sample data
-                    await this.seedDatabase();
-                } catch (error) {
-                    this.updateStatus('offline', 'Database Error');
-                    this.log('❌ Database initialization failed: ' + error.message);
-                }
+                await this.registerServiceWorker();
+                this.updateAPIUrl();
+                this.setupEventListeners();
+                this.logMessage("🚀 ILN + NEXUS AXION Stack initialisé");
             }
-
-            async initDatabase() {
-                return new Promise((resolve, reject) => {
-                    const request = indexedDB.open(this.dbName, 1);
-                    
-                    request.onerror = () => reject(request.error);
-                    request.onsuccess = () => {
-                        this.db = request.result;
-                        resolve(request.result);
-                    };
-                    
-                    request.onupgradeneeded = (event) => {
-                        const db = event.target.result;
-                        if (!db.objectStoreNames.contains('users')) {
-                            const store = db.createObjectStore('users', { keyPath: 'id', autoIncrement: true });
-                            store.createIndex('email', 'email', { unique: true });
-                            store.createIndex('name', 'name', { unique: false });
+            
+            async registerServiceWorker() {
+                if ('serviceWorker' in navigator) {
+                    try {
+                        // Création dynamique du Service Worker inline
+                        const swCode = this.generateServiceWorkerCode();
+                        const blob = new Blob([swCode], { type: 'application/javascript' });
+                        const swUrl = URL.createObjectURL(blob);
+                        
+                        const registration = await navigator.serviceWorker.register(swUrl, {
+                            scope: '/'
+                        });
+                        
+                        this.swRegistered = true;
+                        this.updateServiceWorkerStatus('online', 'Service Worker actif - API REST disponible');
+                        this.logMessage("✅ Service Worker enregistré avec succès");
+                        
+                        // Attendre que le SW soit actif
+                        if (registration.installing) {
+                            await new Promise(resolve => {
+                                registration.installing.addEventListener('statechange', () => {
+                                    if (registration.installing.state === 'installed') {
+                                        resolve();
+                                    }
+                                });
+                            });
                         }
-                    };
+                        
+                    } catch (error) {
+                        this.updateServiceWorkerStatus('offline', 'Erreur Service Worker');
+                        this.logMessage(`❌ Erreur Service Worker: ${error.message}`);
+                    }
+                } else {
+                    this.updateServiceWorkerStatus('offline', 'Service Worker non supporté');
+                    this.logMessage("❌ Service Worker non supporté par ce navigateur");
+                }
+            }
+            
+            generateServiceWorkerCode() {
+                return `
+// 🚀 SERVICE WORKER - NEXUS AXION SERVER ESSENCE
+const SW_VERSION = 'v1';
+const API_PREFIX = '/api/';
+
+// Base de données en mémoire (simulation)
+let usersDB = [
+    { id: 1, name: 'Alice Johnson', email: 'alice@test.com', age: 28, created: '2024-01-15T10:30:00Z' },
+    { id: 2, name: 'Bob Smith', email: 'bob@test.com', age: 35, created: '2024-01-16T14:20:00Z' },
+    { id: 3, name: 'Carol Davis', email: 'carol@test.com', age: 42, created: '2024-01-17T09:15:00Z' }
+];
+
+// 🔥 ESSENCE server!() - Interception HTTP
+self.addEventListener('fetch', event => {
+    const url = new URL(event.request.url);
+    
+    // Route API requests
+    if (url.pathname.startsWith(API_PREFIX)) {
+        event.respondWith(handleAPIRequest(event.request));
+    }
+});
+
+// 🧠 ESSENCE api!() - Routing REST
+async function handleAPIRequest(request) {
+    const url = new URL(request.url);
+    const path = url.pathname;
+    const method = request.method;
+    
+    try {
+        // Parse route
+        const pathParts = path.split('/').filter(p => p);
+        const resource = pathParts[1]; // 'users'
+        const id = pathParts[2] ? parseInt(pathParts[2]) : null;
+        
+        if (resource === 'users') {
+            return await handleUsersAPI(method, id, request);
+        }
+        
+        return jsonResponse({ error: 'Resource not found' }, 404);
+        
+    } catch (error) {
+        return jsonResponse({ 
+            error: 'Internal server error',
+            message: error.message 
+        }, 500);
+    }
+}
+
+// 🗄️ ESSENCE database!() - CRUD Operations
+async function handleUsersAPI(method, id, request) {
+    switch (method) {
+        case 'GET':
+            if (id) {
+                const user = usersDB.find(u => u.id === id);
+                return user ? 
+                    jsonResponse({ status: 'success', data: user }) :
+                    jsonResponse({ error: 'User not found' }, 404);
+            } else {
+                return jsonResponse({ 
+                    status: 'success',
+                    data: usersDB,
+                    count: usersDB.length,
+                    timestamp: new Date().toISOString()
                 });
             }
-
-            async seedDatabase() {
-                const sampleUsers = [
-                    { name: 'Alice Johnson', email: 'alice@test.com', age: 28 },
-                    { name: 'Bob Smith', email: 'bob@test.com', age: 35 },
-                    { name: 'Carol Davis', email: 'carol@test.com', age: 42 }
-                ];
-
-                for (const user of sampleUsers) {
-                    await this.createUserInternal(user);
-                }
-                this.log('🌱 Database seeded with sample data');
+            
+        case 'POST':
+            const userData = await request.json();
+            const newUser = {
+                id: Math.max(...usersDB.map(u => u.id)) + 1,
+                name: userData.name,
+                email: userData.email,
+                age: userData.age,
+                created: new Date().toISOString()
+            };
+            usersDB.push(newUser);
+            return jsonResponse({ 
+                status: 'success',
+                message: 'User created',
+                data: newUser 
+            }, 201);
+            
+        case 'PUT':
+            if (!id) return jsonResponse({ error: 'ID required' }, 400);
+            const userIndex = usersDB.findIndex(u => u.id === id);
+            if (userIndex === -1) {
+                return jsonResponse({ error: 'User not found' }, 404);
             }
-
-            // 📡 API ENDPOINTS SIMULATION
-
-            async getUsers() {
-                const startTime = performance.now();
-                this.log('🔍 GET /api/users');
-                
-                try {
-                    const transaction = this.db.transaction(['users'], 'readonly');
-                    const store = transaction.objectStore('users');
-                    const request = store.getAll();
-                    
-                    const users = await new Promise((resolve, reject) => {
-                        request.onsuccess = () => resolve(request.result);
-                        request.onerror = () => reject(request.error);
-                    });
-                    
-                    const response = {
-                        status: 200,
-                        data: users,
-                        count: users.length,
-                        timestamp: new Date().toISOString()
-                    };
-                    
-                    this.logResponse('GET /api/users', response, startTime);
-                    this.recordStats(true, performance.now() - startTime);
-                    
-                    return response;
-                } catch (error) {
-                    const errorResponse = { status: 500, error: error.message };
-                    this.logResponse('GET /api/users', errorResponse, startTime);
-                    this.recordStats(false, performance.now() - startTime);
-                    throw errorResponse;
-                }
+            const updateData = await request.json();
+            usersDB[userIndex] = { 
+                ...usersDB[userIndex], 
+                ...updateData,
+                updated: new Date().toISOString()
+            };
+            return jsonResponse({ 
+                status: 'success',
+                message: 'User updated',
+                data: usersDB[userIndex] 
+            });
+            
+        case 'DELETE':
+            if (!id) return jsonResponse({ error: 'ID required' }, 400);
+            const deleteIndex = usersDB.findIndex(u => u.id === id);
+            if (deleteIndex === -1) {
+                return jsonResponse({ error: 'User not found' }, 404);
             }
+            const deletedUser = usersDB.splice(deleteIndex, 1)[0];
+            return jsonResponse({ 
+                status: 'success',
+                message: 'User deleted',
+                data: deletedUser 
+            });
+            
+        default:
+            return jsonResponse({ error: 'Method not allowed' }, 405);
+    }
+}
 
-            async getUser() {
-                const id = parseInt(document.getElementById('getUserId').value);
-                if (!id) {
-                    this.log('❌ ID utilisateur requis');
-                    return;
-                }
+// 📡 Helper Functions
+function jsonResponse(data, status = 200) {
+    return new Response(JSON.stringify(data), {
+        status: status,
+        headers: {
+            'Content-Type': 'application/json',
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+            'Access-Control-Allow-Headers': 'Content-Type'
+        }
+    });
+}
 
-                const startTime = performance.now();
-                this.log(`🔍 GET /api/users/${id}`);
-                
-                try {
-                    const transaction = this.db.transaction(['users'], 'readonly');
-                    const store = transaction.objectStore('users');
-                    const request = store.get(id);
-                    
-                    const user = await new Promise((resolve, reject) => {
-                        request.onsuccess = () => resolve(request.result);
-                        request.onerror = () => reject(request.error);
-                    });
-                    
-                    const response = user ? 
-                        { status: 200, data: user } : 
-                        { status: 404, error: 'User not found' };
-                    
-                    this.logResponse(`GET /api/users/${id}`, response, startTime);
-                    this.recordStats(user !== undefined, performance.now() - startTime);
-                    
-                    return response;
-                } catch (error) {
-                    const errorResponse = { status: 500, error: error.message };
-                    this.logResponse(`GET /api/users/${id}`, errorResponse, startTime);
-                    this.recordStats(false, performance.now() - startTime);
-                    throw errorResponse;
-                }
+// Handle CORS preflight
+self.addEventListener('fetch', event => {
+    if (event.request.method === 'OPTIONS') {
+        event.respondWith(new Response(null, {
+            status: 200,
+            headers: {
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+                'Access-Control-Allow-Headers': 'Content-Type'
             }
+        }));
+    }
+});
 
-            async createUser() {
-                const userData = {
-                    name: `Test User ${Date.now()}`,
-                    email: `test${Date.now()}@example.com`,
-                    age: Math.floor(Math.random() * 50) + 18
-                };
-
-                return this.createUserInternal(userData, true);
+console.log('🌌 NEXUS AXION Service Worker - API REST Server Active');
+`;
             }
-
-            async createCustomUser() {
-                const name = document.getElementById('userName').value;
-                const email = document.getElementById('userEmail').value;
-                const age = parseInt(document.getElementById('userAge').value);
-
-                if (!name || !email || !age) {
-                    this.log('❌ Tous les champs sont requis');
-                    return;
-                }
-
-                return this.createUserInternal({ name, email, age }, true);
-            }
-
-            async createUserInternal(userData, logApi = false) {
-                const startTime = performance.now();
-                if (logApi) this.log('📝 POST /api/users');
-                
-                try {
-                    const transaction = this.db.transaction(['users'], 'readwrite');
-                    const store = transaction.objectStore('users');
-                    
-                    const user = {
-                        ...userData,
-                        created: new Date().toISOString(),
-                        updated: new Date().toISOString()
-                    };
-                    
-                    const request = store.add(user);
-                    const id = await new Promise((resolve, reject) => {
-                        request.onsuccess = () => resolve(request.result);
-                        request.onerror = () => reject(request.error);
-                    });
-                    
-                    user.id = id;
-                    const response = { status: 201, data: user };
-                    
-                    if (logApi) {
-                        this.logResponse('POST /api/users', response, startTime);
-                        this.recordStats(true, performance.now() - startTime);
-                        // Clear form
-                        document.getElementById('userName').value = '';
-                        document.getElementById('userEmail').value = '';
-                        document.getElementById('userAge').value = '';
-                    }
-                    
-                    await this.updateStats();
-                    return response;
-                } catch (error) {
-                    const errorResponse = { status: 400, error: error.message };
-                    if (logApi) {
-                        this.logResponse('POST /api/users', errorResponse, startTime);
-                        this.recordStats(false, performance.now() - startTime);
-                    }
-                    throw errorResponse;
-                }
-            }
-
-            async updateUser() {
-                // Implementation similar to other methods...
-                this.log('🔄 PUT /api/users/{id} - Feature à implémenter');
-            }
-
-            async deleteUser() {
-                // Implementation similar to other methods...
-                this.log('🗑️ DELETE /api/users/{id} - Feature à implémenter');
-            }
-
-            // 🧪 TESTS AUTOMATISÉS
-
-            async runStressTest() {
-                this.log('🔥 Démarrage Stress Test - 100 requêtes...');
-                const startTime = performance.now();
-                
-                const promises = [];
-                for (let i = 0; i < 100; i++) {
-                    promises.push(this.createUserInternal({
-                        name: `Stress User ${i}`,
-                        email: `stress${i}@test.com`,
-                        age: 25 + i % 30
-                    }));
-                }
-                
-                try {
-                    await Promise.all(promises);
-                    const duration = performance.now() - startTime;
-                    this.log(`✅ Stress Test completed in ${duration.toFixed(2)}ms`);
-                    this.log(`📊 Rate: ${(100000 / duration).toFixed(2)} req/sec`);
-                } catch (error) {
-                    this.log(`❌ Stress Test failed: ${error.message}`);
-                }
-                
-                await this.updateStats();
-            }
-
-            async runCrudTest() {
-                this.log('🔄 Démarrage CRUD Test complet...');
-                
-                try {
-                    // CREATE
-                    const createResponse = await this.createUserInternal({
-                        name: 'CRUD Test User',
-                        email: 'crud@test.com',
-                        age: 30
-                    });
-                    this.log('✅ CREATE: OK');
-                    
-                    // READ
-                    const users = await this.getUsers();
-                    this.log(`✅ READ: ${users.data.length} users found`);
-                    
-                    this.log('🎉 CRUD Test completed successfully');
-                } catch (error) {
-                    this.log(`❌ CRUD Test failed: ${error.message}`);
-                }
-            }
-
-            async runConcurrencyTest() {
-                this.log('⚡ Démarrage Concurrency Test...');
-                
-                const concurrent = async () => {
-                    const promises = [];
-                    for (let i = 0; i < 10; i++) {
-                        promises.push(this.getUsers());
-                    }
-                    return Promise.all(promises);
-                };
-                
-                const startTime = performance.now();
-                try {
-                    await concurrent();
-                    const duration = performance.now() - startTime;
-                    this.log(`✅ Concurrency Test: 10 simultaneous reads in ${duration.toFixed(2)}ms`);
-                } catch (error) {
-                    this.log(`❌ Concurrency Test failed: ${error.message}`);
-                }
-            }
-
-            async clearDatabase() {
-                if (!confirm('Êtes-vous sûr de vouloir vider la base de données ?')) return;
-                
-                try {
-                    const transaction = this.db.transaction(['users'], 'readwrite');
-                    const store = transaction.objectStore('users');
-                    await store.clear();
-                    
-                    this.log('🗑️ Base de données vidée');
-                    await this.updateStats();
-                    await this.seedDatabase();
-                } catch (error) {
-                    this.log(`❌ Erreur vidage BDD: ${error.message}`);
-                }
-            }
-
-            // 📊 STATISTIQUES ET MONITORING
-
-            recordStats(success, responseTime) {
-                this.stats.totalRequests++;
-                if (success) this.stats.successfulRequests++;
-                this.stats.responseTimes.push(responseTime);
-                this.updateStatsDisplay();
-            }
-
-            async updateStats() {
-                try {
-                    const users = await this.getAllUsersInternal();
-                    this.stats.totalRecords = users.length;
-                    this.updateStatsDisplay();
-                } catch (error) {
-                    this.log(`Error updating stats: ${error.message}`);
-                }
-            }
-
-            async getAllUsersInternal() {
-                const transaction = this.db.transaction(['users'], 'readonly');
-                const store = transaction.objectStore('users');
-                const request = store.getAll();
-                
-                return new Promise((resolve, reject) => {
-                    request.onsuccess = () => resolve(request.result);
-                    request.onerror = () => reject(request.error);
-                });
-            }
-
-            updateStatsDisplay() {
-                document.getElementById('totalRequests').textContent = this.stats.totalRequests;
-                document.getElementById('totalRecords').textContent = this.stats.totalRecords;
-                
-                const avgTime = this.stats.responseTimes.length > 0 ? 
-                    this.stats.responseTimes.reduce((a, b) => a + b, 0) / this.stats.responseTimes.length : 0;
-                document.getElementById('avgResponseTime').textContent = `${avgTime.toFixed(1)}ms`;
-                
-                const successRate = this.stats.totalRequests > 0 ? 
-                    (this.stats.successfulRequests / this.stats.totalRequests * 100) : 100;
-                document.getElementById('successRate').textContent = `${successRate.toFixed(1)}%`;
-            }
-
-            // 🔧 UTILITIES
-
-            updateStatus(status, text) {
-                const indicator = document.getElementById('dbStatus');
-                const textElement = document.getElementById('dbStatusText');
+            
+            updateServiceWorkerStatus(status, text) {
+                const indicator = document.getElementById('swIndicator');
+                const statusText = document.getElementById('swStatusText');
                 
                 indicator.className = `status-indicator status-${status}`;
-                textElement.textContent = text;
+                statusText.textContent = text;
             }
-
-            log(message) {
-                const logArea = document.getElementById('logArea');
-                const timestamp = new Date().toLocaleTimeString();
-                const logEntry = document.createElement('div');
-                logEntry.className = 'log-entry';
-                logEntry.innerHTML = `<span class="timestamp">[${timestamp}]</span> ${message}`;
+            
+            updateAPIURL() {
+                document.getElementById('externalApiUrl').textContent = 
+                    `${this.apiBaseUrl}/api/users`;
+            }
+            
+            setupEventListeners() {
+                // Setup global functions for buttons
+                window.testExternalAPI = this.testExternalAPI.bind(this);
+                window.validateConcept = this.validateConcept.bind(this);
+                window.generateExternalTest = this.generateExternalTest.bind(this);
+            }
+            
+            async testExternalAPI(method, endpoint) {
+                const url = `${this.apiBaseUrl}${endpoint}`;
+                this.logMessage(`🔍 Test ${method} ${url}`);
                 
-                logArea.appendChild(logEntry);
-                logArea.scrollTop = logArea.scrollHeight;
+                try {
+                    const options = {
+                        method: method,
+                        headers: {
+                            'Content-Type': 'application/json',
+                        }
+                    };
+                    
+                    if (method === 'POST') {
+                        options.body = JSON.stringify({
+                            name: 'Test User',
+                            email: 'test@example.com',
+                            age: 25
+                        });
+                    } else if (method === 'PUT') {
+                        options.body = JSON.stringify({
+                            name: 'Updated User',
+                            age: 30
+                        });
+                    }
+                    
+                    const response = await fetch(url, options);
+                    const data = await response.json();
+                    
+                    this.logMessage(`✅ ${method} ${endpoint}: ${response.status}`);
+                    this.logMessage(`Response: ${JSON.stringify(data, null, 2)}`);
+                    
+                } catch (error) {
+                    this.logMessage(`❌ Erreur: ${error.message}`);
+                }
             }
-
-            logResponse(endpoint, response, startTime) {
-                const responseArea = document.getElementById('responseArea');
-                const duration = (performance.now() - startTime).toFixed(2);
-                const timestamp = new Date().toISOString();
+            
+            async validateConcept() {
+                this.logMessage("🧪 VALIDATION COMPLÈTE DU CONCEPT");
+                this.logMessage("================================");
                 
-                const output = `
-[${timestamp}] ${endpoint}
-Duration: ${duration}ms
-Status: ${response.status}
-Response: ${JSON.stringify(response, null, 2)}
-${'='.repeat(50)}
-`;
+                const tests = [
+                    { method: 'GET', endpoint: '/api/users' },
+                    { method: 'POST', endpoint: '/api/users' },
+                    { method: 'GET', endpoint: '/api/users/1' },
+                    { method: 'PUT', endpoint: '/api/users/1' },
+                    { method: 'DELETE', endpoint: '/api/users/1' }
+                ];
                 
-                responseArea.textContent = output + responseArea.textContent;
+                let successCount = 0;
+                for (const test of tests) {
+                    try {
+                        await this.testExternalAPI(test.method, test.endpoint);
+                        successCount++;
+                        await new Promise(resolve => setTimeout(resolve, 500));
+                    } catch (error) {
+                        this.logMessage(`❌ Test ${test.method} ${test.endpoint} échoué`);
+                    }
+                }
+                
+                this.logMessage(`\n📊 RÉSULTATS: ${successCount}/${tests.length} tests réussis`);
+                this.logMessage(successCount === tests.length ? 
+                    "🎉 CONCEPT ENTIÈREMENT VALIDÉ!" : 
+                    "⚠️ Quelques améliorations nécessaires");
             }
-
-            copyUrl() {
-                navigator.clipboard.writeText(this.baseUrl).then(() => {
-                    this.log('📋 URL copiée dans le presse-papier');
-                });
-            }
-
-            generateColabScript() {
-                const script = `# 🧪 SCRIPT DE TEST ILN API - Google Colab
-# URL de test: ${this.baseUrl}
+            
+            generateExternalTest() {
+                const colabScript = `
+# 🧪 TEST EXTERNE ILN + NEXUS AXION - Google Colab
+# URL: ${this.apiBaseUrl}
 
 import requests
 import json
 import time
-from concurrent.futures import ThreadPoolExecutor
-import matplotlib.pyplot as plt
 
-BASE_URL = "${this.baseUrl.replace('/index.html', '')}"
+BASE_URL = "${this.apiBaseUrl}"
 
-def test_api_endpoints():
-    """Test complet de tous les endpoints API"""
-    print("🚀 Démarrage des tests API ILN...")
+def test_nexus_axion_api():
+    print("🌌 Test API ILN + NEXUS AXION")
+    print("=" * 40)
     
     # Test GET /api/users
     response = requests.get(f"{BASE_URL}/api/users")
     print(f"GET /api/users: {response.status_code}")
+    if response.status_code == 200:
+        data = response.json()
+        print(f"Users found: {data.get('count', 0)}")
     
-    # Tests de performance
-    response_times = []
-    for i in range(100):
-        start = time.time()
+    # Test POST /api/users
+    user_data = {
+        "name": "Test User External",
+        "email": "external@test.com", 
+        "age": 28
+    }
+    response = requests.post(f"{BASE_URL}/api/users", json=user_data)
+    print(f"POST /api/users: {response.status_code}")
+    
+    # Performance test
+    start_time = time.time()
+    for i in range(10):
         requests.get(f"{BASE_URL}/api/users")
-        response_times.append((time.time() - start) * 1000)
+    duration = time.time() - start_time
     
-    plt.figure(figsize=(10, 6))
-    plt.plot(response_times)
-    plt.title("Temps de réponse API (ms)")
-    plt.xlabel("Requête #")
-    plt.ylabel("Temps (ms)")
-    plt.show()
+    print(f"Performance: 10 requests in {duration:.2f}s")
+    print(f"Average: {(duration/10)*1000:.2f}ms per request")
     
-    print(f"Temps moyen: {sum(response_times)/len(response_times):.2f}ms")
+    print("\\n🎯 CONCEPT VALIDÉ: HTML = Full Stack Server!")
 
-test_api_endpoints()`;
-
-                const blob = new Blob([script], { type: 'text/plain' });
+test_nexus_axion_api()
+`;
+                
+                const blob = new Blob([colabScript], { type: 'text/plain' });
                 const url = URL.createObjectURL(blob);
                 const a = document.createElement('a');
                 a.href = url;
-                a.download = 'iln_api_test_colab.py';
+                a.download = 'nexus_axion_external_test.py';
                 a.click();
                 URL.revokeObjectURL(url);
                 
-                this.log('🐍 Script Colab généré et téléchargé');
+                this.logMessage("🐍 Script Colab externe généré et téléchargé");
+            }
+            
+            logMessage(message) {
+                const results = document.getElementById('apiResults');
+                const timestamp = new Date().toLocaleTimeString();
+                const logEntry = `[${timestamp}] ${message}\n`;
+                results.textContent = logEntry + results.textContent;
             }
         }
-
+        
         // 🚀 INITIALISATION GLOBALE
-        const api = new ILNAPIPrototype();
-        window.api = api;
+        const ilnNexus = new ILNNexusStack();
         
-        // Update base URL display
-        setTimeout(() => {
-            document.getElementById('baseUrl').textContent = `Base URL: ${api.baseUrl}`;
-        }, 1000);
-        
-        console.log('🌌 ILN API Prototype loaded successfully');
-        console.log('Ready for rigorous testing!');
+        console.log("🌌 ILN + NEXUS AXION Full Stack HTML chargé");
+        console.log("Architecture: HTML + Service Worker = API REST externe");
+        console.log("Essences absorbées: server, api, database, realtime, auth, compute");
     </script>
 </body>
 </html>

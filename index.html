@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ILN + NEXUS AXION - Full Stack HTML avec API REST</title>
+    <title>ILN + NEXUS AXION - Full Stack HTML</title>
     <style>
         * {
             margin: 0;
@@ -38,6 +38,40 @@
             margin-bottom: 0.5rem;
         }
         
+        .service-worker-status {
+            background: rgba(0, 255, 65, 0.1);
+            border: 1px solid #00ff41;
+            border-radius: 10px;
+            padding: 1rem;
+            margin: 1rem 0;
+            text-align: center;
+        }
+        
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 0.5rem;
+        }
+        
+        .status-online { 
+            background: #00ff41; 
+            box-shadow: 0 0 10px #00ff41;
+            animation: pulse 2s infinite;
+        }
+        
+        .status-offline { 
+            background: #ff0000; 
+            box-shadow: 0 0 10px #ff0000;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+        
         .essence-section {
             background: rgba(0, 0, 0, 0.7);
             border: 1px solid #00ff41;
@@ -52,15 +86,6 @@
             margin-bottom: 1rem;
             border-bottom: 1px solid #333;
             padding-bottom: 0.5rem;
-        }
-        
-        .service-worker-status {
-            background: rgba(0, 255, 65, 0.1);
-            border: 1px solid #00ff41;
-            border-radius: 10px;
-            padding: 1rem;
-            margin: 1rem 0;
-            text-align: center;
         }
         
         .api-endpoint {
@@ -109,44 +134,11 @@
             border-radius: 5px;
             padding: 1rem;
             margin: 1rem 0;
-            max-height: 300px;
+            max-height: 400px;
             overflow-y: auto;
             font-family: 'Courier New', monospace;
             white-space: pre-wrap;
-        }
-        
-        .status-indicator {
-            display: inline-block;
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            margin-right: 0.5rem;
-        }
-        
-        .status-online { 
-            background: #00ff41; 
-            box-shadow: 0 0 10px #00ff41;
-            animation: pulse 2s infinite;
-        }
-        
-        .status-offline { 
-            background: #ff0000; 
-            box-shadow: 0 0 10px #ff0000;
-        }
-        
-        @keyframes pulse {
-            0% { opacity: 1; }
-            50% { opacity: 0.5; }
-            100% { opacity: 1; }
-        }
-        
-        .architecture-diagram {
-            font-family: monospace;
-            background: rgba(0, 0, 0, 0.8);
-            padding: 1rem;
-            border-radius: 5px;
-            margin: 1rem 0;
-            overflow-x: auto;
+            font-size: 0.9rem;
         }
         
         .nexus-essence {
@@ -157,6 +149,36 @@
             padding: 0.5rem 1rem;
             margin: 0.25rem;
             font-size: 0.9rem;
+        }
+        
+        .architecture-diagram {
+            font-family: monospace;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 1rem;
+            border-radius: 5px;
+            margin: 1rem 0;
+            overflow-x: auto;
+            font-size: 0.8rem;
+        }
+        
+        .input-group {
+            margin: 1rem 0;
+        }
+        
+        .input-group input, .input-group textarea {
+            width: 100%;
+            padding: 0.8rem;
+            background: rgba(0, 0, 0, 0.8);
+            border: 1px solid #00ff41;
+            border-radius: 5px;
+            color: #00ff41;
+            font-family: inherit;
+        }
+        
+        .input-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #00ff41;
         }
     </style>
 </head>
@@ -187,284 +209,185 @@
 🏗️ ARCHITECTURE ILN + NEXUS AXION:
 
 ┌─────────────────────────────────────┐
-│           HTML DOCUMENT             │  ← Interface utilisateur simple
-│  (Ce que voit l'hébergeur)         │
+│         FICHIER index.html          │  ← Interface utilisateur
+│  (Interface + logique frontend)    │
 ├─────────────────────────────────────┤
-│         SERVICE WORKER              │  ← Serveur HTTP réel
-│  • Intercepte requêtes externes    │
-│  • Route /api/* vers logique JS    │
-│  • Retourne réponses HTTP valides  │
+│         FICHIER sw.js               │  ← Service Worker API
+│  • Intercepte requêtes /api/*      │
+│  • CRUD complet sur users          │
+│  • Réponses HTTP + CORS            │
 ├─────────────────────────────────────┤
-│         INDEXEDDB                   │  ← Base de données transactionnelle
-│  • Stockage persistant             │
-│  • Transactions ACID               │
-│  • Index optimisés                 │
-├─────────────────────────────────────┤
-│       WEB WORKERS                   │  ← Calculs background
-│  • Traitement parallèle            │
-│  • Logique métier isolée           │
+│       STOCKAGE NAVIGATEUR          │  ← Persistance données
+│  • Service Worker scope            │
+│  • Variables globales persistantes │
 └─────────────────────────────────────┘
 
-RÉSULTAT: 1 fichier HTML = Stack enterprise complet
+RÉSULTAT: 2 fichiers = Stack enterprise complet
 </pre>
             </div>
         </div>
 
         <div class="essence-section">
-            <h3>🚀 API REST EXTERNE FONCTIONNELLE</h3>
+            <h3>🚀 API REST EXTERNE - ENDPOINTS DISPONIBLES</h3>
+            
+            <div class="api-endpoint">
+                <span class="method get">GET</span>
+                <code>/api/status</code> - Statut Service Worker
+                <button class="btn" onclick="testAPI('GET', '/api/status')">TEST</button>
+            </div>
             
             <div class="api-endpoint">
                 <span class="method get">GET</span>
                 <code>/api/users</code> - Récupérer tous les utilisateurs
-                <button class="btn" onclick="testExternalAPI('GET', '/api/users')">TEST EXTERNE</button>
+                <button class="btn" onclick="testAPI('GET', '/api/users')">TEST</button>
             </div>
             
             <div class="api-endpoint">
                 <span class="method get">GET</span>
                 <code>/api/users/{id}</code> - Récupérer utilisateur par ID
-                <button class="btn" onclick="testExternalAPI('GET', '/api/users/1')">TEST EXTERNE</button>
+                <input type="number" id="userId" placeholder="ID" style="width: 80px; margin: 0 10px;">
+                <button class="btn" onclick="testUserById()">TEST</button>
             </div>
             
             <div class="api-endpoint">
                 <span class="method post">POST</span>
                 <code>/api/users</code> - Créer nouvel utilisateur
-                <button class="btn" onclick="testExternalAPI('POST', '/api/users')">TEST EXTERNE</button>
+                <button class="btn" onclick="testCreateUser()">TEST</button>
             </div>
             
             <div class="api-endpoint">
                 <span class="method put">PUT</span>
                 <code>/api/users/{id}</code> - Mettre à jour utilisateur
-                <button class="btn" onclick="testExternalAPI('PUT', '/api/users/1')">TEST EXTERNE</button>
+                <button class="btn" onclick="testUpdateUser()">TEST</button>
             </div>
             
             <div class="api-endpoint">
                 <span class="method delete">DELETE</span>
                 <code>/api/users/{id}</code> - Supprimer utilisateur
-                <button class="btn" onclick="testExternalAPI('DELETE', '/api/users/1')">TEST EXTERNE</button>
+                <button class="btn" onclick="testDeleteUser()">TEST</button>
             </div>
         </div>
 
         <div class="essence-section">
-            <h3>📊 TESTS API EXTERNES</h3>
-            <div class="response-area" id="apiResults">
-// Résultats des tests API externes s'afficheront ici...
+            <h3>🔧 CRÉER UTILISATEUR PERSONNALISÉ</h3>
+            <div class="input-group">
+                <label>Nom:</label>
+                <input type="text" id="userName" placeholder="John Doe">
             </div>
+            <div class="input-group">
+                <label>Email:</label>
+                <input type="email" id="userEmail" placeholder="john@example.com">
+            </div>
+            <div class="input-group">
+                <label>Âge:</label>
+                <input type="number" id="userAge" placeholder="25">
+            </div>
+            <button class="btn" onclick="createCustomUser()">CRÉER UTILISATEUR</button>
         </div>
 
         <div class="essence-section">
-            <h3>🧪 VALIDATION CONCEPT</h3>
-            <button class="btn" onclick="validateConcept()">🔍 VALIDER CONCEPT COMPLET</button>
-            <button class="btn" onclick="generateExternalTest()">🐍 GÉNÉRER SCRIPT COLAB</button>
+            <h3>🧪 TESTS AUTOMATISÉS</h3>
+            <button class="btn" onclick="runFullTest()">🔍 TEST COMPLET API</button>
+            <button class="btn" onclick="generateColabScript()">🐍 SCRIPT COLAB EXTERNE</button>
             
             <div style="background: rgba(0, 0, 0, 0.8); padding: 1rem; border-radius: 5px; margin: 1rem 0;">
                 <strong>URL API Externe:</strong><br>
-                <code id="externalApiUrl">https://[votre-domaine]/api/users</code>
+                <code id="externalApiUrl">Sera mis à jour après activation SW</code>
+            </div>
+        </div>
+
+        <div class="essence-section">
+            <h3>📊 RÉPONSES API & LOGS</h3>
+            <div class="response-area" id="apiResults">
+// Réponses des tests API s'afficheront ici...
+// En attente d'activation du Service Worker...
             </div>
         </div>
     </div>
 
     <script>
-        // 🌌 ILN + NEXUS AXION - SERVICE WORKER API IMPLEMENTATION
+        // 🌌 ILN + NEXUS AXION - INTERFACE FRONTEND
         
-        class ILNNexusStack {
+        class ILNNexusFrontend {
             constructor() {
                 this.swRegistered = false;
                 this.apiBaseUrl = window.location.origin;
                 this.init();
-            }
+        }
+        
+        // 🚀 INITIALISATION GLOBALE
+        const ilnNexus = new ILNNexusFrontend();
+        
+        console.log("🌌 ILN + NEXUS AXION Frontend chargé");
+        console.log("Fichiers requis: index.html + sw.js");
+        console.log("Service Worker registré pour API REST externe");
+    </script>
+</body>
+</html>
             
             async init() {
+                this.logMessage("🚀 Initialisation ILN + NEXUS AXION Frontend...");
                 await this.registerServiceWorker();
-                this.updateAPIUrl();
-                this.setupEventListeners();
-                this.logMessage("🚀 ILN + NEXUS AXION Stack initialisé");
+                this.setupGlobalFunctions();
+                this.updateAPIURL();
+                this.logMessage("✅ Frontend prêt - Interface active");
             }
             
             async registerServiceWorker() {
                 if ('serviceWorker' in navigator) {
                     try {
-                        // Création dynamique du Service Worker inline
-                        const swCode = this.generateServiceWorkerCode();
-                        const blob = new Blob([swCode], { type: 'application/javascript' });
-                        const swUrl = URL.createObjectURL(blob);
+                        this.logMessage("📝 Tentative d'enregistrement Service Worker...");
                         
-                        const registration = await navigator.serviceWorker.register(swUrl, {
+                        // Enregistrement du fichier sw.js externe
+                        const registration = await navigator.serviceWorker.register('/sw.js', {
                             scope: '/'
                         });
                         
-                        this.swRegistered = true;
-                        this.updateServiceWorkerStatus('online', 'Service Worker actif - API REST disponible');
                         this.logMessage("✅ Service Worker enregistré avec succès");
                         
-                        // Attendre que le SW soit actif
+                        // Attendre activation
                         if (registration.installing) {
+                            this.logMessage("⏳ Service Worker en cours d'installation...");
                             await new Promise(resolve => {
-                                registration.installing.addEventListener('statechange', () => {
-                                    if (registration.installing.state === 'installed') {
+                                registration.installing.addEventListener('statechange', (e) => {
+                                    if (e.target.state === 'installed') {
+                                        this.logMessage("📦 Service Worker installé");
                                         resolve();
                                     }
                                 });
                             });
                         }
                         
+                        if (registration.active) {
+                            this.swRegistered = true;
+                            this.updateServiceWorkerStatus('online', 'Service Worker actif - API REST disponible');
+                            this.logMessage("🌟 Service Worker actif - API REST prête!");
+                            
+                            // Test initial
+                            setTimeout(() => this.testAPI('GET', '/api/status'), 1000);
+                        }
+                        
                     } catch (error) {
-                        this.updateServiceWorkerStatus('offline', 'Erreur Service Worker');
+                        this.updateServiceWorkerStatus('offline', `Erreur: ${error.message}`);
                         this.logMessage(`❌ Erreur Service Worker: ${error.message}`);
+                        this.logMessage("💡 Assurez-vous que sw.js existe à la racine");
                     }
                 } else {
                     this.updateServiceWorkerStatus('offline', 'Service Worker non supporté');
-                    this.logMessage("❌ Service Worker non supporté par ce navigateur");
+                    this.logMessage("❌ Ce navigateur ne supporte pas les Service Workers");
                 }
             }
             
-            generateServiceWorkerCode() {
-                return `
-// 🚀 SERVICE WORKER - NEXUS AXION SERVER ESSENCE
-const SW_VERSION = 'v1';
-const API_PREFIX = '/api/';
-
-// Base de données en mémoire (simulation)
-let usersDB = [
-    { id: 1, name: 'Alice Johnson', email: 'alice@test.com', age: 28, created: '2024-01-15T10:30:00Z' },
-    { id: 2, name: 'Bob Smith', email: 'bob@test.com', age: 35, created: '2024-01-16T14:20:00Z' },
-    { id: 3, name: 'Carol Davis', email: 'carol@test.com', age: 42, created: '2024-01-17T09:15:00Z' }
-];
-
-// 🔥 ESSENCE server!() - Interception HTTP
-self.addEventListener('fetch', event => {
-    const url = new URL(event.request.url);
-    
-    // Route API requests
-    if (url.pathname.startsWith(API_PREFIX)) {
-        event.respondWith(handleAPIRequest(event.request));
-    }
-});
-
-// 🧠 ESSENCE api!() - Routing REST
-async function handleAPIRequest(request) {
-    const url = new URL(request.url);
-    const path = url.pathname;
-    const method = request.method;
-    
-    try {
-        // Parse route
-        const pathParts = path.split('/').filter(p => p);
-        const resource = pathParts[1]; // 'users'
-        const id = pathParts[2] ? parseInt(pathParts[2]) : null;
-        
-        if (resource === 'users') {
-            return await handleUsersAPI(method, id, request);
-        }
-        
-        return jsonResponse({ error: 'Resource not found' }, 404);
-        
-    } catch (error) {
-        return jsonResponse({ 
-            error: 'Internal server error',
-            message: error.message 
-        }, 500);
-    }
-}
-
-// 🗄️ ESSENCE database!() - CRUD Operations
-async function handleUsersAPI(method, id, request) {
-    switch (method) {
-        case 'GET':
-            if (id) {
-                const user = usersDB.find(u => u.id === id);
-                return user ? 
-                    jsonResponse({ status: 'success', data: user }) :
-                    jsonResponse({ error: 'User not found' }, 404);
-            } else {
-                return jsonResponse({ 
-                    status: 'success',
-                    data: usersDB,
-                    count: usersDB.length,
-                    timestamp: new Date().toISOString()
-                });
-            }
-            
-        case 'POST':
-            const userData = await request.json();
-            const newUser = {
-                id: Math.max(...usersDB.map(u => u.id)) + 1,
-                name: userData.name,
-                email: userData.email,
-                age: userData.age,
-                created: new Date().toISOString()
-            };
-            usersDB.push(newUser);
-            return jsonResponse({ 
-                status: 'success',
-                message: 'User created',
-                data: newUser 
-            }, 201);
-            
-        case 'PUT':
-            if (!id) return jsonResponse({ error: 'ID required' }, 400);
-            const userIndex = usersDB.findIndex(u => u.id === id);
-            if (userIndex === -1) {
-                return jsonResponse({ error: 'User not found' }, 404);
-            }
-            const updateData = await request.json();
-            usersDB[userIndex] = { 
-                ...usersDB[userIndex], 
-                ...updateData,
-                updated: new Date().toISOString()
-            };
-            return jsonResponse({ 
-                status: 'success',
-                message: 'User updated',
-                data: usersDB[userIndex] 
-            });
-            
-        case 'DELETE':
-            if (!id) return jsonResponse({ error: 'ID required' }, 400);
-            const deleteIndex = usersDB.findIndex(u => u.id === id);
-            if (deleteIndex === -1) {
-                return jsonResponse({ error: 'User not found' }, 404);
-            }
-            const deletedUser = usersDB.splice(deleteIndex, 1)[0];
-            return jsonResponse({ 
-                status: 'success',
-                message: 'User deleted',
-                data: deletedUser 
-            });
-            
-        default:
-            return jsonResponse({ error: 'Method not allowed' }, 405);
-    }
-}
-
-// 📡 Helper Functions
-function jsonResponse(data, status = 200) {
-    return new Response(JSON.stringify(data), {
-        status: status,
-        headers: {
-            'Content-Type': 'application/json',
-            'Access-Control-Allow-Origin': '*',
-            'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-            'Access-Control-Allow-Headers': 'Content-Type'
-        }
-    });
-}
-
-// Handle CORS preflight
-self.addEventListener('fetch', event => {
-    if (event.request.method === 'OPTIONS') {
-        event.respondWith(new Response(null, {
-            status: 200,
-            headers: {
-                'Access-Control-Allow-Origin': '*',
-                'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-                'Access-Control-Allow-Headers': 'Content-Type'
-            }
-        }));
-    }
-});
-
-console.log('🌌 NEXUS AXION Service Worker - API REST Server Active');
-`;
+            setupGlobalFunctions() {
+                // Exposer les fonctions globalement pour les boutons
+                window.testAPI = this.testAPI.bind(this);
+                window.testUserById = this.testUserById.bind(this);
+                window.testCreateUser = this.testCreateUser.bind(this);
+                window.testUpdateUser = this.testUpdateUser.bind(this);
+                window.testDeleteUser = this.testDeleteUser.bind(this);
+                window.createCustomUser = this.createCustomUser.bind(this);
+                window.runFullTest = this.runFullTest.bind(this);
+                window.generateColabScript = this.generateColabScript.bind(this);
             }
             
             updateServiceWorkerStatus(status, text) {
@@ -475,153 +398,4 @@ console.log('🌌 NEXUS AXION Service Worker - API REST Server Active');
                 statusText.textContent = text;
             }
             
-            updateAPIURL() {
-                document.getElementById('externalApiUrl').textContent = 
-                    `${this.apiBaseUrl}/api/users`;
-            }
-            
-            setupEventListeners() {
-                // Setup global functions for buttons
-                window.testExternalAPI = this.testExternalAPI.bind(this);
-                window.validateConcept = this.validateConcept.bind(this);
-                window.generateExternalTest = this.generateExternalTest.bind(this);
-            }
-            
-            async testExternalAPI(method, endpoint) {
-                const url = `${this.apiBaseUrl}${endpoint}`;
-                this.logMessage(`🔍 Test ${method} ${url}`);
-                
-                try {
-                    const options = {
-                        method: method,
-                        headers: {
-                            'Content-Type': 'application/json',
-                        }
-                    };
-                    
-                    if (method === 'POST') {
-                        options.body = JSON.stringify({
-                            name: 'Test User',
-                            email: 'test@example.com',
-                            age: 25
-                        });
-                    } else if (method === 'PUT') {
-                        options.body = JSON.stringify({
-                            name: 'Updated User',
-                            age: 30
-                        });
-                    }
-                    
-                    const response = await fetch(url, options);
-                    const data = await response.json();
-                    
-                    this.logMessage(`✅ ${method} ${endpoint}: ${response.status}`);
-                    this.logMessage(`Response: ${JSON.stringify(data, null, 2)}`);
-                    
-                } catch (error) {
-                    this.logMessage(`❌ Erreur: ${error.message}`);
-                }
-            }
-            
-            async validateConcept() {
-                this.logMessage("🧪 VALIDATION COMPLÈTE DU CONCEPT");
-                this.logMessage("================================");
-                
-                const tests = [
-                    { method: 'GET', endpoint: '/api/users' },
-                    { method: 'POST', endpoint: '/api/users' },
-                    { method: 'GET', endpoint: '/api/users/1' },
-                    { method: 'PUT', endpoint: '/api/users/1' },
-                    { method: 'DELETE', endpoint: '/api/users/1' }
-                ];
-                
-                let successCount = 0;
-                for (const test of tests) {
-                    try {
-                        await this.testExternalAPI(test.method, test.endpoint);
-                        successCount++;
-                        await new Promise(resolve => setTimeout(resolve, 500));
-                    } catch (error) {
-                        this.logMessage(`❌ Test ${test.method} ${test.endpoint} échoué`);
-                    }
-                }
-                
-                this.logMessage(`\n📊 RÉSULTATS: ${successCount}/${tests.length} tests réussis`);
-                this.logMessage(successCount === tests.length ? 
-                    "🎉 CONCEPT ENTIÈREMENT VALIDÉ!" : 
-                    "⚠️ Quelques améliorations nécessaires");
-            }
-            
-            generateExternalTest() {
-                const colabScript = `
-# 🧪 TEST EXTERNE ILN + NEXUS AXION - Google Colab
-# URL: ${this.apiBaseUrl}
-
-import requests
-import json
-import time
-
-BASE_URL = "${this.apiBaseUrl}"
-
-def test_nexus_axion_api():
-    print("🌌 Test API ILN + NEXUS AXION")
-    print("=" * 40)
-    
-    # Test GET /api/users
-    response = requests.get(f"{BASE_URL}/api/users")
-    print(f"GET /api/users: {response.status_code}")
-    if response.status_code == 200:
-        data = response.json()
-        print(f"Users found: {data.get('count', 0)}")
-    
-    # Test POST /api/users
-    user_data = {
-        "name": "Test User External",
-        "email": "external@test.com", 
-        "age": 28
-    }
-    response = requests.post(f"{BASE_URL}/api/users", json=user_data)
-    print(f"POST /api/users: {response.status_code}")
-    
-    # Performance test
-    start_time = time.time()
-    for i in range(10):
-        requests.get(f"{BASE_URL}/api/users")
-    duration = time.time() - start_time
-    
-    print(f"Performance: 10 requests in {duration:.2f}s")
-    print(f"Average: {(duration/10)*1000:.2f}ms per request")
-    
-    print("\\n🎯 CONCEPT VALIDÉ: HTML = Full Stack Server!")
-
-test_nexus_axion_api()
-`;
-                
-                const blob = new Blob([colabScript], { type: 'text/plain' });
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = 'nexus_axion_external_test.py';
-                a.click();
-                URL.revokeObjectURL(url);
-                
-                this.logMessage("🐍 Script Colab externe généré et téléchargé");
-            }
-            
-            logMessage(message) {
-                const results = document.getElementById('apiResults');
-                const timestamp = new Date().toLocaleTimeString();
-                const logEntry = `[${timestamp}] ${message}\n`;
-                results.textContent = logEntry + results.textContent;
-            }
-        }
-        
-        // 🚀 INITIALISATION GLOBALE
-        const ilnNexus = new ILNNexusStack();
-        
-        console.log("🌌 ILN + NEXUS AXION Full Stack HTML chargé");
-        console.log("Architecture: HTML + Service Worker = API REST externe");
-        console.log("Essences absorbées: server, api, database, realtime, auth, compute");
-    </script>
-</body>
-</html>
+            update

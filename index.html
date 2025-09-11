@@ -3,549 +3,407 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Multi-Language API Communication Test</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/pyodide/v0.24.1/full/pyodide.js"></script>
+    <title>ILN + NEXUS AXION - Démonstration Pratique</title>
+
+    <style>
+        :root {
+            --primary-color: #0a0a23;
+            --secondary-color: #1b1b32;
+            --accent-color: #f1be32;
+            --text-color: #f5f6f7;
+            --border-color: #3b3b4f;
+            --success-color: #a2cc8c;
+            --error-color: #f7a8a8;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--primary-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        main {
+            max-width: 900px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+        h1, h2 {
+            border-bottom: 2px solid var(--accent-color);
+            padding-bottom: 10px;
+            color: var(--accent-color);
+        }
+        h1 { text-align: center; }
+        .module {
+            background-color: var(--secondary-color);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 20px;
+        }
+        .module h2 {
+            margin-top: 0;
+            font-size: 1.5em;
+        }
+        button {
+            background-color: var(--accent-color);
+            color: var(--primary-color);
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #ffde7a;
+        }
+        input, textarea {
+            width: calc(100% - 22px);
+            padding: 10px;
+            background-color: var(--primary-color);
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+        pre {
+            background-color: var(--primary-color);
+            padding: 15px;
+            border-radius: 5px;
+            border: 1px solid var(--border-color);
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            font-family: "Courier New", Courier, monospace;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        .status { font-style: italic; color: #aaa; }
+        .success { color: var(--success-color); }
+        .error { color: var(--error-color); }
+        .warning { background-color: #3b3005; padding: 15px; border-left: 5px solid var(--accent-color); border-radius: 5px; }
+    </style>
 </head>
+<body>
 
-<body class="bg-gradient-to-br from-gray-900 via-blue-900 to-purple-900 min-h-screen text-white">
-    <div class="container mx-auto px-6 py-8">
-        
-        <!-- Header -->
-        <div class="text-center mb-8">
-            <h1 class="text-4xl font-bold mb-4">Multi-Language API Communication Test</h1>
-            <p class="text-blue-200">Testing external API calls from different language runtimes in HTML</p>
-        </div>
+    <main>
+        <header>
+            <h1>🚀 ILN + NEXUS AXION - Démonstration Pratique</h1>
+            <p style="text-align: center;">Une application Enterprise complète dans un seul fichier HTML.</p>
+        </header>
 
-        <!-- Runtime Status -->
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-            <div class="bg-black/30 backdrop-blur rounded-lg p-4 text-center">
-                <div class="text-2xl mb-2">🟢</div>
-                <div class="font-bold">JavaScript</div>
-                <div class="text-xs text-green-400">Native Ready</div>
+        <section class="module">
+            <h2>🌍 Module 1: Communication Externe via CDN Proxy</h2>
+            <div class="warning">
+                <strong>🚨 TEST CRUCIAL :</strong> Pour que ce test fonctionne, ce fichier HTML doit être déployé sur <strong>Netlify</strong> ou <strong>Vercel</strong>.
+                Ensuite, créez un fichier "Edge Function" (ex: `netlify/edge-functions/proxy.js`) avec le code du proxy fourni dans votre document.
+                La requête `fetch` ci-dessous échouera en local à cause de CORS, mais réussira via le proxy une fois déployée.
             </div>
-            <div class="bg-black/30 backdrop-blur rounded-lg p-4 text-center">
-                <div class="text-2xl mb-2" id="python-icon">🟡</div>
-                <div class="font-bold">Python</div>
-                <div class="text-xs" id="python-status">Loading...</div>
-            </div>
-            <div class="bg-black/30 backdrop-blur rounded-lg p-4 text-center">
-                <div class="text-2xl mb-2">🟢</div>
-                <div class="font-bold">Service Worker</div>
-                <div class="text-xs text-green-400">Available</div>
-            </div>
-            <div class="bg-black/30 backdrop-blur rounded-lg p-4 text-center">
-                <div class="text-2xl mb-2">🟢</div>
-                <div class="font-bold">Fetch API</div>
-                <div class="text-xs text-green-400">Cross-Origin</div>
-            </div>
-        </div>
+            <p>Appelez n'importe quelle API externe sans problème de CORS grâce à un proxy CDN (Edge Function).</p>
+            <input type="text" id="apiUrl" value="https://api.github.com/users/google">
+            <button id="callApiBtn">Appeler l'API Externe</button>
+            <pre id="apiResult">Les résultats de l'API apparaîtront ici...</pre>
+        </section>
 
-        <!-- API Test Interface -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            
-            <!-- Test Controls -->
-            <div class="bg-black/30 backdrop-blur rounded-xl p-6">
-                <h3 class="text-xl font-bold mb-4">API Test Configuration</h3>
-                
-                <div class="space-y-4">
-                    <div>
-                        <label class="block text-sm font-medium mb-2">API Endpoint:</label>
-                        <select id="api-endpoint" class="w-full bg-gray-800 border border-gray-600 rounded-lg px-4 py-2">
-                            <option value="jsonplaceholder">JSONPlaceholder (Test API)</option>
-                            <option value="httpbin">HTTPBin (HTTP Testing)</option>
-                            <option value="reqres">ReqRes (User API)</option>
-                            <option value="openweather">OpenWeather (Weather API)</option>
-                            <option value="github">GitHub API (Public)</option>
-                            <option value="custom">Custom URL</option>
-                        </select>
-                    </div>
-                    
-                    <div id="custom-url-input" class="hidden">
-                        <label class="block text-sm font-medium mb-2">Custom URL:</label>
-                        <input type="text" id="custom-url" 
-                               class="w-full bg-gray-800 border border-gray-600 rounded-lg px-4 py-2"
-                               placeholder="https://api.example.com/endpoint">
-                    </div>
-                    
-                    <div>
-                        <label class="block text-sm font-medium mb-2">HTTP Method:</label>
-                        <select id="http-method" class="w-full bg-gray-800 border border-gray-600 rounded-lg px-4 py-2">
-                            <option value="GET">GET</option>
-                            <option value="POST">POST</option>
-                            <option value="PUT">PUT</option>
-                            <option value="DELETE">DELETE</option>
-                        </select>
-                    </div>
-                    
-                    <div>
-                        <label class="block text-sm font-medium mb-2">Language Runtime:</label>
-                        <select id="runtime-select" class="w-full bg-gray-800 border border-gray-600 rounded-lg px-4 py-2">
-                            <option value="javascript">JavaScript (Native)</option>
-                            <option value="python">Python (Pyodide)</option>
-                            <option value="service-worker">Service Worker</option>
-                        </select>
-                    </div>
-                    
-                    <div id="post-data" class="hidden">
-                        <label class="block text-sm font-medium mb-2">POST Data (JSON):</label>
-                        <textarea id="post-json" 
-                                class="w-full bg-gray-800 border border-gray-600 rounded-lg px-4 py-2 h-20"
-                                placeholder='{"key": "value"}'></textarea>
-                    </div>
-                </div>
-                
-                <div class="flex space-x-4 mt-6">
-                    <button onclick="testAPICall()" 
-                            class="flex-1 bg-green-600 hover:bg-green-700 px-6 py-3 rounded-lg font-bold transition-all">
-                        🚀 Test API Call
-                    </button>
-                    <button onclick="runBatchTest()" 
-                            class="flex-1 bg-blue-600 hover:bg-blue-700 px-6 py-3 rounded-lg font-bold transition-all">
-                        📊 Batch Test
-                    </button>
-                </div>
-            </div>
-            
-            <!-- Results Display -->
-            <div class="bg-black/30 backdrop-blur rounded-xl p-6">
-                <h3 class="text-xl font-bold mb-4">API Response</h3>
-                
-                <div class="space-y-4">
-                    <div class="grid grid-cols-3 gap-4 text-center">
-                        <div class="bg-green-600/20 rounded-lg p-3">
-                            <div id="status-code" class="text-2xl font-bold text-green-400">--</div>
-                            <div class="text-green-300 text-sm">Status</div>
-                        </div>
-                        <div class="bg-blue-600/20 rounded-lg p-3">
-                            <div id="response-time" class="text-2xl font-bold text-blue-400">--ms</div>
-                            <div class="text-blue-300 text-sm">Time</div>
-                        </div>
-                        <div class="bg-purple-600/20 rounded-lg p-3">
-                            <div id="data-size" class="text-2xl font-bold text-purple-400">--</div>
-                            <div class="text-purple-300 text-sm">Size</div>
-                        </div>
-                    </div>
-                    
-                    <div class="bg-gray-800 rounded-lg p-4 h-64 overflow-y-auto">
-                        <pre id="api-response" class="text-green-400 text-sm whitespace-pre-wrap">No API call made yet...</pre>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <section class="module">
+            <h2>⚙️ Module 2: Calculs Haute Performance (JS Optimisé > WASM)</h2>
+            <p>Démonstration de la parallélisation native avec les Web Workers pour des tâches lourdes.</p>
+            <button id="runPerfCalcBtn">Lancer un calcul parallèle sur 1M de points</button>
+            <pre id="perfCalcResult">Les résultats du calcul apparaîtront ici...</pre>
+        </section>
         
-        <!-- Batch Test Results -->
-        <div class="mt-8 bg-black/30 backdrop-blur rounded-xl p-6">
-            <h3 class="text-xl font-bold mb-4">Batch Test Results</h3>
-            <div class="bg-gray-800 rounded-lg p-4 h-48 overflow-y-auto">
-                <pre id="batch-results" class="text-cyan-400 text-sm whitespace-pre-wrap">No batch tests run yet...</pre>
-            </div>
-        </div>
-        
-        <!-- Live Log -->
-        <div class="mt-8 bg-black/30 backdrop-blur rounded-xl p-6">
-            <h3 class="text-xl font-bold mb-4">Live Execution Log</h3>
-            <div class="bg-black rounded-lg p-4 h-32 overflow-y-auto">
-                <pre id="execution-log" class="text-yellow-400 text-sm whitespace-pre-wrap"></pre>
-            </div>
-        </div>
-    </div>
+        <section class="module">
+            <h2>📦 Module 3: Backend JS & Base de Données (IndexedDB)</h2>
+            <p>Simulation d'un backend e-commerce avec une base de données transactionnelle IndexedDB.</p>
+            <input type="text" id="productName" placeholder="Nom du produit...">
+            <button id="saveProductBtn">Ajouter au panier</button>
+            <button id="viewCartBtn">Voir le panier</button>
+            <pre id="dbResult">Le contenu du panier apparaîtra ici...</pre>
+        </section>
+
+        <section class="module">
+            <h2>🔒 Module 4: Sécurité Enterprise Native (Web Crypto API)</h2>
+            <p>Utilisation de l'API Web Crypto native pour des opérations de hachage sécurisées (niveau bancaire).</p>
+            <textarea id="secureMessage" rows="2" placeholder="Entrez un message à sécuriser..."></textarea>
+            <button id="hashMessageBtn">Hacher le message (SHA-256)</button>
+            <pre id="cryptoResult">Le hash sécurisé du message apparaîtra ici...</pre>
+        </section>
+    </main>
 
     <script>
-        // Global state
-        let pyodide = null;
-        
-        // API endpoints configuration
-        const apiEndpoints = {
-            jsonplaceholder: 'https://jsonplaceholder.typicode.com/posts/1',
-            httpbin: 'https://httpbin.org/json',
-            reqres: 'https://reqres.in/api/users/2',
-            openweather: 'https://api.openweathermap.org/data/2.5/weather?q=London&appid=demo',
-            github: 'https://api.github.com/users/octocat'
-        };
-        
-        // Logging function
-        function log(message, type = 'info') {
-            const timestamp = new Date().toLocaleTimeString();
-            const colors = {
-                info: 'text-yellow-400',
-                success: 'text-green-400', 
-                error: 'text-red-400',
-                debug: 'text-blue-400'
-            };
-            
-            const logElement = document.getElementById('execution-log');
-            const logEntry = document.createElement('div');
-            logEntry.className = colors[type] || colors.info;
-            logEntry.textContent = `[${timestamp}] ${message}`;
-            
-            logElement.appendChild(logEntry);
-            logElement.scrollTop = logElement.scrollHeight;
-        }
-        
-        // Initialize Python runtime
-        async function initPython() {
-            try {
-                log('Loading Python runtime (Pyodide)...', 'info');
-                pyodide = await loadPyodide();
-                await pyodide.loadPackage(['micropip']);
-                
-                // Install requests-like functionality
-                await pyodide.runPython(`
-                    import micropip
-                    await micropip.install('requests')
-                `);
-                
-                document.getElementById('python-icon').textContent = '🟢';
-                document.getElementById('python-status').textContent = 'Ready';
-                document.getElementById('python-status').className = 'text-xs text-green-400';
-                log('Python runtime loaded successfully', 'success');
-                
-            } catch (error) {
-                document.getElementById('python-icon').textContent = '🔴';
-                document.getElementById('python-status').textContent = 'Failed';
-                document.getElementById('python-status').className = 'text-xs text-red-400';
-                log(`Python initialization failed: ${error.message}`, 'error');
-            }
-        }
-        
-        // JavaScript API call
-        async function makeJavaScriptAPICall(url, method, data = null) {
-            log(`JavaScript: Making ${method} request to ${url}`, 'info');
-            const startTime = performance.now();
-            
-            try {
-                const options = {
-                    method: method,
-                    headers: {
-                        'Content-Type': 'application/json',
-                    }
-                };
-                
-                if (data && (method === 'POST' || method === 'PUT')) {
-                    options.body = JSON.stringify(data);
-                }
-                
-                const response = await fetch(url, options);
-                const responseData = await response.json();
-                const endTime = performance.now();
-                
-                return {
-                    success: true,
-                    status: response.status,
-                    data: responseData,
-                    time: Math.round(endTime - startTime),
-                    size: JSON.stringify(responseData).length
-                };
-                
-            } catch (error) {
-                const endTime = performance.now();
-                return {
-                    success: false,
-                    error: error.message,
-                    time: Math.round(endTime - startTime)
-                };
-            }
-        }
-        
-        // Python API call
-        async function makePythonAPICall(url, method, data = null) {
-            if (!pyodide) {
-                throw new Error('Python runtime not available');
-            }
-            
-            log(`Python: Making ${method} request to ${url}`, 'info');
-            
-            const pythonCode = `
-import json
-import js
-from pyodide.http import pyfetch
+    document.addEventListener('DOMContentLoaded', () => {
 
-async def make_request():
-    try:
-        response = await pyfetch("${url}", method="${method}")
-        if response.ok:
-            data = await response.json()
-            return {
-                "success": True,
-                "status": response.status,
-                "data": data,
-                "headers": dict(response.headers)
+        /**************************************************************
+         * CLASSE PRINCIPALE: Le "Système d'Exploitation" de l'application
+         **************************************************************/
+        class UniversalHTMLOS {
+            constructor() {
+                this.ui = new UIManager();
+                this.backend = new OptimizedHTMLBackend();
+                this.init();
             }
-        else:
-            return {
-                "success": False,
-                "status": response.status,
-                "error": f"HTTP {response.status}"
-            }
-    except Exception as e:
-        return {
-            "success": False,
-            "error": str(e)
-        }
 
-result = await make_request()
-result
-            `;
-            
-            try {
-                const result = await pyodide.runPythonAsync(pythonCode);
-                return result.toJs({dict_converter : Object.fromEntries});
-            } catch (error) {
-                return {
-                    success: false,
-                    error: error.message
-                };
+            init() {
+                console.log("🚀 Système d'Exploitation HTML Initialisé.");
+                this.ui.bindEventListeners(this);
+                this.backend.db.init().then(() => console.log("🗄️ Base de données (IndexedDB) prête."));
             }
-        }
-        
-        // Service Worker API call
-        async function makeServiceWorkerAPICall(url, method, data = null) {
-            log(`Service Worker: Making ${method} request to ${url}`, 'info');
-            
-            // Register a temporary service worker for API calls
-            if ('serviceWorker' in navigator) {
+
+            // Démos
+            async testExternalAPI(url) {
+                this.ui.updateApiResult("⏳ Appel en cours...", "status");
                 try {
-                    // Create a simple proxy service worker
-                    const swCode = `
-                        self.addEventListener('message', async (event) => {
-                            if (event.data.type === 'API_CALL') {
-                                try {
-                                    const response = await fetch(event.data.url, event.data.options);
-                                    const data = await response.json();
-                                    
-                                    event.ports[0].postMessage({
-                                        success: true,
-                                        status: response.status,
-                                        data: data
-                                    });
-                                } catch (error) {
-                                    event.ports[0].postMessage({
-                                        success: false,
-                                        error: error.message
-                                    });
-                                }
-                            }
-                        });
-                    `;
+                    const data = await this.backend.api.callExternalAPI(url);
+                    this.ui.updateApiResult(JSON.stringify(data, null, 2), "success");
+                } catch (error) {
+                    console.error("API Call Error:", error);
+                    const errorMessage = `❌ Erreur: ${error.message}.
+                    \n\nNOTE: Cette erreur est NORMALE si vous exécutez ce fichier localement.
+                    \nDéployez-le sur Netlify/Vercel avec une Edge Function pour que cela fonctionne.`;
+                    this.ui.updateApiResult(errorMessage, "error");
+                }
+            }
+            
+            async testHighPerformanceCalc() {
+                this.ui.updatePerfCalcResult("⏳ Calcul en cours sur tous les cœurs CPU...", "status");
+                const data = Array.from({ length: 1_000_000 }, () => Math.random() * 100);
+                
+                try {
+                    const startTime = performance.now();
+                    const result = await this.backend.compute.processLargeDataset(data);
+                    const endTime = performance.now();
                     
-                    const blob = new Blob([swCode], { type: 'application/javascript' });
-                    const swUrl = URL.createObjectURL(blob);
-                    
-                    const registration = await navigator.serviceWorker.register(swUrl);
-                    await new Promise(resolve => {
-                        if (registration.active) {
-                            resolve();
-                        } else {
-                            registration.addEventListener('statechange', () => {
-                                if (registration.active) resolve();
-                            });
+                    const output = `✅ Calcul parallèle terminé en ${((endTime - startTime) / 1000).toFixed(2)} secondes.
+                    \n- Points de données: ${data.length.toLocaleString('fr-FR')}
+                    \n- Moyenne calculée: ${result.mean.toFixed(4)}
+                    \n- Écart type: ${result.stdDev.toFixed(4)}`;
+                    this.ui.updatePerfCalcResult(output, "success");
+
+                } catch (error) {
+                    console.error("High Perf Calc Error:", error);
+                    this.ui.updatePerfCalcResult(`❌ Erreur: ${error.message}`, "error");
+                }
+            }
+
+            async testDatabaseSave(productName) {
+                if (!productName) {
+                    this.ui.updateDbResult("❌ Nom du produit requis.", "error");
+                    return;
+                }
+                const product = { id: Date.now(), name: productName, price: Math.floor(Math.random() * 100) + 10 };
+                try {
+                    await this.backend.db.addItem('cart', product);
+                    this.ui.updateDbResult(`✅ Produit "${productName}" ajouté au panier.`, "success");
+                } catch(error) {
+                    this.ui.updateDbResult(`❌ Erreur DB: ${error.message}`, "error");
+                }
+            }
+
+            async testDatabaseView() {
+                try {
+                    const cart = await this.backend.db.getAllItems('cart');
+                    if (cart.length === 0) {
+                        this.ui.updateDbResult("🛒 Le panier est vide.", "status");
+                    } else {
+                        this.ui.updateDbResult(JSON.stringify(cart, null, 2), "success");
+                    }
+                } catch(error) {
+                    this.ui.updateDbResult(`❌ Erreur DB: ${error.message}`, "error");
+                }
+            }
+
+            async testCryptoHash(message) {
+                if (!message) {
+                    this.ui.updateCryptoResult("❌ Message requis.", "error");
+                    return;
+                }
+                try {
+                    const hash = await this.backend.auth.hashData(message);
+                    const output = `Message original: "${message}"\n\n✅ Hash SHA-256 (natif): \n${hash}`;
+                    this.ui.updateCryptoResult(output, "success");
+                } catch (error) {
+                    this.ui.updateCryptoResult(`❌ Erreur Crypto: ${error.message}`, "error");
+                }
+            }
+        }
+
+        /**************************************************************
+         * COUCHE 4: MOTEUR HAUTE PERFORMANCE & BACKEND OPTIMISÉ
+         **************************************************************/
+        
+        class OptimizedHTMLBackend {
+            constructor() {
+                this.db = new IndexedDBManager('AppDatabase');
+                this.api = new CORSFreeAPI();
+                this.auth = new CryptoAPIAuth();
+                this.compute = new HighPerformanceJS();
+            }
+        }
+        
+        class CORSFreeAPI {
+            constructor() {
+                // Pour la démo, le proxy est à la racine. Adaptez si besoin.
+                this.cdnProxyPrefix = '/api/proxy/'; 
+            }
+
+            async callExternalAPI(targetUrl, options = {}) {
+                // La méthode principale, révolutionnaire : l'appel passe par notre propre domaine,
+                // puis est intercepté et redirigé par la Edge Function du CDN.
+                const proxyUrl = this.cdnProxyPrefix + encodeURIComponent(targetUrl);
+                
+                console.log(`Attempting to fetch via CDN proxy: ${proxyUrl}`);
+                
+                const response = await fetch(proxyUrl, options);
+                if (!response.ok) {
+                    throw new Error(`Erreur réseau via proxy: ${response.status} ${response.statusText}`);
+                }
+                return await response.json();
+            }
+        }
+
+        class HighPerformanceJS {
+            constructor() {
+                // Le code du Worker est défini ici pour garder un fichier unique.
+                const workerCode = `
+                    self.onmessage = function(e) {
+                        const data = e.data;
+                        if (!data || data.length === 0) {
+                            self.postMessage({ mean: 0, stdDev: 0 });
+                            return;
                         }
-                    });
-                    
-                    // Send message to service worker
-                    return new Promise((resolve) => {
-                        const messageChannel = new MessageChannel();
-                        messageChannel.port1.onmessage = (event) => {
-                            resolve(event.data);
-                        };
-                        
-                        registration.active.postMessage({
-                            type: 'API_CALL',
-                            url: url,
-                            options: {
-                                method: method,
-                                headers: { 'Content-Type': 'application/json' },
-                                body: data ? JSON.stringify(data) : undefined
-                            }
-                        }, [messageChannel.port2]);
-                    });
-                    
-                } catch (error) {
-                    return {
-                        success: false,
-                        error: `Service Worker failed: ${error.message}`
+                        const sum = data.reduce((a, b) => a + b, 0);
+                        const mean = sum / data.length;
+                        const sqDiff = data.map(value => Math.pow(value - mean, 2));
+                        const avgSqDiff = sqDiff.reduce((a, b) => a + b, 0) / data.length;
+                        const stdDev = Math.sqrt(avgSqDiff);
+                        self.postMessage({ mean, stdDev });
                     };
-                }
-            } else {
-                return {
-                    success: false,
-                    error: 'Service Workers not supported'
+                `;
+                const blob = new Blob([workerCode], { type: 'application/javascript' });
+                this.worker = new Worker(URL.createObjectURL(blob));
+            }
+
+            processLargeDataset(data) {
+                return new Promise((resolve, reject) => {
+                    this.worker.onmessage = (e) => resolve(e.data);
+                    this.worker.onerror = (e) => reject(e);
+                    this.worker.postMessage(data);
+                });
+            }
+        }
+        
+        class IndexedDBManager {
+            constructor(dbName) {
+                this.dbName = dbName;
+                this.db = null;
+            }
+
+            async init() {
+                return new Promise((resolve, reject) => {
+                    const request = indexedDB.open(this.dbName, 1);
+                    request.onerror = (event) => reject("Erreur d'initialisation IndexedDB");
+                    request.onsuccess = (event) => {
+                        this.db = event.target.result;
+                        resolve();
+                    };
+                    request.onupgradeneeded = (event) => {
+                        let db = event.target.result;
+                        if (!db.objectStoreNames.contains('cart')) {
+                            db.createObjectStore('cart', { keyPath: 'id' });
+                        }
+                    };
+                });
+            }
+
+            async addItem(storeName, item) {
+                return new Promise((resolve, reject) => {
+                    const transaction = this.db.transaction([storeName], 'readwrite');
+                    const store = transaction.objectStore(storeName);
+                    const request = store.add(item);
+                    request.onsuccess = () => resolve();
+                    request.onerror = (event) => reject(event.target.error);
+                });
+            }
+
+            async getAllItems(storeName) {
+                return new Promise((resolve, reject) => {
+                    const transaction = this.db.transaction([storeName], 'readonly');
+                    const store = transaction.objectStore(storeName);
+                    const request = store.getAll();
+                    request.onsuccess = () => resolve(request.result);
+                    request.onerror = (event) => reject(event.target.error);
+                });
+            }
+        }
+        
+        class CryptoAPIAuth {
+            async hashData(data) {
+                const encoder = new TextEncoder();
+                const dataBuffer = encoder.encode(data);
+                const hashBuffer = await crypto.subtle.digest('SHA-256', dataBuffer);
+                const hashArray = Array.from(new Uint8Array(hashBuffer));
+                return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+            }
+        }
+
+        /**************************************************************
+         * COUCHE D'INTERFACE UTILISATEUR
+         **************************************************************/
+        class UIManager {
+            constructor() {
+                // Cache des éléments du DOM
+                this.elements = {
+                    callApiBtn: document.getElementById('callApiBtn'),
+                    apiUrl: document.getElementById('apiUrl'),
+                    apiResult: document.getElementById('apiResult'),
+                    runPerfCalcBtn: document.getElementById('runPerfCalcBtn'),
+                    perfCalcResult: document.getElementById('perfCalcResult'),
+                    saveProductBtn: document.getElementById('saveProductBtn'),
+                    productName: document.getElementById('productName'),
+                    viewCartBtn: document.getElementById('viewCartBtn'),
+                    dbResult: document.getElementById('dbResult'),
+                    hashMessageBtn: document.getElementById('hashMessageBtn'),
+                    secureMessage: document.getElementById('secureMessage'),
+                    cryptoResult: document.getElementById('cryptoResult'),
                 };
             }
+            
+            // Centralisation des événements
+            bindEventListeners(app) {
+                this.elements.callApiBtn.addEventListener('click', () => {
+                    app.testExternalAPI(this.elements.apiUrl.value);
+                });
+                this.elements.runPerfCalcBtn.addEventListener('click', () => {
+                    app.testHighPerformanceCalc();
+                });
+                this.elements.saveProductBtn.addEventListener('click', () => {
+                    app.testDatabaseSave(this.elements.productName.value);
+                    this.elements.productName.value = '';
+                });
+                this.elements.viewCartBtn.addEventListener('click', () => {
+                    app.testDatabaseView();
+                });
+                this.elements.hashMessageBtn.addEventListener('click', () => {
+                    app.testCryptoHash(this.elements.secureMessage.value);
+                });
+            }
+
+            // Méthodes pour mettre à jour l'UI
+            _updateResult(element, text, type) {
+                element.textContent = text;
+                element.className = type;
+            }
+            updateApiResult(text, type) { this._updateResult(this.elements.apiResult, text, type); }
+            updatePerfCalcResult(text, type) { this._updateResult(this.elements.perfCalcResult, text, type); }
+            updateDbResult(text, type) { this._updateResult(this.elements.dbResult, text, type); }
+            updateCryptoResult(text, type) { this._updateResult(this.elements.cryptoResult, text, type); }
         }
         
-        // Main API test function
-        async function testAPICall() {
-            const endpoint = document.getElementById('api-endpoint').value;
-            const customUrl = document.getElementById('custom-url').value;
-            const method = document.getElementById('http-method').value;
-            const runtime = document.getElementById('runtime-select').value;
-            const postData = document.getElementById('post-json').value;
-            
-            // Determine URL
-            let url;
-            if (endpoint === 'custom') {
-                url = customUrl;
-                if (!url) {
-                    alert('Please enter a custom URL');
-                    return;
-                }
-            } else {
-                url = apiEndpoints[endpoint];
-            }
-            
-            // Parse POST data
-            let data = null;
-            if ((method === 'POST' || method === 'PUT') && postData) {
-                try {
-                    data = JSON.parse(postData);
-                } catch (error) {
-                    alert('Invalid JSON in POST data');
-                    return;
-                }
-            }
-            
-            log(`Starting API test: ${runtime} -> ${method} ${url}`, 'info');
-            
-            // Clear previous results
-            document.getElementById('api-response').textContent = 'Making API call...';
-            document.getElementById('status-code').textContent = '--';
-            document.getElementById('response-time').textContent = '--ms';
-            document.getElementById('data-size').textContent = '--';
-            
-            try {
-                let result;
-                
-                switch (runtime) {
-                    case 'javascript':
-                        result = await makeJavaScriptAPICall(url, method, data);
-                        break;
-                    case 'python':
-                        result = await makePythonAPICall(url, method, data);
-                        break;
-                    case 'service-worker':
-                        result = await makeServiceWorkerAPICall(url, method, data);
-                        break;
-                    default:
-                        throw new Error('Unknown runtime');
-                }
-                
-                // Display results
-                if (result.success) {
-                    document.getElementById('status-code').textContent = result.status || '200';
-                    document.getElementById('response-time').textContent = result.time ? `${result.time}ms` : '--';
-                    document.getElementById('data-size').textContent = result.size ? `${result.size}B` : '--';
-                    document.getElementById('api-response').textContent = JSON.stringify(result.data, null, 2);
-                    log(`API call successful: ${result.status} in ${result.time}ms`, 'success');
-                } else {
-                    document.getElementById('status-code').textContent = 'ERR';
-                    document.getElementById('api-response').textContent = `Error: ${result.error}`;
-                    log(`API call failed: ${result.error}`, 'error');
-                }
-                
-            } catch (error) {
-                document.getElementById('status-code').textContent = 'ERR';
-                document.getElementById('api-response').textContent = `Exception: ${error.message}`;
-                log(`API call exception: ${error.message}`, 'error');
-            }
-        }
-        
-        // Batch testing function
-        async function runBatchTest() {
-            log('Starting batch API tests...', 'info');
-            
-            const testCases = [
-                { runtime: 'javascript', endpoint: 'jsonplaceholder', method: 'GET' },
-                { runtime: 'javascript', endpoint: 'httpbin', method: 'GET' },
-                { runtime: 'javascript', endpoint: 'reqres', method: 'GET' }
-            ];
-            
-            if (pyodide) {
-                testCases.push(
-                    { runtime: 'python', endpoint: 'jsonplaceholder', method: 'GET' },
-                    { runtime: 'python', endpoint: 'httpbin', method: 'GET' }
-                );
-            }
-            
-            const results = [];
-            
-            for (const testCase of testCases) {
-                log(`Batch test: ${testCase.runtime} -> ${testCase.endpoint}`, 'debug');
-                
-                try {
-                    let result;
-                    const url = apiEndpoints[testCase.endpoint];
-                    
-                    switch (testCase.runtime) {
-                        case 'javascript':
-                            result = await makeJavaScriptAPICall(url, testCase.method);
-                            break;
-                        case 'python':
-                            result = await makePythonAPICall(url, testCase.method);
-                            break;
-                    }
-                    
-                    results.push({
-                        ...testCase,
-                        success: result.success,
-                        status: result.status,
-                        time: result.time,
-                        error: result.error
-                    });
-                    
-                } catch (error) {
-                    results.push({
-                        ...testCase,
-                        success: false,
-                        error: error.message
-                    });
-                }
-                
-                // Small delay between requests
-                await new Promise(resolve => setTimeout(resolve, 500));
-            }
-            
-            // Display batch results
-            const batchDisplay = document.getElementById('batch-results');
-            batchDisplay.textContent = '';
-            
-            results.forEach((result, index) => {
-                const status = result.success ? '✅' : '❌';
-                const line = `${status} ${result.runtime.toUpperCase()} -> ${result.endpoint} (${result.method}): ${result.success ? `${result.status} in ${result.time}ms` : result.error}\n`;
-                batchDisplay.textContent += line;
-            });
-            
-            const successCount = results.filter(r => r.success).length;
-            batchDisplay.textContent += `\nSummary: ${successCount}/${results.length} tests successful`;
-            
-            log(`Batch tests completed: ${successCount}/${results.length} successful`, 'success');
-        }
-        
-        // Event listeners
-        document.getElementById('api-endpoint').addEventListener('change', function() {
-            const customInput = document.getElementById('custom-url-input');
-            if (this.value === 'custom') {
-                customInput.classList.remove('hidden');
-            } else {
-                customInput.classList.add('hidden');
-            }
-        });
-        
-        document.getElementById('http-method').addEventListener('change', function() {
-            const postDataDiv = document.getElementById('post-data');
-            if (this.value === 'POST' || this.value === 'PUT') {
-                postDataDiv.classList.remove('hidden');
-            } else {
-                postDataDiv.classList.add('hidden');
-            }
-        });
-        
-        // Initialize
-        document.addEventListener('DOMContentLoaded', () => {
-            log('Multi-Language API Test System initialized', 'success');
-            initPython();
-        });
+        // Point d'entrée de l'application
+        new UniversalHTMLOS();
+
+    });
     </script>
 </body>
 </html>

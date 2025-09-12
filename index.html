@@ -3,552 +3,279 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CORS-Free HTML System - Universal API Access</title>
-    
+    <title>VALIDATEUR CORS - Test des Méthodes de Contournement</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    
     <style>
-        .terminal {
-            background: #0f172a;
-            font-family: 'Courier New', monospace;
-            font-size: 14px;
-            line-height: 1.4;
-        }
-        
-        .success { color: #10b981; }
-        .error { color: #ef4444; }
-        .info { color: #3b82f6; }
-        .warning { color: #f59e0b; }
-        
+        body { scroll-behavior: smooth; }
+        .terminal { background: #0f172a; font-family: 'SF Mono', 'Courier New', monospace; font-size: 14px; line-height: 1.6; }
+        .success { color: #22c55e; } .error { color: #ef4444; } .info { color: #3b82f6; } .warning { color: #f59e0b; } .grey { color: #9ca3af; }
         .pulse { animation: pulse 2s infinite; }
-        
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.7; }
-        }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
+        .test-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1rem; }
     </style>
 </head>
 
-<body class="bg-slate-900 text-white min-h-screen">
-    <div id="app" class="container mx-auto p-6">
-        <!-- Header -->
-        <header class="bg-slate-800 rounded-lg p-6 mb-6">
-            <h1 class="text-3xl font-bold mb-2">🔥 CORS-Free HTML System</h1>
-            <p class="text-slate-300">Multiple methods to bypass CORS completely - No restrictions, no limitations</p>
-            <div class="mt-4 grid grid-cols-2 md:grid-cols-4 gap-2 text-sm">
-                <span class="px-3 py-1 bg-green-600 rounded">Method 1: Proxy Server</span>
-                <span class="px-3 py-1 bg-blue-600 rounded">Method 2: JSONP</span>
-                <span class="px-3 py-1 bg-purple-600 rounded">Method 3: WebSocket</span>
-                <span class="px-3 py-1 bg-orange-600 rounded">Method 4: PostMessage</span>
-            </div>
+<body class="bg-slate-900 text-slate-200 min-h-screen">
+    <div id="app" class="container mx-auto p-4 md:p-6">
+        
+        <header class="bg-slate-800/50 backdrop-blur rounded-lg p-6 mb-6 border border-slate-700">
+            <h1 class="text-3xl font-bold mb-2 text-sky-400">🔥 Validateur de Méthodes CORS</h1>
+            <p class="text-slate-400">Tester et valider les techniques de contournement CORS côté client dans un fichier HTML unique.</p>
         </header>
 
-        <!-- Method Selection -->
-        <div class="bg-slate-800 rounded-lg p-6 mb-6">
-            <h2 class="text-xl font-bold mb-4">🎯 Select Bypass Method</h2>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <select id="bypass-method" class="bg-slate-700 border border-slate-600 rounded px-3 py-2">
-                    <option value="embedded-proxy">Embedded Proxy Server</option>
-                    <option value="jsonp">JSONP Callback</option>
-                    <option value="websocket">WebSocket Bridge</option>
-                    <option value="postmessage">PostMessage Tunnel</option>
-                    <option value="data-uri">Data URI Injection</option>
-                    <option value="worker-proxy">Web Worker Proxy</option>
-                </select>
-                
-                <button onclick="initializeMethod()" class="bg-green-600 hover:bg-green-700 px-6 py-2 rounded font-bold">
-                    🚀 Initialize Method
+        <div class="bg-slate-800 rounded-lg p-6 mb-6 border border-slate-700">
+            <h2 class="text-xl font-bold mb-4 text-emerald-400">🧪 Tests Automatiques</h2>
+            <p class="text-slate-400 mb-4">Cliquez pour tester automatiquement chaque méthode contre des endpoints connus et voir ce qui fonctionne réellement.</p>
+            <div class="flex flex-col sm:flex-row gap-4">
+                <button onclick="runAutomatedTests()" class="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-700 px-6 py-3 rounded-lg font-bold transition-transform transform hover:scale-105">
+                    🚀 Lancer les Tests Automatiques
+                </button>
+                <button onclick="copyLogs()" class="w-full sm:w-auto bg-slate-600 hover:bg-slate-700 px-6 py-3 rounded-lg font-bold transition-transform">
+                    📋 Copier les Logs
                 </button>
             </div>
         </div>
 
-        <!-- Test Interface -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-            <!-- Input -->
-            <div class="bg-slate-800 rounded-lg p-6">
-                <h3 class="text-lg font-bold mb-4">📡 API Test</h3>
-                
+            <div class="bg-slate-800 rounded-lg p-6 border border-slate-700">
+                <h3 class="text-lg font-bold mb-4 text-sky-400">📡 Test Manuel</h3>
                 <div class="space-y-4">
                     <div>
-                        <label class="block text-sm mb-2">Target URL:</label>
-                        <input type="url" id="target-url" 
-                               class="w-full bg-slate-700 border border-slate-600 rounded px-3 py-2"
-                               value="https://api.groq.com/openai/v1/chat/completions"
-                               placeholder="https://api.example.com/endpoint">
-                    </div>
-                    
-                    <div>
-                        <label class="block text-sm mb-2">Method:</label>
-                        <select id="http-method" class="w-full bg-slate-700 border border-slate-600 rounded px-3 py-2">
-                            <option value="GET">GET</option>
-                            <option value="POST">POST</option>
-                            <option value="PUT">PUT</option>
-                            <option value="DELETE">DELETE</option>
+                        <label class="block text-sm mb-2 text-slate-400">Méthode de contournement :</label>
+                        <select id="bypass-method" class="w-full bg-slate-700 border border-slate-600 rounded px-3 py-2">
+                            <option value="worker-proxy">✅ Web Worker Proxy (La plus viable)</option>
+                            <option value="jsonp">⚠️ JSONP (Conditionnel / Legacy)</option>
+                            <option value="websocket">❌ WebSocket Bridge (Non applicable)</option>
+                            <option value="postmessage">❌ PostMessage Tunnel (Non fonctionnel)</option>
+                            <option value="data-uri">❌ Data URI Injection (Non fonctionnel)</option>
                         </select>
                     </div>
-                    
                     <div>
-                        <label class="block text-sm mb-2">Headers (JSON):</label>
-                        <textarea id="headers-input" 
-                                  class="w-full bg-slate-700 border border-slate-600 rounded px-3 py-2 h-20 text-sm"
-                                  placeholder='{"Authorization": "Bearer token", "Content-Type": "application/json"}'></textarea>
+                        <label class="block text-sm mb-2 text-slate-400">URL Cible :</label>
+                        <input type="url" id="target-url" class="w-full bg-slate-700 border border-slate-600 rounded px-3 py-2" value="https://jsonplaceholder.typicode.com/posts/1">
                     </div>
-                    
                     <div>
-                        <label class="block text-sm mb-2">Body (JSON):</label>
-                        <textarea id="body-input" 
-                                  class="w-full bg-slate-700 border border-slate-600 rounded px-3 py-2 h-20 text-sm"
-                                  placeholder='{"key": "value"}'></textarea>
+                        <label class="block text-sm mb-2 text-slate-400">Méthode HTTP :</label>
+                        <select id="http-method" class="w-full bg-slate-700 border border-slate-600 rounded px-3 py-2">
+                            <option value="GET">GET</option><option value="POST">POST</option><option value="PUT">PUT</option><option value="DELETE">DELETE</option>
+                        </select>
                     </div>
-                    
-                    <button onclick="executeRequest()" 
-                            class="w-full bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded font-bold">
-                        🌐 Execute CORS-Free Request
+                    <div>
+                        <label class="block text-sm mb-2 text-slate-400">Headers (JSON) :</label>
+                        <textarea id="headers-input" class="w-full bg-slate-700 border border-slate-600 rounded px-3 py-2 h-20 text-sm font-mono" placeholder='{ "Content-Type": "application/json" }'></textarea>
+                    </div>
+                    <div>
+                        <label class="block text-sm mb-2 text-slate-400">Body (JSON) :</label>
+                        <textarea id="body-input" class="w-full bg-slate-700 border border-slate-600 rounded px-3 py-2 h-20 text-sm font-mono" placeholder='{ "title": "test", "body": "...", "userId": 1 }'></textarea>
+                    </div>
+                    <button onclick="executeManualRequest()" class="w-full bg-blue-600 hover:bg-blue-700 px-4 py-3 rounded-lg font-bold transition-transform transform hover:scale-105">
+                        🌐 Exécuter la Requête Manuelle
                     </button>
                 </div>
             </div>
-
-            <!-- Output -->
-            <div class="bg-slate-800 rounded-lg p-6">
-                <h3 class="text-lg font-bold mb-4">📊 Response</h3>
-                <div id="response-output" class="terminal p-4 rounded h-80 overflow-y-auto">
-                    <div class="info">🔥 CORS-Free System Ready</div>
-                    <div class="success">✅ All bypass methods loaded</div>
-                    <div class="warning">⚡ Select method and test API call</div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Status Dashboard -->
-        <div class="bg-slate-800 rounded-lg p-6">
-            <h3 class="text-lg font-bold mb-4">📈 System Status</h3>
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div class="text-center">
-                    <div id="requests-count" class="text-2xl font-bold text-green-400">0</div>
-                    <div class="text-sm text-slate-400">Requests Made</div>
-                </div>
-                <div class="text-center">
-                    <div id="success-rate" class="text-2xl font-bold text-blue-400">100%</div>
-                    <div class="text-sm text-slate-400">Success Rate</div>
-                </div>
-                <div class="text-center">
-                    <div id="avg-time" class="text-2xl font-bold text-purple-400">0ms</div>
-                    <div class="text-sm text-slate-400">Avg Response</div>
-                </div>
-                <div class="text-center">
-                    <div id="active-method" class="text-2xl font-bold text-orange-400">None</div>
-                    <div class="text-sm text-slate-400">Active Method</div>
-                </div>
+            <div class="bg-slate-800 rounded-lg p-6 border border-slate-700">
+                <h3 class="text-lg font-bold mb-4 text-amber-400">📊 Terminal de Logs</h3>
+                <div id="response-output" class="terminal p-4 rounded-lg h-[450px] overflow-y-auto bg-slate-900"></div>
             </div>
         </div>
     </div>
 
-    <script>
-        // 🔥 CORS-FREE SYSTEM IMPLEMENTATION
-        
-        let currentMethod = null;
-        let requestCount = 0;
-        let successCount = 0;
-        let responseTimes = [];
-        
-        // 📊 LOGGING SYSTEM
-        function log(message, type = 'info') {
-            const output = document.getElementById('response-output');
-            const timestamp = new Date().toLocaleTimeString();
-            const colorClass = type;
-            
-            const logLine = document.createElement('div');
-            logLine.className = colorClass;
-            logLine.textContent = `[${timestamp}] ${message}`;
-            
-            output.appendChild(logLine);
-            output.scrollTop = output.scrollHeight;
-        }
-        
-        // 🚀 METHOD 1: EMBEDDED PROXY SERVER
-        class EmbeddedProxyServer {
-            constructor() {
-                this.worker = null;
-                this.initWorker();
-            }
-            
-            initWorker() {
-                // Create inline web worker that acts as proxy
-                const workerCode = `
-                    self.onmessage = function(e) {
-                        const { id, url, options } = e.data;
-                        
-                        // Use fetch from worker context (different CORS rules)
-                        fetch(url, options)
-                            .then(response => response.text())
-                            .then(data => {
-                                self.postMessage({
-                                    id: id,
-                                    success: true,
-                                    data: data
-                                });
-                            })
-                            .catch(error => {
-                                self.postMessage({
-                                    id: id,
-                                    success: false,
-                                    error: error.message
-                                });
-                            });
-                    };
-                `;
-                
-                const blob = new Blob([workerCode], { type: 'application/javascript' });
-                this.worker = new Worker(URL.createObjectURL(blob));
-            }
-            
-            async request(url, options) {
-                return new Promise((resolve, reject) => {
-                    const id = Math.random().toString(36);
-                    
-                    const timeout = setTimeout(() => {
-                        reject(new Error('Request timeout'));
-                    }, 30000);
-                    
-                    this.worker.onmessage = (e) => {
-                        if (e.data.id === id) {
-                            clearTimeout(timeout);
-                            if (e.data.success) {
-                                resolve(e.data.data);
-                            } else {
-                                reject(new Error(e.data.error));
-                            }
-                        }
-                    };
-                    
-                    this.worker.postMessage({ id, url, options });
-                });
-            }
-        }
-        
-        // 🌐 METHOD 2: JSONP BYPASS
-        class JSONPBypass {
-            constructor() {
-                this.callbackCount = 0;
-            }
-            
-            async request(url, options) {
-                return new Promise((resolve, reject) => {
-                    const callbackName = `jsonp_callback_${this.callbackCount++}`;
-                    
-                    // Create JSONP callback
-                    window[callbackName] = function(data) {
-                        resolve(JSON.stringify(data));
-                        delete window[callbackName];
-                        document.head.removeChild(script);
-                    };
-                    
-                    // Modify URL for JSONP
-                    const separator = url.includes('?') ? '&' : '?';
-                    const jsonpUrl = `${url}${separator}callback=${callbackName}`;
-                    
-                    // Create script tag
-                    const script = document.createElement('script');
-                    script.src = jsonpUrl;
-                    script.onerror = () => {
-                        reject(new Error('JSONP request failed'));
-                        delete window[callbackName];
-                    };
-                    
-                    document.head.appendChild(script);
-                    
-                    // Timeout after 30 seconds
-                    setTimeout(() => {
-                        if (window[callbackName]) {
-                            reject(new Error('JSONP timeout'));
-                            delete window[callbackName];
-                            document.head.removeChild(script);
-                        }
-                    }, 30000);
-                });
-            }
-        }
-        
-        // 🔌 METHOD 3: WEBSOCKET BRIDGE
-        class WebSocketBridge {
-            constructor() {
-                this.ws = null;
-                this.pendingRequests = new Map();
-                this.initWebSocket();
-            }
-            
-            initWebSocket() {
-                // This would connect to your own WebSocket proxy server
-                // For demo, we simulate the functionality
-                log('WebSocket bridge initialized (simulated)', 'info');
-            }
-            
-            async request(url, options) {
-                return new Promise((resolve, reject) => {
-                    const id = Math.random().toString(36);
-                    
-                    // Simulate WebSocket proxy request
-                    setTimeout(() => {
-                        const mockResponse = {
-                            status: 200,
-                            data: `WebSocket proxied response for ${url}`,
-                            headers: {},
-                            timestamp: new Date().toISOString()
-                        };
-                        resolve(JSON.stringify(mockResponse));
-                    }, 200 + Math.random() * 300);
-                });
-            }
-        }
-        
-        // 📬 METHOD 4: POSTMESSAGE TUNNEL
-        class PostMessageTunnel {
-            constructor() {
-                this.iframe = null;
-                this.initIframe();
-            }
-            
-            initIframe() {
-                // Create hidden iframe for cross-origin communication
-                this.iframe = document.createElement('iframe');
-                this.iframe.style.display = 'none';
-                
-                // Set to a domain you control or use data URI
-                const iframeContent = `
-                    <html>
-                    <body>
-                    <script>
-                        window.addEventListener('message', function(e) {
-                            // Proxy the request
-                            fetch(e.data.url, e.data.options)
-                                .then(response => response.text())
-                                .then(data => {
-                                    e.source.postMessage({
-                                        id: e.data.id,
-                                        success: true,
-                                        data: data
-                                    }, '*');
-                                })
-                                .catch(error => {
-                                    e.source.postMessage({
-                                        id: e.data.id,
-                                        success: false,
-                                        error: error.message
-                                    }, '*');
-                                });
-                        });
-                    </script>
-                    </body>
-                    </html>
-                `;
-                
-                this.iframe.src = 'data:text/html;base64,' + btoa(iframeContent);
-                document.body.appendChild(this.iframe);
-            }
-            
-            async request(url, options) {
-                return new Promise((resolve, reject) => {
-                    const id = Math.random().toString(36);
-                    
-                    const handleMessage = (e) => {
-                        if (e.data.id === id) {
-                            window.removeEventListener('message', handleMessage);
-                            if (e.data.success) {
-                                resolve(e.data.data);
-                            } else {
-                                reject(new Error(e.data.error));
-                            }
-                        }
-                    };
-                    
-                    window.addEventListener('message', handleMessage);
-                    
-                    this.iframe.contentWindow.postMessage({
-                        id: id,
-                        url: url,
-                        options: options
-                    }, '*');
-                    
-                    // Timeout
-                    setTimeout(() => {
-                        window.removeEventListener('message', handleMessage);
-                        reject(new Error('PostMessage timeout'));
-                    }, 30000);
-                });
-            }
-        }
-        
-        // 📄 METHOD 5: DATA URI INJECTION
-        class DataURIInjection {
-            async request(url, options) {
-                return new Promise((resolve, reject) => {
-                    // Create a data URI that makes the request
-                    const requestCode = `
-                        fetch('${url}', ${JSON.stringify(options)})
-                            .then(response => response.text())
-                            .then(data => {
-                                parent.postMessage({
-                                    type: 'data-uri-response',
-                                    data: data,
-                                    success: true
-                                }, '*');
-                            })
-                            .catch(error => {
-                                parent.postMessage({
-                                    type: 'data-uri-response',
-                                    error: error.message,
-                                    success: false
-                                }, '*');
-                            });
-                    `;
-                    
-                    const htmlContent = `
-                        <html><body><script>${requestCode}</script></body></html>
-                    `;
-                    
-                    const iframe = document.createElement('iframe');
-                    iframe.style.display = 'none';
-                    iframe.src = 'data:text/html;base64,' + btoa(htmlContent);
-                    
-                    const handleMessage = (e) => {
-                        if (e.data.type === 'data-uri-response') {
-                            window.removeEventListener('message', handleMessage);
-                            document.body.removeChild(iframe);
-                            
-                            if (e.data.success) {
-                                resolve(e.data.data);
-                            } else {
-                                reject(new Error(e.data.error));
-                            }
-                        }
-                    };
-                    
-                    window.addEventListener('message', handleMessage);
-                    document.body.appendChild(iframe);
-                    
-                    // Timeout
-                    setTimeout(() => {
-                        window.removeEventListener('message', handleMessage);
-                        document.body.removeChild(iframe);
-                        reject(new Error('Data URI timeout'));
-                    }, 30000);
-                });
-            }
-        }
-        
-        // 🔧 METHOD MANAGER
-        const methods = {
-            'embedded-proxy': new EmbeddedProxyServer(),
-            'jsonp': new JSONPBypass(),
-            'websocket': new WebSocketBridge(),
-            'postmessage': new PostMessageTunnel(),
-            'data-uri': new DataURIInjection(),
-            'worker-proxy': new EmbeddedProxyServer() // Alias
-        };
-        
-        // 🚀 INTERFACE FUNCTIONS
-        function initializeMethod() {
-            const selectedMethod = document.getElementById('bypass-method').value;
-            currentMethod = methods[selectedMethod];
-            
-            document.getElementById('active-method').textContent = selectedMethod.toUpperCase();
-            log(`Method initialized: ${selectedMethod}`, 'success');
-            log('Ready to bypass CORS restrictions!', 'info');
-        }
-        
-        async function executeRequest() {
-            if (!currentMethod) {
-                log('Please initialize a method first', 'error');
-                return;
-            }
-            
-            const url = document.getElementById('target-url').value;
-            const method = document.getElementById('http-method').value;
-            const headersText = document.getElementById('headers-input').value;
-            const bodyText = document.getElementById('body-input').value;
-            
-            if (!url) {
-                log('Please enter a target URL', 'error');
-                return;
-            }
-            
-            // Parse headers and body
-            let headers = {};
-            let body = null;
-            
-            try {
-                if (headersText.trim()) {
-                    headers = JSON.parse(headersText);
-                }
-                if (bodyText.trim() && (method === 'POST' || method === 'PUT')) {
-                    body = bodyText;
-                }
-            } catch (e) {
-                log('Invalid JSON in headers or body', 'error');
-                return;
-            }
-            
-            const options = {
-                method: method,
-                headers: headers,
-                body: body
-            };
-            
-            log(`🚀 Executing ${method} request to: ${url}`, 'info');
-            const startTime = performance.now();
-            
-            try {
-                const response = await currentMethod.request(url, options);
-                const responseTime = Math.round(performance.now() - startTime);
-                
-                requestCount++;
-                successCount++;
-                responseTimes.push(responseTime);
-                
-                updateStats();
-                
-                log(`✅ Request successful in ${responseTime}ms`, 'success');
-                log('📦 Response:', 'info');
-                
-                // Try to format JSON response
+<script>
+// ===================================================================================
+// 🔥 SYSTÈME DE VALIDATION CORS - IMPLEMENTATION CORRIGÉE
+// ===================================================================================
+
+const logOutput = document.getElementById('response-output');
+
+// --- SYSTÈME DE LOGGING AMÉLIORÉ ---
+function log(message, type = 'info') {
+    const timestamp = new Date().toLocaleTimeString();
+    const colorClass = { info: 'text-sky-400', success: 'text-emerald-400', error: 'text-red-500', warning: 'text-amber-400', grey: 'text-slate-500' }[type];
+    logOutput.innerHTML += `<div class="${colorClass}"><span class="text-slate-600">[${timestamp}]</span> ${message.replace(/</g, "&lt;").replace(/>/g, "&gt;")}</div>`;
+    logOutput.scrollTop = logOutput.scrollHeight;
+}
+
+function clearLogs() {
+    logOutput.innerHTML = '';
+}
+
+function copyLogs() {
+    navigator.clipboard.writeText(logOutput.innerText).then(() => {
+        log('✅ Logs copiés dans le presse-papiers !', 'success');
+    }, () => {
+        log('❌ Erreur lors de la copie des logs.', 'error');
+    });
+}
+
+// ===================================================================================
+// 🚀 MÉTHODE 1: WEB WORKER PROXY (La plus viable)
+// EXPLICATION : Le `fetch` depuis un Worker n'est pas lié à l'origine de la page principale de la même manière.
+// Il peut effectuer des requêtes "simples" (GET, HEAD, POST sans headers complexes) sans preflight CORS.
+// Il sera cependant BLOQUÉ pour les requêtes "complexes" qui nécessitent un preflight (ex: PUT, DELETE, ou POST avec Content-Type: application/json).
+// ===================================================================================
+class WebWorkerProxy {
+    constructor() {
+        const workerCode = `
+            self.onmessage = async (e) => {
+                const { id, url, options } = e.data;
                 try {
-                    const jsonResponse = JSON.parse(response);
-                    log(JSON.stringify(jsonResponse, null, 2), 'success');
-                } catch (e) {
-                    // If not JSON, show first 500 chars
-                    const preview = response.substring(0, 500);
-                    log(preview + (response.length > 500 ? '...' : ''), 'success');
+                    const response = await fetch(url, options);
+                    const responseData = await response.text();
+                    self.postMessage({ id, success: true, status: response.status, statusText: response.statusText, data: responseData });
+                } catch (error) {
+                    self.postMessage({ id, success: false, error: error.message });
                 }
-                
-            } catch (error) {
-                requestCount++;
-                updateStats();
-                
-                log(`❌ Request failed: ${error.message}`, 'error');
-            }
-        }
-        
-        function updateStats() {
-            document.getElementById('requests-count').textContent = requestCount;
-            
-            const successRate = requestCount > 0 ? Math.round((successCount / requestCount) * 100) : 100;
-            document.getElementById('success-rate').textContent = successRate + '%';
-            
-            const avgTime = responseTimes.length > 0 
-                ? Math.round(responseTimes.reduce((a, b) => a + b, 0) / responseTimes.length)
-                : 0;
-            document.getElementById('avg-time').textContent = avgTime + 'ms';
-        }
-        
-        // 🌟 INITIALIZATION
-        document.addEventListener('DOMContentLoaded', () => {
-            log('🔥 CORS-Free HTML System loaded', 'success');
-            log('💡 This system bypasses ALL CORS restrictions', 'info');
-            log('🎯 Select a method and start making unrestricted API calls', 'warning');
-            
-            // Initialize default method
-            initializeMethod();
+            };
+        `;
+        const blob = new Blob([workerCode], { type: 'application/javascript' });
+        this.worker = new Worker(URL.createObjectURL(blob));
+    }
+
+    request(url, options) {
+        return new Promise((resolve, reject) => {
+            const id = Math.random().toString(36);
+            const timeout = setTimeout(() => reject(new Error('Timeout de la requête Worker')), 10000);
+
+            const messageHandler = (e) => {
+                if (e.data.id === id) {
+                    clearTimeout(timeout);
+                    this.worker.removeEventListener('message', messageHandler);
+                    if (e.data.success) {
+                        resolve(e.data);
+                    } else {
+                        reject(new Error(e.data.error));
+                    }
+                }
+            };
+            this.worker.addEventListener('message', messageHandler);
+            this.worker.postMessage({ id, url, options });
         });
-    </script>
+    }
+}
+
+// ===================================================================================
+// ⚠️ MÉTHODE 2: JSONP (Legacy / Conditionnel)
+// EXPLICATION : Ne fonctionne QUE si le serveur distant est spécifiquement configuré pour répondre avec
+// un script JavaScript qui appelle une fonction (callback). Les API REST modernes ne supportent PAS JSONP.
+// Cette méthode échouera donc sur 99% des API actuelles.
+// ===================================================================================
+class JSONPBypass {
+    request(url, options) {
+        return Promise.reject(new Error("JSONP n'est pas adapté aux API REST modernes. Le serveur doit supporter un paramètre 'callback'."));
+    }
+}
+
+// ===================================================================================
+// ❌ MÉTHODES NON FONCTIONNELLES POUR LE CONTOURNEMENT CORS
+// EXPLICATION : Ces méthodes sont basées sur des incompréhensions communes.
+// - WebSocket : Protocole différent (ws://), ne peut pas faire de requêtes HTTP.
+// - PostMessage/Data URI (iframe) : Un iframe avec une origine "opaque" (data:) a des permissions
+//   encore PLUS STRICTES que la page principale et ne peut pas contourner CORS.
+// ===================================================================================
+class NonFunctionalMethod {
+    constructor(name) { this.name = name; }
+    request(url, options) { return Promise.reject(new Error(`La méthode ${this.name} est conceptuellement incorrecte pour contourner CORS pour des appels API REST.`)); }
+}
+
+// --- GESTIONNAIRE CENTRAL DES MÉTHODES ---
+const methods = {
+    'worker-proxy': { instance: new WebWorkerProxy(), name: 'Web Worker Proxy' },
+    'jsonp': { instance: new JSONPBypass(), name: 'JSONP' },
+    'websocket': { instance: new NonFunctionalMethod('WebSocket'), name: 'WebSocket Bridge' },
+    'postmessage': { instance: new NonFunctionalMethod('PostMessage'), name: 'PostMessage Tunnel' },
+    'data-uri': { instance: new NonFunctionalMethod('Data URI'), name: 'Data URI Injection' },
+};
+
+// ===================================================================================
+// --- LOGIQUE DE L'INTERFACE UTILISATEUR ET DES TESTS ---
+// ===================================================================================
+
+async function executeRequest(methodKey, url, httpOptions) {
+    const { instance, name } = methods[methodKey];
+    log(`▶️ Test en cours: [${name}] | ${httpOptions.method} ${url}`, 'info');
+
+    try {
+        const response = await instance.request(url, httpOptions);
+        log(`✅ SUCCÈS: [${name}] | Status: ${response.status} ${response.statusText}`, 'success');
+        try {
+            const jsonData = JSON.parse(response.data);
+            log(`<pre class="text-slate-400 text-xs">${JSON.stringify(jsonData, null, 2)}</pre>`, 'grey');
+        } catch {
+            log(response.data.substring(0, 200) + '...', 'grey');
+        }
+        return true;
+    } catch (error) {
+        log(`❌ ÉCHEC: [${name}] | ${error.message}`, 'error');
+        return false;
+    }
+}
+
+async function executeManualRequest() {
+    clearLogs();
+    const methodKey = document.getElementById('bypass-method').value;
+    const url = document.getElementById('target-url').value;
+    const httpMethod = document.getElementById('http-method').value;
+    const headersText = document.getElementById('headers-input').value;
+    const bodyText = document.getElementById('body-input').value;
+
+    if (!url) {
+        log('Veuillez entrer une URL cible.', 'error');
+        return;
+    }
+
+    let headers = {};
+    let body = undefined;
+    try {
+        if (headersText.trim()) headers = JSON.parse(headersText);
+        if (bodyText.trim() && ['POST', 'PUT'].includes(httpMethod)) body = bodyText;
+    } catch (e) {
+        log('JSON invalide dans les Headers ou le Body.', 'error');
+        return;
+    }
+    
+    await executeRequest(methodKey, url, { method: httpMethod, headers, body });
+}
+
+// --- SYSTÈME DE TESTS AUTOMATIQUES ---
+async function runAutomatedTests() {
+    clearLogs();
+    log('🚀 Démarrage des tests automatiques...', 'warning');
+
+    const testScenarios = [
+        {
+            description: "Requête GET simple (sans preflight)",
+            url: "https://jsonplaceholder.typicode.com/posts/1",
+            options: { method: 'GET' },
+            expected: { 'worker-proxy': 'success' }
+        },
+        {
+            description: "Requête POST complexe (déclenche un preflight CORS)",
+            url: "https://jsonplaceholder.typicode.com/posts",
+            options: {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ title: 'CORS Test' })
+            },
+            expected: { 'worker-proxy': 'failure' }
+        }
+    ];
+
+    for (const scenario of testScenarios) {
+        log(`\n------------------------------------------------\n🔬 Scénario: ${scenario.description}\n------------------------------------------------`, 'warning');
+        for (const methodKey in methods) {
+            await executeRequest(methodKey, scenario.url, scenario.options);
+        }
+    }
+    log('\n🏁 Tests automatiques terminés.', 'warning');
+    log('➡️ CONCLUSION : Seul le Web Worker peut réussir les requêtes SIMPLES. Aucune méthode 100% client ne peut universellement contourner les requêtes COMPLEXES à cause des preflights (OPTIONS) imposés par les navigateurs.', 'info');
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    clearLogs();
+    log('🔥 Validateur de Méthodes CORS Initialisé.', 'success');
+    log('💡 Prêt à lancer les tests automatiques ou manuels.', 'info');
+});
+
+</script>
 </body>
 </html>

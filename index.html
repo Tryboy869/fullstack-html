@@ -3,451 +3,504 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Démonstration API REST Client-Side</title>
-
+    <title>Test API Python dans HTML - Pyodide</title>
     <style>
-        :root {
-            --bg-color: #1a1d21; --surface-color: #2c313a; --primary-color: #4a90e2;
-            --text-color: #f0f0f0; --subtext-color: #a0a0a0; --success-color: #7ed321;
-            --error-color: #d0021b; --font-family: 'Segoe UI', system-ui, sans-serif;
-        }
         body {
-            font-family: var(--font-family); background-color: var(--bg-color); color: var(--text-color);
-            margin: 0; padding: 2rem; font-size: 16px; line-height: 1.6;
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
         }
-        .container { max-width: 1200px; margin: auto; display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
-        .card { background-color: var(--surface-color); border-radius: 8px; padding: 1.5rem; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
-        h1, h2, h3 { color: var(--text-color); border-bottom: 2px solid var(--primary-color); padding-bottom: 0.5rem; margin-top: 0; }
-        h1 { grid-column: 1 / -1; text-align: center; }
+        
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        
+        .status {
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            font-weight: bold;
+        }
+        .status.loading { background: #fff3cd; color: #856404; }
+        .status.success { background: #d4edda; color: #155724; }
+        .status.error { background: #f8d7da; color: #721c24; }
+        
+        .test-section {
+            border: 2px solid #ddd;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+        
         button {
-            background-color: var(--primary-color); color: white; border: none; padding: 0.75rem 1rem;
-            border-radius: 5px; cursor: pointer; font-size: 1em; transition: background-color 0.2s;
-            display: inline-block; margin: 0.25rem 0; width: 100%;
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
         }
-        button:hover { background-color: #5a9ee8; }
-        button.delete { background-color: var(--error-color); }
-        button.delete:hover { background-color: #e0223b; }
-        input {
-            width: calc(100% - 20px); background: var(--bg-color); border: 1px solid #444; color: var(--text-color);
-            padding: 10px; border-radius: 5px; margin-bottom: 1rem;
+        
+        button:hover { background: #0056b3; }
+        button:disabled { background: #6c757d; cursor: not-allowed; }
+        
+        .log {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 400px;
+            overflow-y: auto;
+            font-size: 12px;
         }
-        .response-area {
-            background-color: #111; border-radius: 5px; padding: 1rem; white-space: pre-wrap;
-            word-wrap: break-word; font-family: 'Courier New', Courier, monospace; min-height: 200px;
+        
+        input, textarea {
+            width: 100%;
+            padding: 8px;
+            margin: 5px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
         }
-        .response-area.success { border-left: 5px solid var(--success-color); }
-        .response-area.error { border-left: 5px solid var(--error-color); color: var(--error-color); }
-        .user-list table { width: 100%; border-collapse: collapse; }
-        .user-list th, .user-list td { padding: 0.75rem; text-align: left; border-bottom: 1px solid #444; }
-        .user-list th { color: var(--primary-color); }
-        .auth-status { text-align: center; padding: 1rem; background: var(--surface-color); grid-column: 1 / -1; border-radius: 8px; }
-        @media (max-width: 900px) {
-            .container { grid-template-columns: 1fr; }
+        
+        .endpoint {
+            background: #e9ecef;
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 4px;
+            font-family: monospace;
+        }
+        
+        .progress {
+            width: 100%;
+            height: 20px;
+            background: #e9ecef;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            background: #007bff;
+            transition: width 0.3s ease;
         }
     </style>
 </head>
 <body>
-
     <div class="container">
-        <h1>🚀 API REST Client-Side : Démonstration</h1>
+        <h1>Test API Python dans HTML</h1>
+        <p>Utilisation de Pyodide pour exécuter Python + bibliothèques API dans le navigateur</p>
         
-        <div id="auth-status-card" class="auth-status">Statut: Non Authentifié</div>
-
-        <div class="card">
-            <h2>Endpoints API</h2>
-            <div id="login-form">
-                <h3>POST /api/auth/login</h3>
-                <input type="text" id="username" placeholder="Username (admin)" value="admin">
-                <input type="password" id="password" placeholder="Password (password)" value="password">
-                <button id="login-btn">Login</button>
+        <div class="status loading" id="pyodideStatus">
+            <div>Chargement de Pyodide...</div>
+            <div class="progress">
+                <div class="progress-bar" id="loadProgress" style="width: 0%"></div>
             </div>
-            <hr>
-            <h3>Utilisateurs</h3>
-            <button id="get-users-btn">GET /api/users</button>
-            <button id="get-user-1-btn">GET /api/users/1</button>
-            <button id="delete-user-1-btn" class="delete">DELETE /api/users/1</button>
-            <hr>
-            <div id="create-user-form">
-                <h3>POST /api/users</h3>
-                <input type="text" id="create-name" placeholder="Nom">
-                <input type="email" id="create-email" placeholder="Email">
-                <button id="create-user-btn">Créer Utilisateur</button>
-            </div>
-            <hr>
-            <div id="update-user-form">
-                <h3>PUT /api/users/2</h3>
-                <input type="text" id="update-name" placeholder="Nouveau nom">
-                <input type="email" id="update-email" placeholder="Nouvel email">
-                <button id="update-user-btn">Modifier Utilisateur 2</button>
-            </div>
-        </div>
-
-        <div class="card">
-            <h2>Réponse de l'API</h2>
-            <pre id="response-area" class="response-area">La réponse de l'API apparaîtra ici...</pre>
-        </div>
-
-        <div class="card user-list" style="grid-column: 1 / -1;">
-            <h2>Données en direct (IndexedDB)</h2>
-            <table id="users-table">
-                <thead>
-                    <tr><th>ID</th><th>Nom</th><th>Email</th></tr>
-                </thead>
-                <tbody>
-                    <tr><td colspan="3">Chargement des données...</td></tr>
-                </tbody>
-            </table>
         </div>
     </div>
 
-<script>
-class ClientSideAPI {
-    /**
-     * Initialise la base de données et les routes de l'API.
-     */
-    constructor() {
-        this.db = null;
-        this.jwtSecret = 'secret-key-for-demo-only';
-    }
+    <div class="container" id="testContainer" style="display: none;">
+        <div class="test-section">
+            <h3>Test 1: Installation des Packages Python</h3>
+            <p>Installation de requests, flask, fastapi, etc.</p>
+            <button onclick="installPackages()" id="installBtn">Installer Packages Python</button>
+            <div class="log" id="installLog"></div>
+        </div>
 
-    /**
-     * Ouvre la connexion IndexedDB et pré-remplit les données si nécessaire.
-     */
-    async initDatabase() {
-        return new Promise((resolve, reject) => {
-            const request = indexedDB.open('ClientSideDB', 1);
+        <div class="test-section">
+            <h3>Test 2: Serveur HTTP Python Basique</h3>
+            <p>Tentative de création d'un serveur HTTP avec Python</p>
+            <button onclick="createBasicServer()" id="serverBtn" disabled>Créer Serveur HTTP</button>
+            <div class="log" id="serverLog"></div>
+        </div>
 
-            request.onupgradeneeded = event => {
-                const db = event.target.result;
-                const userStore = db.createObjectStore('users', { keyPath: 'id', autoIncrement: true });
-                userStore.createIndex('email', 'email', { unique: true });
+        <div class="test-section">
+            <h3>Test 3: FastAPI dans Pyodide</h3>
+            <p>Test de FastAPI pour API REST</p>
+            <button onclick="testFastAPI()" id="fastapiBtn" disabled>Tester FastAPI</button>
+            <div class="log" id="fastapiLog"></div>
+        </div>
 
-                // Données de test
-                const demoUsers = [
-                    { name: 'Alice', email: 'alice@example.com' },
-                    { name: 'Bob', email: 'bob@example.com' },
-                    { name: 'Charlie', email: 'charlie@example.com' },
-                ];
-                demoUsers.forEach(user => userStore.add(user));
-            };
+        <div class="test-section">
+            <h3>Test 4: Requêtes HTTP Externes Python</h3>
+            <p>Test des requêtes externes avec requests</p>
+            <input type="text" id="apiUrl" placeholder="URL API à tester" value="https://api.github.com/users/octocat">
+            <button onclick="testPythonRequests()" id="requestsBtn" disabled>Tester Requests</button>
+            <div class="log" id="requestsLog"></div>
+        </div>
 
-            request.onsuccess = event => {
-                this.db = event.target.result;
-                console.log('Database initialized successfully.');
-                resolve();
-            };
-            request.onerror = event => {
-                console.error('Database error:', event.target.errorCode);
-                reject(event.target.error);
-            };
-        });
-    }
+        <div class="test-section">
+            <h3>Test 5: Micro-Framework Web Custom</h3>
+            <p>Créer un framework web minimal en Python</p>
+            <button onclick="createCustomFramework()" id="frameworkBtn" disabled>Créer Framework</button>
+            <div class="endpoints" id="endpoints"></div>
+            <div class="log" id="frameworkLog"></div>
+        </div>
+    </div>
 
-    /**
-     * Point d'entrée principal pour toutes les requêtes API.
-     * Gère l'authentification puis route la requête.
-     */
-    async handleRequest(method, path, data = null, headers = {}) {
-        try {
-            // Vérification de l'authentification pour les routes protégées
-            if (!path.startsWith('/api/auth') && path !== '/api/users' && method === 'GET') {
-                const token = headers.Authorization?.split(' ')[1];
-                if (!this.checkAuth(token)) {
-                    return this.formatResponse({ error: 'Unauthorized' }, 401);
-                }
+    <!-- Chargement de Pyodide -->
+    <script src="https://cdn.jsdelivr.net/pyodide/v0.24.1/full/pyodide.js"></script>
+    
+    <script>
+        let pyodide = null;
+        let pythonReady = false;
+
+        // Fonction de logging
+        function log(elementId, message, isError = false) {
+            const logElement = document.getElementById(elementId);
+            const timestamp = new Date().toLocaleTimeString();
+            const prefix = isError ? '❌' : '✅';
+            logElement.textContent += `[${timestamp}] ${prefix} ${message}\n`;
+            logElement.scrollTop = logElement.scrollHeight;
+        }
+
+        // Mise à jour du statut
+        function updateStatus(message, type = 'loading') {
+            const status = document.getElementById('pyodideStatus');
+            status.className = `status ${type}`;
+            status.innerHTML = message;
+        }
+
+        // Initialisation de Pyodide
+        async function initPyodide() {
+            try {
+                updateStatus('Téléchargement de Pyodide...');
+                
+                pyodide = await loadPyodide();
+                
+                updateStatus('Pyodide chargé avec succès!', 'success');
+                document.getElementById('testContainer').style.display = 'block';
+                
+                // Test basique Python
+                const pythonTest = pyodide.runPython(`
+import sys
+print(f"Python {sys.version} dans le navigateur!")
+"Python initialisé"
+                `);
+                
+                log('installLog', `Test Python: ${pythonTest}`);
+                pythonReady = true;
+                
+            } catch (error) {
+                updateStatus(`Erreur chargement Pyodide: ${error.message}`, 'error');
+                log('installLog', `Erreur Pyodide: ${error.message}`, true);
             }
-             if (method !== 'GET' && !path.startsWith('/api/auth')) {
-                const token = headers.Authorization?.split(' ')[1];
-                if (!this.checkAuth(token)) {
-                    return this.formatResponse({ error: 'Unauthorized' }, 401);
-                }
-            }
-
-
-            return await this.handleRoute(method, path, data);
-        } catch (error) {
-            console.error("Internal Server Error:", error);
-            return this.formatResponse({ error: 'Internal Server Error', detail: error.message }, 500);
-        }
-    }
-
-    // ===============================================
-    // == 1. ROUTER: handleRoute(method, path, data)
-    // ===============================================
-    async handleRoute(method, path, data) {
-        const pathParts = path.split('/').filter(p => p);
-        const resource = pathParts[1];
-        const id = pathParts[2] ? parseInt(pathParts[2]) : null;
-
-        if (resource === 'users') {
-            if (method === 'GET' && !id) return await this.getUsers();
-            if (method === 'GET' && id) return await this.getUserById(id);
-            if (method === 'POST') return await this.createUser(data);
-            if (method === 'PUT' && id) return await this.updateUser(id, data);
-            if (method === 'DELETE' && id) return await this.deleteUser(id);
-        }
-        
-        if (resource === 'auth' && pathParts[2] === 'login' && method === 'POST') {
-             return this.login(data);
         }
 
-        return this.formatResponse({ error: 'Not Found' }, 404);
-    }
-
-    // ========================================================
-    // == 2. LOGIQUE MÉTIER: processData(operation, input)
-    // ========================================================
-    processData(operation, input) {
-        switch (operation) {
-            case 'CREATE_USER':
-                if (!input.name || !input.email) {
-                    throw new Error('Name and email are required.');
-                }
-                if (!/\S+@\S+\.\S+/.test(input.email)) {
-                    throw new Error('Invalid email format.');
-                }
-                return { name: input.name, email: input.email }; // Données nettoyées
+        // Installation des packages Python
+        async function installPackages() {
+            if (!pythonReady) return;
             
-            case 'UPDATE_USER':
-                 if (!input.name && !input.email) {
-                    throw new Error('Name or email must be provided for update.');
-                }
-                 if (input.email && !/\S+@\S+\.\S+/.test(input.email)) {
-                    throw new Error('Invalid email format.');
-                }
-                return input;
-        }
-    }
-
-    // ===================================================
-    // == 3. PERSISTENCE: saveToStorage(key, data)
-    // ===================================================
-    async saveToStorage(operation, storeName, payload) {
-        return new Promise((resolve, reject) => {
-            if (!this.db) reject(new Error("Database not initialized."));
+            document.getElementById('installBtn').disabled = true;
+            log('installLog', 'Installation des packages Python...');
             
-            const transaction = this.db.transaction(storeName, 'readwrite');
-            const store = transaction.objectStore(storeName);
-            let request;
+            try {
+                // Packages disponibles dans Pyodide
+                await pyodide.loadPackage(['requests', 'micropip']);
+                
+                log('installLog', 'Packages de base installés');
+                
+                // Tentative d'installation via micropip
+                await pyodide.runPythonAsync(`
+import micropip
+import requests
 
-            switch (operation) {
-                case 'ADD': request = store.add(payload.data); break;
-                case 'PUT': request = store.put(payload.data); break;
-                case 'DELETE': request = store.delete(payload.key); break;
-                default: reject(new Error('Invalid storage operation.')); return;
+print("Requests disponible:", hasattr(requests, 'get'))
+
+# Test de base
+try:
+    import json
+    import urllib.request
+    print("Modules réseau disponibles")
+except ImportError as e:
+    print(f"Erreur import: {e}")
+                `);
+                
+                log('installLog', 'Test des imports terminé');
+                
+                // Activer les boutons suivants
+                document.getElementById('serverBtn').disabled = false;
+                document.getElementById('fastapiBtn').disabled = false;
+                document.getElementById('requestsBtn').disabled = false;
+                document.getElementById('frameworkBtn').disabled = false;
+                
+            } catch (error) {
+                log('installLog', `Erreur installation: ${error.message}`, true);
             }
             
-            transaction.oncomplete = () => resolve(request.result || { success: true });
-            transaction.onerror = (event) => reject(event.target.error);
-        });
-    }
+            document.getElementById('installBtn').disabled = false;
+        }
 
-    async readFromStorage(operation, storeName, key = null) {
-        return new Promise((resolve, reject) => {
-            if (!this.db) reject(new Error("Database not initialized."));
+        // Test serveur HTTP basique
+        async function createBasicServer() {
+            log('serverLog', 'Tentative création serveur HTTP...');
             
-            const transaction = this.db.transaction(storeName, 'readonly');
-            const store = transaction.objectStore(storeName);
-            const request = operation === 'GET_ALL' ? store.getAll() : store.get(key);
+            try {
+                const result = await pyodide.runPythonAsync(`
+import socket
+import threading
+from http.server import HTTPServer, BaseHTTPRequestHandler
+import json
 
-            request.onsuccess = () => resolve(request.result);
-            request.onerror = (event) => reject(event.target.error);
-        });
-    }
-
-    // ===================================================
-    // == 4. RÉPONSE: formatResponse(data, status)
-    // ===================================================
-    formatResponse(data, status = 200) {
-        return { status, body: data };
-    }
-
-    // ==============================================
-    // == 5. AUTHENTIFICATION: checkAuth(token)
-    // ==============================================
-    checkAuth(token) {
-        if (!token) return false;
-        try {
-            const decoded = JSON.parse(atob(token.split('.')[1]));
-            // Dans une vraie app, on vérifierait la signature et l'expiration
-            return decoded.user === 'admin';
-        } catch (e) {
-            return false;
+class APIHandler(BaseHTTPRequestHandler):
+    def do_GET(self):
+        self.send_response(200)
+        self.send_header('Content-type', 'application/json')
+        self.send_header('Access-Control-Allow-Origin', '*')
+        self.end_headers()
+        
+        response = {
+            "message": "Hello from Python in Browser!",
+            "path": self.path,
+            "method": "GET"
         }
-    }
+        self.wfile.write(json.dumps(response).encode())
     
-    // --- Implémentation des Endpoints ---
-    
-    login(credentials) {
-        if (credentials.username === 'admin' && credentials.password === 'password') {
-            const header = btoa(JSON.stringify({ alg: 'HS256', typ: 'JWT' }));
-            const payload = btoa(JSON.stringify({ user: 'admin', iat: Date.now() }));
-            const signature = btoa(this.jwtSecret); // Signature simulée
-            const token = `${header}.${payload}.${signature}`;
-            return this.formatResponse({ token }, 200);
+    def do_POST(self):
+        content_length = int(self.headers.get('Content-Length', 0))
+        post_data = self.rfile.read(content_length)
+        
+        self.send_response(200)
+        self.send_header('Content-type', 'application/json')
+        self.send_header('Access-Control-Allow-Origin', '*')
+        self.end_headers()
+        
+        response = {
+            "message": "POST received",
+            "data": post_data.decode() if post_data else None
         }
-        return this.formatResponse({ error: 'Invalid credentials' }, 401);
-    }
-    
-    async getUsers() {
-        const users = await this.readFromStorage('GET_ALL', 'users');
-        return this.formatResponse(users, 200);
-    }
-    
-    async getUserById(id) {
-        const user = await this.readFromStorage('GET_ONE', 'users', id);
-        return user ? this.formatResponse(user, 200) : this.formatResponse({ error: 'User not found' }, 404);
-    }
-    
-    async createUser(data) {
-        try {
-            const processedData = this.processData('CREATE_USER', data);
-            const newId = await this.saveToStorage('ADD', 'users', { data: processedData });
-            const newUser = await this.readFromStorage('GET_ONE', 'users', newId);
-            return this.formatResponse(newUser, 201);
-        } catch(error) {
-            return this.formatResponse({ error: 'Bad Request', detail: error.message }, 400);
+        self.wfile.write(json.dumps(response).encode())
+
+# Tentative de créer le serveur
+try:
+    # Note: Ceci ne fonctionnera pas dans le navigateur
+    # Les navigateurs n'autorisent pas la création de serveurs HTTP
+    server = HTTPServer(('localhost', 8080), APIHandler)
+    "Serveur HTTP créé (mais ne peut pas démarrer dans navigateur)"
+except Exception as e:
+    f"Erreur attendue: {str(e)}"
+                `);
+                
+                log('serverLog', `Résultat serveur: ${result}`);
+                log('serverLog', 'Note: Les navigateurs interdisent la création de serveurs HTTP', true);
+                
+            } catch (error) {
+                log('serverLog', `Erreur serveur: ${error.message}`, true);
+            }
         }
-    }
 
-    async updateUser(id, data) {
-        try {
-            const existingUser = await this.readFromStorage('GET_ONE', 'users', id);
-            if (!existingUser) return this.formatResponse({ error: 'User not found' }, 404);
-
-            const processedData = this.processData('UPDATE_USER', data);
-            const updatedUserData = { ...existingUser, ...processedData };
+        // Test FastAPI
+        async function testFastAPI() {
+            log('fastapiLog', 'Test de FastAPI...');
             
-            await this.saveToStorage('PUT', 'users', { data: updatedUserData });
-            return this.formatResponse(updatedUserData, 200);
-        } catch(error) {
-            return this.formatResponse({ error: 'Bad Request', detail: error.message }, 400);
+            try {
+                const result = await pyodide.runPythonAsync(`
+# FastAPI n'est pas disponible dans Pyodide par défaut
+# Création d'un simulateur d'API REST simple
+
+class SimpleAPI:
+    def __init__(self):
+        self.routes = {}
+        self.data_store = {}
+    
+    def route(self, path, method='GET'):
+        def decorator(func):
+            self.routes[f"{method}:{path}"] = func
+            return func
+        return decorator
+    
+    def handle_request(self, method, path, data=None):
+        route_key = f"{method}:{path}"
+        if route_key in self.routes:
+            return self.routes[route_key](data)
+        else:
+            return {"error": "Route not found", "status": 404}
+
+# Création de l'API
+api = SimpleAPI()
+
+@api.route('/users', 'GET')
+def get_users(data):
+    return {"users": list(api.data_store.get('users', {}).values())}
+
+@api.route('/users', 'POST')
+def create_user(data):
+    if not data:
+        return {"error": "No data provided", "status": 400}
+    
+    import json
+    user_data = json.loads(data) if isinstance(data, str) else data
+    user_id = len(api.data_store.get('users', {})) + 1
+    user_data['id'] = user_id
+    
+    if 'users' not in api.data_store:
+        api.data_store['users'] = {}
+    
+    api.data_store['users'][user_id] = user_data
+    return {"user": user_data, "status": 201}
+
+# Test de l'API
+test_results = []
+
+# Test GET
+result1 = api.handle_request('GET', '/users')
+test_results.append(f"GET /users: {result1}")
+
+# Test POST
+import json
+user_data = {"name": "John Doe", "email": "john@example.com"}
+result2 = api.handle_request('POST', '/users', json.dumps(user_data))
+test_results.append(f"POST /users: {result2}")
+
+# Test GET après POST
+result3 = api.handle_request('GET', '/users')
+test_results.append(f"GET /users (après POST): {result3}")
+
+"\\n".join(test_results)
+                `);
+                
+                log('fastapiLog', `Résultats API REST:\n${result}`);
+                
+            } catch (error) {
+                log('fastapiLog', `Erreur FastAPI: ${error.message}`, true);
+            }
         }
+
+        // Test requêtes HTTP avec Python
+        async function testPythonRequests() {
+            const url = document.getElementById('apiUrl').value;
+            log('requestsLog', `Test requête Python vers: ${url}`);
+            
+            try {
+                const result = await pyodide.runPythonAsync(`
+import requests
+import json
+
+url = "${url}"
+
+try:
+    # Tentative de requête avec requests
+    response = requests.get(url, timeout=10)
+    
+    result = {
+        "status_code": response.status_code,
+        "headers": dict(response.headers),
+        "data": response.json() if 'application/json' in response.headers.get('content-type', '') else response.text[:500]
     }
     
-    async deleteUser(id) {
-        const existingUser = await this.readFromStorage('GET_ONE', 'users', id);
-        if (!existingUser) return this.formatResponse({ error: 'User not found' }, 404);
+    json.dumps(result, indent=2)
+    
+except requests.exceptions.RequestException as e:
+    json.dumps({"error": str(e), "type": "requests_error"}, indent=2)
+except Exception as e:
+    json.dumps({"error": str(e), "type": "general_error"}, indent=2)
+                `);
+                
+                log('requestsLog', `Résultat requête:\n${result}`);
+                
+            } catch (error) {
+                log('requestsLog', `Erreur requête Python: ${error.message}`, true);
+            }
+        }
+
+        // Création framework web custom
+        async function createCustomFramework() {
+            log('frameworkLog', 'Création framework web custom...');
+            
+            try {
+                const result = await pyodide.runPythonAsync(`
+class WebFramework:
+    def __init__(self):
+        self.routes = {}
+        self.middleware = []
+        self.storage = {}
+    
+    def route(self, path, methods=['GET']):
+        def decorator(func):
+            for method in methods:
+                self.routes[f"{method}:{path}"] = func
+            return func
+        return decorator
+    
+    def middleware(self, func):
+        self.middleware.append(func)
+        return func
+    
+    def handle_request(self, method, path, data=None, headers=None):
+        # Middleware execution
+        for mw in self.middleware:
+            result = mw(method, path, data, headers)
+            if result:  # Middleware can stop request
+                return result
         
-        await this.saveToStorage('DELETE', 'users', { key: id });
-        return this.formatResponse({ message: 'User deleted successfully' }, 200);
-    }
-}
-
-
-// --- Classe pour gérer l'interface utilisateur et les interactions ---
-class App {
-    constructor(api) {
-        this.api = api;
-        this.elements = {
-            loginBtn: document.getElementById('login-btn'),
-            getUsersBtn: document.getElementById('get-users-btn'),
-            getUser1Btn: document.getElementById('get-user-1-btn'),
-            deleteUser1Btn: document.getElementById('delete-user-1-btn'),
-            createUserBtn: document.getElementById('create-user-btn'),
-            updateUserBtn: document.getElementById('update-user-btn'),
-            responseArea: document.getElementById('response-area'),
-            usersTableBody: document.querySelector('#users-table tbody'),
-            authStatus: document.getElementById('auth-status-card'),
-        };
-        this.jwt = localStorage.getItem('jwt_token');
-    }
-
-    async init() {
-        await this.api.initDatabase();
-        this.attachEventListeners();
-        this.updateAuthStatus();
-        this.refreshUsersList();
-    }
-
-    attachEventListeners() {
-        this.elements.loginBtn.onclick = () => this.handleLogin();
-        this.elements.getUsersBtn.onclick = () => this.handleApiCall('GET', '/api/users');
-        this.elements.getUser1Btn.onclick = () => this.handleApiCall('GET', '/api/users/1');
-        this.elements.deleteUser1Btn.onclick = () => this.handleApiCall('DELETE', '/api/users/1');
-        this.elements.createUserBtn.onclick = () => {
-            const data = {
-                name: document.getElementById('create-name').value,
-                email: document.getElementById('create-email').value,
-            };
-            this.handleApiCall('POST', '/api/users', data);
-        };
-        this.elements.updateUserBtn.onclick = () => {
-             const data = {
-                name: document.getElementById('update-name').value,
-                email: document.getElementById('update-email').value,
-            };
-            this.handleApiCall('PUT', '/api/users/2', data);
-        };
-    }
+        # Route handling
+        route_key = f"{method}:{path}"
+        if route_key in self.routes:
+            try:
+                return self.routes[route_key](data, headers)
+            except Exception as e:
+                return {"error": str(e), "status": 500}
+        else:
+            return {"error": "Route not found", "status": 404}
     
-    async handleLogin() {
-        const data = {
-            username: document.getElementById('username').value,
-            password: document.getElementById('password').value,
-        };
-        const response = await this.api.handleRequest('POST', '/api/auth/login', data);
-        this.logResponse(response);
-        if (response.status === 200) {
-            this.jwt = response.body.token;
-            localStorage.setItem('jwt_token', this.jwt);
-            this.updateAuthStatus();
-        }
-    }
-
-    async handleApiCall(method, path, data = null) {
-        const headers = { Authorization: `Bearer ${this.jwt}` };
-        const response = await this.api.handleRequest(method, path, data, headers);
-        this.logResponse(response);
+    def run_tests(self):
+        # Auto-test du framework
+        results = []
         
-        // Rafraîchir la liste si des données ont été modifiées
-        if (method !== 'GET' && response.status < 400) {
-            this.refreshUsersList();
+        # Test route simple
+        @self.route('/test')
+        def test_route(data, headers):
+            return {"message": "Test route works!", "status": 200}
+        
+        result1 = self.handle_request('GET', '/test')
+        results.append(f"Test route: {result1}")
+        
+        # Test route avec données
+        @self.route('/echo', ['POST'])
+        def echo_route(data, headers):
+            return {"echo": data, "headers": headers, "status": 200}
+        
+        result2 = self.handle_request('POST', '/echo', {"test": "data"})
+        results.append(f"Echo route: {result2}")
+        
+        # Test route inexistante
+        result3 = self.handle_request('GET', '/nonexistent')
+        results.append(f"Nonexistent route: {result3}")
+        
+        return results
+
+# Création et test du framework
+framework = WebFramework()
+test_results = framework.run_tests()
+
+"Framework créé et testé:\\n" + "\\n".join(test_results)
+                `);
+                
+                log('frameworkLog', `${result}`);
+                
+                // Affichage des endpoints disponibles
+                document.getElementById('endpoints').innerHTML = `
+                    <div class="endpoint">GET /test - Route de test</div>
+                    <div class="endpoint">POST /echo - Echo des données</div>
+                `;
+                
+            } catch (error) {
+                log('frameworkLog', `Erreur framework: ${error.message}`, true);
+            }
         }
-    }
-    
-    updateAuthStatus() {
-        if(this.api.checkAuth(this.jwt)) {
-            this.elements.authStatus.textContent = "Statut: Authentifié (Token JWT présent)";
-            this.elements.authStatus.style.background = 'var(--success-color)';
-        } else {
-            this.elements.authStatus.textContent = "Statut: Non Authentifié";
-            this.elements.authStatus.style.background = 'var(--error-color)';
-        }
-    }
 
-    async refreshUsersList() {
-        const response = await this.api.getUsers();
-        const users = response.body;
-        this.elements.usersTableBody.innerHTML = '';
-        if (users && users.length > 0) {
-            users.forEach(user => {
-                const row = `<tr><td>${user.id}</td><td>${user.name}</td><td>${user.email}</td></tr>`;
-                this.elements.usersTableBody.innerHTML += row;
-            });
-        } else {
-            this.elements.usersTableBody.innerHTML = '<tr><td colspan="3">Aucun utilisateur trouvé.</td></tr>';
-        }
-    }
-
-    logResponse(response) {
-        this.elements.responseArea.textContent = JSON.stringify(response, null, 2);
-        if (response.status >= 400) {
-            this.elements.responseArea.className = 'response-area error';
-        } else {
-            this.elements.responseArea.className = 'response-area success';
-        }
-    }
-}
-
-
-// Point d'entrée de l'application
-document.addEventListener('DOMContentLoaded', () => {
-    const api = new ClientSideAPI();
-    const app = new App(api);
-    app.init();
-});
-</script>
-
+        // Initialisation au chargement
+        window.addEventListener('load', initPyodide);
+    </script>
 </body>
 </html>

@@ -3,279 +3,890 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VALIDATEUR CORS - Test des Méthodes de Contournement</title>
+    <title>Simulateur Tactique de Football 2D (Corrigé)</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        body { scroll-behavior: smooth; }
-        .terminal { background: #0f172a; font-family: 'SF Mono', 'Courier New', monospace; font-size: 14px; line-height: 1.6; }
-        .success { color: #22c55e; } .error { color: #ef4444; } .info { color: #3b82f6; } .warning { color: #f59e0b; } .grey { color: #9ca3af; }
-        .pulse { animation: pulse 2s infinite; }
-        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
-        .test-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1rem; }
+        body {
+            font-family: 'Inter', sans-serif;
+            overscroll-behavior: none;
+        }
+        .pitch-bg {
+            background-color: #2a9d8f;
+            background-image:
+                linear-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.1) 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+        .no-select {
+            -webkit-user-select: none; /* Safari */
+            -ms-user-select: none; /* IE 10+ */
+            user-select: none; /* Standard syntax */
+        }
+        .tab-active {
+            background-color: #f7b731;
+            color: #1a202c;
+        }
+        .tab-inactive {
+            background-color: #4a5568;
+        }
+        .phase-active {
+            background-color: #2c7a7b;
+            border-color: #f7b731;
+        }
+        .phase-inactive {
+            background-color: #2d3748;
+        }
+        /* Make scrollbars less obtrusive */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #2d3748; }
+        ::-webkit-scrollbar-thumb { background: #4a5568; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #718096; }
     </style>
 </head>
+<body class="bg-gray-900 text-white h-screen flex flex-col no-select">
 
-<body class="bg-slate-900 text-slate-200 min-h-screen">
-    <div id="app" class="container mx-auto p-4 md:p-6">
-        
-        <header class="bg-slate-800/50 backdrop-blur rounded-lg p-6 mb-6 border border-slate-700">
-            <h1 class="text-3xl font-bold mb-2 text-sky-400">🔥 Validateur de Méthodes CORS</h1>
-            <p class="text-slate-400">Tester et valider les techniques de contournement CORS côté client dans un fichier HTML unique.</p>
-        </header>
-
-        <div class="bg-slate-800 rounded-lg p-6 mb-6 border border-slate-700">
-            <h2 class="text-xl font-bold mb-4 text-emerald-400">🧪 Tests Automatiques</h2>
-            <p class="text-slate-400 mb-4">Cliquez pour tester automatiquement chaque méthode contre des endpoints connus et voir ce qui fonctionne réellement.</p>
-            <div class="flex flex-col sm:flex-row gap-4">
-                <button onclick="runAutomatedTests()" class="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-700 px-6 py-3 rounded-lg font-bold transition-transform transform hover:scale-105">
-                    🚀 Lancer les Tests Automatiques
-                </button>
-                <button onclick="copyLogs()" class="w-full sm:w-auto bg-slate-600 hover:bg-slate-700 px-6 py-3 rounded-lg font-bold transition-transform">
-                    📋 Copier les Logs
-                </button>
-            </div>
+    <!-- Header -->
+    <header class="bg-gray-800 p-3 shadow-lg flex flex-col sm:flex-row items-center justify-between gap-2">
+        <h1 class="text-lg sm:text-xl font-bold text-gray-100 text-center sm:text-left">Simulateur Tactique 2D</h1>
+        <div id="score-display" class="text-xl sm:text-2xl font-bold tracking-wider text-center">
+            <span id="team-a-name-display" class="text-blue-400">Équipe A</span> 0 - 0 <span id="team-b-name-display" class="text-red-400">Équipe B</span>
         </div>
+        <div class="text-xl font-mono" id="time-display">00:00</div>
+    </header>
 
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-            <div class="bg-slate-800 rounded-lg p-6 border border-slate-700">
-                <h3 class="text-lg font-bold mb-4 text-sky-400">📡 Test Manuel</h3>
-                <div class="space-y-4">
-                    <div>
-                        <label class="block text-sm mb-2 text-slate-400">Méthode de contournement :</label>
-                        <select id="bypass-method" class="w-full bg-slate-700 border border-slate-600 rounded px-3 py-2">
-                            <option value="worker-proxy">✅ Web Worker Proxy (La plus viable)</option>
-                            <option value="jsonp">⚠️ JSONP (Conditionnel / Legacy)</option>
-                            <option value="websocket">❌ WebSocket Bridge (Non applicable)</option>
-                            <option value="postmessage">❌ PostMessage Tunnel (Non fonctionnel)</option>
-                            <option value="data-uri">❌ Data URI Injection (Non fonctionnel)</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-sm mb-2 text-slate-400">URL Cible :</label>
-                        <input type="url" id="target-url" class="w-full bg-slate-700 border border-slate-600 rounded px-3 py-2" value="https://jsonplaceholder.typicode.com/posts/1">
-                    </div>
-                    <div>
-                        <label class="block text-sm mb-2 text-slate-400">Méthode HTTP :</label>
-                        <select id="http-method" class="w-full bg-slate-700 border border-slate-600 rounded px-3 py-2">
-                            <option value="GET">GET</option><option value="POST">POST</option><option value="PUT">PUT</option><option value="DELETE">DELETE</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-sm mb-2 text-slate-400">Headers (JSON) :</label>
-                        <textarea id="headers-input" class="w-full bg-slate-700 border border-slate-600 rounded px-3 py-2 h-20 text-sm font-mono" placeholder='{ "Content-Type": "application/json" }'></textarea>
-                    </div>
-                    <div>
-                        <label class="block text-sm mb-2 text-slate-400">Body (JSON) :</label>
-                        <textarea id="body-input" class="w-full bg-slate-700 border border-slate-600 rounded px-3 py-2 h-20 text-sm font-mono" placeholder='{ "title": "test", "body": "...", "userId": 1 }'></textarea>
-                    </div>
-                    <button onclick="executeManualRequest()" class="w-full bg-blue-600 hover:bg-blue-700 px-4 py-3 rounded-lg font-bold transition-transform transform hover:scale-105">
-                        🌐 Exécuter la Requête Manuelle
-                    </button>
+    <!-- Main Content: Flex column on mobile, flex row on large screens -->
+    <div class="flex flex-1 flex-col lg:flex-row overflow-hidden">
+        
+        <!-- Tactical Configuration Panel -->
+        <aside class="w-full lg:w-1/3 lg:max-w-md xl:max-w-lg bg-gray-800 p-4 overflow-y-auto flex flex-col space-y-4 lg:h-full">
+            
+            <!-- Match Controls -->
+            <div class="bg-gray-700 p-4 rounded-lg shadow-md">
+                <h2 class="text-lg font-semibold mb-3 border-b border-gray-600 pb-2">Contrôles du Match</h2>
+                <div class="flex space-x-2">
+                    <button id="start-match" class="flex-1 bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-md transition duration-300">Lancer</button>
+                    <button id="pause-match" class="flex-1 bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-4 rounded-md transition duration-300" disabled>Pause</button>
+                    <button id="reset-match" class="flex-1 bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-md transition duration-300">Reset</button>
+                </div>
+                 <div class="mt-3">
+                    <label for="sim-speed" class="block text-sm font-medium text-gray-300">Vitesse: <span id="sim-speed-value">1</span>x</label>
+                    <input id="sim-speed" type="range" min="1" max="10" value="1" class="w-full h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer">
                 </div>
             </div>
-            <div class="bg-slate-800 rounded-lg p-6 border border-slate-700">
-                <h3 class="text-lg font-bold mb-4 text-amber-400">📊 Terminal de Logs</h3>
-                <div id="response-output" class="terminal p-4 rounded-lg h-[450px] overflow-y-auto bg-slate-900"></div>
+
+            <!-- Global Settings -->
+            <div class="bg-gray-700 p-4 rounded-lg shadow-md">
+                <h2 class="text-lg font-semibold mb-3 border-b border-gray-600 pb-2">Paramètres de Tir</h2>
+                <div>
+                    <label for="shot-distance" class="block text-sm font-medium text-gray-300">Distance de tir max: <span id="shot-distance-value">25</span>m</label>
+                    <input id="shot-distance" type="range" min="5" max="35" value="25" class="w-full h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer">
+                </div>
             </div>
-        </div>
+
+            <!-- Team Configuration Tabs -->
+            <div class="flex-1 bg-gray-700 p-4 rounded-lg shadow-md flex flex-col min-h-[400px] lg:min-h-0">
+                <div class="flex rounded-md mb-4">
+                    <button id="tab-team-a" class="tab-team flex-1 p-2 font-semibold rounded-l-md transition duration-300 tab-active">Équipe A</button>
+                    <button id="tab-team-b" class="tab-team flex-1 p-2 font-semibold rounded-r-md transition duration-300 tab-inactive">Équipe B</button>
+                </div>
+
+                <div id="config-panel-team-a" class="team-config-panel flex-1 flex flex-col min-h-0">
+                    <!-- Config content will be dynamically inserted here -->
+                </div>
+                 <div id="config-panel-team-b" class="team-config-panel hidden flex-1 flex flex-col min-h-0">
+                    <!-- Config content will be dynamically inserted here -->
+                </div>
+            </div>
+
+        </aside>
+
+        <!-- Main Simulation Area -->
+        <main class="flex-1 flex flex-col p-4 bg-gray-900 min-h-0">
+            <div class="w-full h-full flex items-center justify-center relative flex-1">
+                 <canvas id="football-pitch" class="bg-green-700 rounded-lg shadow-2xl pitch-bg border-2 border-gray-600"></canvas>
+            </div>
+            <!-- Event Log -->
+            <div class="h-24 md:h-32 bg-gray-800 mt-4 rounded-lg p-2 overflow-y-auto">
+                <h3 class="font-semibold text-gray-400">Log des Événements</h3>
+                <div id="event-log" class="text-sm font-mono text-gray-300 whitespace-pre-wrap"></div>
+            </div>
+        </main>
     </div>
 
-<script>
+<script type="module">
 // ===================================================================================
-// 🔥 SYSTÈME DE VALIDATION CORS - IMPLEMENTATION CORRIGÉE
+// ILN Niveau 1 - Unification dans un seul fichier
 // ===================================================================================
 
-const logOutput = document.getElementById('response-output');
+// -----------------------------------------------------------------------------------
+// Section 0: Setup & Initialisation
+// -----------------------------------------------------------------------------------
+const PITCH_WIDTH = 105; // meters
+const PITCH_HEIGHT = 68; // meters
+const GOAL_WIDTH = 7.32;
 
-// --- SYSTÈME DE LOGGING AMÉLIORÉ ---
-function log(message, type = 'info') {
-    const timestamp = new Date().toLocaleTimeString();
-    const colorClass = { info: 'text-sky-400', success: 'text-emerald-400', error: 'text-red-500', warning: 'text-amber-400', grey: 'text-slate-500' }[type];
-    logOutput.innerHTML += `<div class="${colorClass}"><span class="text-slate-600">[${timestamp}]</span> ${message.replace(/</g, "&lt;").replace(/>/g, "&gt;")}</div>`;
-    logOutput.scrollTop = logOutput.scrollHeight;
-}
+const canvas = document.getElementById('football-pitch');
+const ctx = canvas.getContext('2d');
 
-function clearLogs() {
-    logOutput.innerHTML = '';
-}
+let scale;
+let canvasWidth, canvasHeight;
 
-function copyLogs() {
-    navigator.clipboard.writeText(logOutput.innerText).then(() => {
-        log('✅ Logs copiés dans le presse-papiers !', 'success');
-    }, () => {
-        log('❌ Erreur lors de la copie des logs.', 'error');
-    });
-}
+function resizeCanvas() {
+    const container = canvas.parentElement;
+    const containerStyle = getComputedStyle(container);
+    const availableWidth = container.clientWidth - parseFloat(containerStyle.paddingLeft) - parseFloat(containerStyle.paddingRight);
+    const availableHeight = container.clientHeight - parseFloat(containerStyle.paddingTop) - parseFloat(containerStyle.paddingBottom);
+    
+    if (availableWidth <= 0 || availableHeight <= 0) return; // Guard clause
 
-// ===================================================================================
-// 🚀 MÉTHODE 1: WEB WORKER PROXY (La plus viable)
-// EXPLICATION : Le `fetch` depuis un Worker n'est pas lié à l'origine de la page principale de la même manière.
-// Il peut effectuer des requêtes "simples" (GET, HEAD, POST sans headers complexes) sans preflight CORS.
-// Il sera cependant BLOQUÉ pour les requêtes "complexes" qui nécessitent un preflight (ex: PUT, DELETE, ou POST avec Content-Type: application/json).
-// ===================================================================================
-class WebWorkerProxy {
-    constructor() {
-        const workerCode = `
-            self.onmessage = async (e) => {
-                const { id, url, options } = e.data;
-                try {
-                    const response = await fetch(url, options);
-                    const responseData = await response.text();
-                    self.postMessage({ id, success: true, status: response.status, statusText: response.statusText, data: responseData });
-                } catch (error) {
-                    self.postMessage({ id, success: false, error: error.message });
-                }
-            };
-        `;
-        const blob = new Blob([workerCode], { type: 'application/javascript' });
-        this.worker = new Worker(URL.createObjectURL(blob));
+    const pitchRatio = PITCH_WIDTH / PITCH_HEIGHT;
+    const containerRatio = availableWidth / availableHeight;
+    
+    if (containerRatio > pitchRatio) {
+        canvasHeight = availableHeight;
+        canvasWidth = canvasHeight * pitchRatio;
+    } else {
+        canvasWidth = availableWidth;
+        canvasHeight = canvasWidth / pitchRatio;
     }
-
-    request(url, options) {
-        return new Promise((resolve, reject) => {
-            const id = Math.random().toString(36);
-            const timeout = setTimeout(() => reject(new Error('Timeout de la requête Worker')), 10000);
-
-            const messageHandler = (e) => {
-                if (e.data.id === id) {
-                    clearTimeout(timeout);
-                    this.worker.removeEventListener('message', messageHandler);
-                    if (e.data.success) {
-                        resolve(e.data);
-                    } else {
-                        reject(new Error(e.data.error));
-                    }
-                }
-            };
-            this.worker.addEventListener('message', messageHandler);
-            this.worker.postMessage({ id, url, options });
-        });
+    canvas.width = canvasWidth;
+    canvas.height = canvasHeight;
+    scale = canvasWidth / PITCH_WIDTH;
+    
+    if(renderer) {
+        renderer.draw();
     }
 }
 
-// ===================================================================================
-// ⚠️ MÉTHODE 2: JSONP (Legacy / Conditionnel)
-// EXPLICATION : Ne fonctionne QUE si le serveur distant est spécifiquement configuré pour répondre avec
-// un script JavaScript qui appelle une fonction (callback). Les API REST modernes ne supportent PAS JSONP.
-// Cette méthode échouera donc sur 99% des API actuelles.
-// ===================================================================================
-class JSONPBypass {
-    request(url, options) {
-        return Promise.reject(new Error("JSONP n'est pas adapté aux API REST modernes. Le serveur doit supporter un paramètre 'callback'."));
+// -----------------------------------------------------------------------------------
+// Section 1: Classes de base (Vector, Player, Team, Ball, MatchEngine, Renderer, UIController)
+// -----------------------------------------------------------------------------------
+
+class Vector2D {
+    constructor(x = 0, y = 0) { this.x = x; this.y = y; }
+    add(v) { return new Vector2D(this.x + v.x, this.y + v.y); }
+    subtract(v) { return new Vector2D(this.x - v.x, this.y - v.y); }
+    multiply(s) { return new Vector2D(this.x * s, this.y * s); }
+    magnitude() { return Math.sqrt(this.x * this.x + this.y * this.y); }
+    normalize() { const mag = this.magnitude(); return mag > 0 ? this.multiply(1 / mag) : new Vector2D(); }
+    distanceTo(v) { return this.subtract(v).magnitude(); }
+}
+
+class Player {
+    constructor(id, team, number, color) {
+        this.id = id;
+        this.team = team;
+        this.number = number;
+        this.color = color;
+        this.isGoalkeeper = (number === 1);
+        
+        this.position = new Vector2D();
+        this.velocity = new Vector2D();
+        
+        this.stamina = 100;
+        this.burst = 100;
+        this.baseSkill = 70; // 0-100
+        this.fatigueFactor = 1;
+
+        this.tactics = {
+            'with_ball': { position: new Vector2D(), instructions: [] },
+            'without_ball': { position: new Vector2D(), instructions: [] }
+        };
+        this.targetPosition = new Vector2D();
     }
-}
 
-// ===================================================================================
-// ❌ MÉTHODES NON FONCTIONNELLES POUR LE CONTOURNEMENT CORS
-// EXPLICATION : Ces méthodes sont basées sur des incompréhensions communes.
-// - WebSocket : Protocole différent (ws://), ne peut pas faire de requêtes HTTP.
-// - PostMessage/Data URI (iframe) : Un iframe avec une origine "opaque" (data:) a des permissions
-//   encore PLUS STRICTES que la page principale et ne peut pas contourner CORS.
-// ===================================================================================
-class NonFunctionalMethod {
-    constructor(name) { this.name = name; }
-    request(url, options) { return Promise.reject(new Error(`La méthode ${this.name} est conceptuellement incorrecte pour contourner CORS pour des appels API REST.`)); }
-}
-
-// --- GESTIONNAIRE CENTRAL DES MÉTHODES ---
-const methods = {
-    'worker-proxy': { instance: new WebWorkerProxy(), name: 'Web Worker Proxy' },
-    'jsonp': { instance: new JSONPBypass(), name: 'JSONP' },
-    'websocket': { instance: new NonFunctionalMethod('WebSocket'), name: 'WebSocket Bridge' },
-    'postmessage': { instance: new NonFunctionalMethod('PostMessage'), name: 'PostMessage Tunnel' },
-    'data-uri': { instance: new NonFunctionalMethod('Data URI'), name: 'Data URI Injection' },
-};
-
-// ===================================================================================
-// --- LOGIQUE DE L'INTERFACE UTILISATEUR ET DES TESTS ---
-// ===================================================================================
-
-async function executeRequest(methodKey, url, httpOptions) {
-    const { instance, name } = methods[methodKey];
-    log(`▶️ Test en cours: [${name}] | ${httpOptions.method} ${url}`, 'info');
-
-    try {
-        const response = await instance.request(url, httpOptions);
-        log(`✅ SUCCÈS: [${name}] | Status: ${response.status} ${response.statusText}`, 'success');
-        try {
-            const jsonData = JSON.parse(response.data);
-            log(`<pre class="text-slate-400 text-xs">${JSON.stringify(jsonData, null, 2)}</pre>`, 'grey');
-        } catch {
-            log(response.data.substring(0, 200) + '...', 'grey');
+    update(deltaTime, intensity) {
+        // Movement
+        const direction = this.targetPosition.subtract(this.position);
+        const distance = direction.magnitude();
+        if (distance > 0.1) {
+            this.velocity = direction.normalize().multiply(this.isGoalkeeper ? 3 : 5 * this.fatigueFactor);
+            this.position = this.position.add(this.velocity.multiply(deltaTime));
         }
-        return true;
-    } catch (error) {
-        log(`❌ ÉCHEC: [${name}] | ${error.message}`, 'error');
+
+        // Energy
+        this.updateEnergy(deltaTime, intensity);
+    }
+    
+    updateEnergy(deltaTime, intensity) {
+        const minuteFraction = deltaTime / 60;
+        const staminaDrainRate = { 'low': 0.4, 'normal': 1.0, 'high': 2.5 };
+        this.stamina -= (staminaDrainRate[intensity] || 1.0) * minuteFraction;
+        this.stamina = Math.max(0, this.stamina);
+
+        this.burst += 1.5 * minuteFraction;
+        this.burst = Math.min(100, this.burst);
+        
+        this.fatigueFactor = 0.5 + (this.stamina / 100) * 0.5;
+    }
+
+    useBurst(amount) {
+        if (this.burst >= amount) {
+            this.burst -= amount;
+            return true;
+        }
         return false;
     }
 }
 
-async function executeManualRequest() {
-    clearLogs();
-    const methodKey = document.getElementById('bypass-method').value;
-    const url = document.getElementById('target-url').value;
-    const httpMethod = document.getElementById('http-method').value;
-    const headersText = document.getElementById('headers-input').value;
-    const bodyText = document.getElementById('body-input').value;
+class Team {
+    constructor(id, name, color, side) {
+        this.id = id;
+        this.name = name;
+        this.color = color;
+        this.side = side; // 'left' or 'right'
+        this.players = [];
+        this.score = 0;
+        this.hasBall = false;
+        
+        this.generalTactics = {
+            offensiveStyle: 'possession',
+            defensiveStyle: 'mid_block'
+        };
 
-    if (!url) {
-        log('Veuillez entrer une URL cible.', 'error');
-        return;
+        for (let i = 1; i <= 11; i++) {
+            this.players.push(new Player(`${id}-${i}`, this, i, color));
+        }
+        this.setInitialPositions();
     }
 
-    let headers = {};
-    let body = undefined;
-    try {
-        if (headersText.trim()) headers = JSON.parse(headersText);
-        if (bodyText.trim() && ['POST', 'PUT'].includes(httpMethod)) body = bodyText;
-    } catch (e) {
-        log('JSON invalide dans les Headers ou le Body.', 'error');
-        return;
+    setInitialPositions(formation = '442') {
+        const positions = {
+            '442': [
+                [0.05, 0.5], // GK
+                [0.2, 0.2], [0.2, 0.4], [0.2, 0.6], [0.2, 0.8], // DEF
+                [0.5, 0.2], [0.5, 0.4], [0.5, 0.6], [0.5, 0.8], // MID
+                [0.8, 0.4], [0.8, 0.6] // FWD
+            ]
+        };
+        
+        const formationPos = positions[formation];
+        this.players.forEach((player, i) => {
+            let x = formationPos[i][0] * PITCH_WIDTH;
+            let y = formationPos[i][1] * PITCH_HEIGHT;
+            if(this.side === 'right') x = PITCH_WIDTH - x;
+
+            const pos = new Vector2D(x, y);
+            player.tactics.with_ball.position = new Vector2D(pos.x, pos.y);
+            player.tactics.without_ball.position = new Vector2D(pos.x, pos.y);
+            player.position = new Vector2D(pos.x, pos.y);
+        });
+    }
+
+    update(deltaTime) {
+        let intensity = 'normal';
+        if (this.generalTactics.defensiveStyle === 'high_press' && !this.hasBall) {
+            intensity = 'high';
+        } else if(this.generalTactics.offensiveStyle === 'possession' && this.hasBall) {
+            intensity = 'low';
+        }
+
+        this.players.forEach(p => {
+            const currentPhase = this.hasBall ? 'with_ball' : 'without_ball';
+            p.targetPosition = p.tactics[currentPhase].position;
+            p.update(deltaTime, intensity);
+        });
+    }
+}
+
+class Ball {
+    constructor() {
+        this.position = new Vector2D(PITCH_WIDTH / 2, PITCH_HEIGHT / 2);
+        this.velocity = new Vector2D();
+        this.carrier = null;
+        this.friction = 0.98;
+    }
+
+    update(deltaTime) {
+        if (this.carrier) {
+            this.position = this.carrier.position.add(new Vector2D(0.5, 0.5));
+            this.velocity = new Vector2D();
+        } else {
+            this.position = this.position.add(this.velocity.multiply(deltaTime));
+            this.velocity = this.velocity.multiply(this.friction);
+        }
+    }
+}
+
+class MatchEngine {
+    constructor(teamA, teamB) {
+        this.teamA = teamA;
+        this.teamB = teamB;
+        this.ball = new Ball();
+        
+        this.time = 0;
+        this.isPaused = true;
+        this.simulationSpeed = 1;
+        this.eventCooldown = false;
+
+        this.kickOff();
+    }
+
+    kickOff() {
+        this.isPaused = true;
+        this.ball.position = new Vector2D(PITCH_WIDTH / 2, PITCH_HEIGHT / 2);
+        this.ball.velocity = new Vector2D();
+        this.ball.carrier = null;
+        this.teamA.hasBall = false;
+        this.teamB.hasBall = false;
+        
+        setTimeout(() => {
+             const startingTeam = Math.random() < 0.5 ? this.teamA : this.teamB;
+             const startingPlayer = startingTeam.players.find(p => p.number === 10) || startingTeam.players[8];
+             this.ball.carrier = startingPlayer;
+             startingTeam.hasBall = true;
+             
+             if(document.getElementById('start-match').disabled) {
+                this.isPaused = false;
+             }
+        }, 1500);
     }
     
-    await executeRequest(methodKey, url, { method: httpMethod, headers, body });
-}
+    update(deltaTime) {
+        if (this.isPaused) return;
 
-// --- SYSTÈME DE TESTS AUTOMATIQUES ---
-async function runAutomatedTests() {
-    clearLogs();
-    log('🚀 Démarrage des tests automatiques...', 'warning');
+        const scaledDelta = deltaTime * this.simulationSpeed;
+        this.time += scaledDelta;
 
-    const testScenarios = [
-        {
-            description: "Requête GET simple (sans preflight)",
-            url: "https://jsonplaceholder.typicode.com/posts/1",
-            options: { method: 'GET' },
-            expected: { 'worker-proxy': 'success' }
-        },
-        {
-            description: "Requête POST complexe (déclenche un preflight CORS)",
-            url: "https://jsonplaceholder.typicode.com/posts",
-            options: {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ title: 'CORS Test' })
-            },
-            expected: { 'worker-proxy': 'failure' }
-        }
-    ];
+        this.teamA.update(scaledDelta);
+        this.teamB.update(scaledDelta);
+        this.ball.update(scaledDelta);
+        
+        this.checkPossession();
+        this.executePlayerActions();
+        this.checkBoundariesAndGoals();
+    }
+    
+    checkPossession() {
+        if (this.ball.carrier) return;
 
-    for (const scenario of testScenarios) {
-        log(`\n------------------------------------------------\n🔬 Scénario: ${scenario.description}\n------------------------------------------------`, 'warning');
-        for (const methodKey in methods) {
-            await executeRequest(methodKey, scenario.url, scenario.options);
+        let closestPlayer = null;
+        let minDistance = Infinity;
+
+        [...this.teamA.players, ...this.teamB.players].forEach(player => {
+            const distance = player.position.distanceTo(this.ball.position);
+            if (distance < minDistance) {
+                minDistance = distance;
+                closestPlayer = player;
+            }
+        });
+
+        if (closestPlayer && minDistance < 1) {
+            this.ball.carrier = closestPlayer;
+            this.teamA.hasBall = (closestPlayer.team.id === 'A');
+            this.teamB.hasBall = (closestPlayer.team.id === 'B');
+            uiController.logEvent(`${closestPlayer.team.name} #${closestPlayer.number} récupère le ballon.`);
         }
     }
-    log('\n🏁 Tests automatiques terminés.', 'warning');
-    log('➡️ CONCLUSION : Seul le Web Worker peut réussir les requêtes SIMPLES. Aucune méthode 100% client ne peut universellement contourner les requêtes COMPLEXES à cause des preflights (OPTIONS) imposés par les navigateurs.', 'info');
+
+    executePlayerActions() {
+        if (this.eventCooldown) return;
+        const carrier = this.ball.carrier;
+        if (!carrier) return;
+
+        const opponentGoal = carrier.team.side === 'left' 
+            ? new Vector2D(PITCH_WIDTH, PITCH_HEIGHT / 2)
+            : new Vector2D(0, PITCH_HEIGHT / 2);
+
+        const distanceToGoal = carrier.position.distanceTo(opponentGoal);
+        
+        if (distanceToGoal < uiController.settings.maxShotDistance) {
+            this.attemptShot(carrier, opponentGoal);
+        } else {
+            this.attemptPass(carrier);
+        }
+    }
+
+    attemptShot(shooter, goalPosition) {
+        if (Math.random() > 0.1) return; // Reduce frequency of actions
+
+        if (!shooter.useBurst(8)) {
+            uiController.logEvent(`${shooter.team.name} #${shooter.number} est trop fatigué pour tirer.`);
+            this.attemptPass(shooter);
+            return;
+        }
+
+        const distance = shooter.position.distanceTo(goalPosition);
+        const Pshot = this.calculatePshot(shooter, distance);
+        uiController.logEvent(`${shooter.team.name} #${shooter.number} tire ! (Pshot: ${Pshot.toFixed(2)})`);
+
+        if (Math.random() * 100 < Pshot) {
+            this.ball.velocity = goalPosition.subtract(shooter.position).normalize().multiply(30);
+        } else {
+            this.ball.velocity = goalPosition.subtract(shooter.position).normalize().multiply(20 + Math.random() * 10);
+            this.ball.velocity.y += (Math.random() - 0.5) * 10;
+        }
+        this.ball.carrier = null;
+    }
+
+    calculatePshot(shooter, distance) {
+        const BaseSkill = shooter.baseSkill;
+        const Ffatigue = shooter.fatigueFactor;
+        const Dfactor = Math.max(0.2, 1 - (distance / (uiController.settings.maxShotDistance + 5)));
+        const SituationalFactor = 1.0;
+        
+        return BaseSkill * Ffatigue * Dfactor * SituationalFactor;
+    }
+    
+    attemptPass(passer) {
+        if (Math.random() > 0.2) return; // Reduce frequency
+        if (!passer.useBurst(1)) return;
+
+        const teammates = passer.team.players.filter(p => p !== passer);
+        let bestTarget = null;
+        let minDistance = Infinity;
+        teammates.forEach(t => {
+            const dist = passer.position.distanceTo(t.position);
+            if (dist < minDistance && dist > 2) {
+                minDistance = dist;
+                bestTarget = t;
+            }
+        });
+        
+        if(bestTarget) {
+            const passDirection = bestTarget.position.subtract(passer.position).normalize();
+            this.ball.velocity = passDirection.multiply(15 + Math.random() * 5);
+            this.ball.carrier = null;
+        }
+    }
+    
+    checkBoundariesAndGoals() {
+        if (this.eventCooldown) return;
+        const { x, y } = this.ball.position;
+        const goalYMin = (PITCH_HEIGHT / 2) - (GOAL_WIDTH / 2);
+        const goalYMax = (PITCH_HEIGHT / 2) + (GOAL_WIDTH / 2);
+
+        let eventOccurred = false;
+        const scoringTeam = x < 0 ? this.teamB : (x > PITCH_WIDTH ? this.teamA : null);
+
+        if (scoringTeam && y > goalYMin && y < goalYMax) {
+            this.goalScored(scoringTeam);
+            eventOccurred = true;
+        } else if (x < -2 || x > PITCH_WIDTH + 2 || y < -2 || y > PITCH_HEIGHT + 2) {
+             uiController.logEvent("Le ballon sort des limites. Remise en jeu.");
+             this.resetPositionsAfterEvent();
+             this.kickOff();
+             eventOccurred = true;
+        }
+
+        if(eventOccurred) {
+            this.eventCooldown = true;
+            setTimeout(() => { this.eventCooldown = false; }, 2000);
+        }
+    }
+
+    goalScored(scoringTeam) {
+        scoringTeam.score++;
+        uiController.logEvent(`BUT pour ${scoringTeam.name} !`, 'goal');
+        uiController.updateScore(this.teamA.score, this.teamB.score);
+        this.resetPositionsAfterEvent();
+        this.kickOff();
+    }
+    
+    resetPositionsAfterEvent() {
+        this.teamA.players.forEach(p => p.position = new Vector2D(p.tactics.without_ball.position.x, p.tactics.without_ball.position.y));
+        this.teamB.players.forEach(p => p.position = new Vector2D(p.tactics.without_ball.position.x, p.tactics.without_ball.position.y));
+        this.isPaused = true;
+    }
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-    clearLogs();
-    log('🔥 Validateur de Méthodes CORS Initialisé.', 'success');
-    log('💡 Prêt à lancer les tests automatiques ou manuels.', 'info');
-});
+class Renderer {
+    draw() {
+        if (!canvas || !ctx) return;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        this.drawPitch();
+        
+        if (matchEngine) {
+             this.drawShootingZone(matchEngine.teamA);
+             this.drawShootingZone(matchEngine.teamB);
+             matchEngine.teamA.players.forEach(p => this.drawPlayer(p));
+             matchEngine.teamB.players.forEach(p => this.drawPlayer(p));
+             this.drawBall(matchEngine.ball);
+        }
+    }
 
+    drawPitch() {
+        ctx.save();
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.8)';
+        ctx.lineWidth = Math.max(1, 2 * (scale/10));
+        ctx.strokeRect(0, 0, canvas.width, canvas.height);
+
+        ctx.beginPath();
+        ctx.moveTo(canvas.width / 2, 0);
+        ctx.lineTo(canvas.width / 2, canvas.height);
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.arc(canvas.width / 2, canvas.height / 2, 9.15 * scale, 0, 2 * Math.PI);
+        ctx.stroke();
+
+        this.drawBox(16.5, 40.3);
+        this.drawBox(5.5, 18.3);
+        
+        ctx.fillStyle = 'rgba(0,0,0,0.4)';
+        ctx.fillRect(-2*scale, (canvasHeight/2) - (GOAL_WIDTH/2 * scale), 2*scale, GOAL_WIDTH * scale);
+        ctx.fillRect(canvasWidth, (canvasHeight/2) - (GOAL_WIDTH/2 * scale), 2*scale, GOAL_WIDTH * scale);
+
+        ctx.restore();
+    }
+    
+    drawBox(x_m, y_m) {
+        const boxWidth = x_m * scale;
+        const boxHeight = y_m * scale;
+        ctx.strokeRect(0, (canvasHeight - boxHeight) / 2, boxWidth, boxHeight);
+        ctx.strokeRect(canvasWidth - boxWidth, (canvasHeight - boxHeight) / 2, boxWidth, boxHeight);
+    }
+    
+    drawPlayer(player) {
+        const x = player.position.x * scale;
+        const y = player.position.y * scale;
+        const radius = Math.max(2, (player.isGoalkeeper ? 6 : 5) * (scale/10));
+
+        ctx.beginPath();
+        ctx.arc(x, y, radius, 0, 2 * Math.PI);
+        ctx.fillStyle = player.color;
+        ctx.fill();
+        ctx.strokeStyle = 'black';
+        ctx.lineWidth = 1;
+        ctx.stroke();
+
+        if (radius > 3) {
+            ctx.fillStyle = 'white';
+            ctx.font = `bold ${Math.max(4, 8 * (scale/10))}px Arial`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(player.number, x, y);
+        }
+    }
+
+    drawBall(ball) {
+        const x = ball.position.x * scale;
+        const y = ball.position.y * scale;
+        
+        ctx.beginPath();
+        ctx.arc(x, y, Math.max(1.5, 3 * (scale/10)), 0, 2 * Math.PI);
+        ctx.fillStyle = 'white';
+        ctx.fill();
+        ctx.strokeStyle = 'black';
+        ctx.lineWidth = 1;
+        ctx.stroke();
+    }
+    
+    drawShootingZone(team) {
+        const maxDist = uiController.settings.maxShotDistance * scale;
+        const goalX = team.side === 'left' ? canvasWidth : 0;
+        const goalY = canvasHeight / 2;
+
+        ctx.beginPath();
+        const startAngle = team.side === 'left' ? Math.PI * 1.5 : Math.PI * 0.5;
+        const endAngle = team.side === 'left' ? Math.PI * 0.5 : Math.PI * 1.5;
+        
+        ctx.arc(goalX, goalY, maxDist, startAngle, endAngle);
+        ctx.strokeStyle = 'rgba(255, 255, 0, 0.3)';
+        ctx.lineWidth = 1;
+        ctx.stroke();
+    }
+}
+
+class UIController {
+    constructor() {
+        this.settings = { maxShotDistance: 25, simSpeed: 1 };
+        this.activeTeam = 'A';
+        this.activePhase = 'with_ball';
+        this.selectedPlayer = null;
+        this.initEventListeners();
+        this.buildTeamConfigPanel('A');
+        this.buildTeamConfigPanel('B');
+    }
+
+    initEventListeners() {
+        document.getElementById('start-match').addEventListener('click', () => this.startMatch());
+        document.getElementById('pause-match').addEventListener('click', () => this.pauseMatch());
+        document.getElementById('reset-match').addEventListener('click', () => this.resetMatch());
+        
+        document.getElementById('sim-speed').addEventListener('input', (e) => this.updateSimSpeed(e.target.value));
+        document.getElementById('shot-distance').addEventListener('input', (e) => this.updateShotDistance(e.target.value));
+        document.getElementById('tab-team-a').addEventListener('click', () => this.switchTeamTab('A'));
+        document.getElementById('tab-team-b').addEventListener('click', () => this.switchTeamTab('B'));
+    }
+    
+    startMatch() {
+        matchEngine.isPaused = false;
+        document.getElementById('start-match').disabled = true;
+        document.getElementById('pause-match').disabled = false;
+        document.getElementById('pause-match').textContent = 'Pause';
+    }
+
+    pauseMatch() {
+        matchEngine.isPaused = !matchEngine.isPaused;
+        document.getElementById('pause-match').textContent = matchEngine.isPaused ? 'Reprendre' : 'Pause';
+    }
+
+    resetMatch() { location.reload(); }
+    
+    updateSimSpeed(value) {
+        this.settings.simSpeed = parseInt(value);
+        if (matchEngine) matchEngine.simulationSpeed = this.settings.simSpeed;
+        document.getElementById('sim-speed-value').textContent = value;
+    }
+
+    updateShotDistance(value) {
+        this.settings.maxShotDistance = parseInt(value);
+        document.getElementById('shot-distance-value').textContent = value;
+        renderer.draw();
+    }
+
+    switchTeamTab(teamId) {
+        this.activeTeam = teamId;
+        this.selectedPlayer = null;
+        ['A', 'B'].forEach(id => {
+            document.getElementById(`tab-team-${id.toLowerCase()}`).classList.toggle('tab-active', id === teamId);
+            document.getElementById(`tab-team-${id.toLowerCase()}`).classList.toggle('tab-inactive', id !== teamId);
+            document.getElementById(`config-panel-team-${id.toLowerCase()}`).classList.toggle('hidden', id !== teamId);
+        });
+    }
+
+    switchPhaseTab(phase) {
+        this.activePhase = phase;
+        this.selectedPlayer = null;
+        this.buildPlayerEditor();
+        document.querySelectorAll(`.phase-tab-${this.activeTeam}`).forEach(tab => {
+            tab.classList.toggle('phase-active', tab.dataset.phase === phase);
+            tab.classList.toggle('phase-inactive', tab.dataset.phase !== phase);
+        });
+        
+        this.drawMinimap();
+    }
+    
+    buildTeamConfigPanel(teamId) {
+        const team = teamId === 'A' ? teamA : teamB;
+        const panel = document.getElementById(`config-panel-team-${teamId}`);
+        panel.innerHTML = `
+            <div class="mb-4">
+                <label class="font-semibold">Nom de l'équipe:</label>
+                <input type="text" value="${team.name}" class="bg-gray-800 rounded p-1 w-full mt-1" id="team-name-${teamId}">
+            </div>
+            <div class="flex rounded-md mb-4">
+                <button data-phase="with_ball" class="phase-tab-${teamId} flex-1 p-2 font-semibold rounded-l-md transition duration-300 phase-active">Avec Ballon</button>
+                <button data-phase="without_ball" class="phase-tab-${teamId} flex-1 p-2 font-semibold rounded-r-md transition duration-300 phase-inactive">Sans Ballon</button>
+            </div>
+            <div class="bg-gray-800 p-2 rounded-lg mb-4">
+                <canvas id="minimap-${teamId}" class="w-full aspect-[105/68] pitch-bg cursor-pointer"></canvas>
+            </div>
+            <div id="player-editor-${teamId}" class="flex-1 bg-gray-800 rounded-lg p-3 overflow-y-auto"></div>
+        `;
+        
+        document.getElementById(`team-name-${teamId}`).addEventListener('change', e => {
+            team.name = e.target.value;
+            document.getElementById(`team-${teamId.toLowerCase()}-name-display`).textContent = team.name;
+        });
+
+        document.querySelectorAll(`.phase-tab-${teamId}`).forEach(tab => {
+            tab.addEventListener('click', () => this.switchPhaseTab(tab.dataset.phase));
+        });
+        
+        this.setupMinimap(teamId);
+        this.buildPlayerEditor(teamId);
+    }
+
+    setupMinimap(teamId) {
+        const minimapCanvas = document.getElementById(`minimap-${teamId}`);
+        const team = teamId === 'A' ? teamA : teamB;
+        let draggingPlayer = null;
+
+        const getMousePos = (e) => {
+            const rect = minimapCanvas.getBoundingClientRect();
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            return {
+                x: (clientX - rect.left) * (minimapCanvas.width / rect.width),
+                y: (clientY - rect.top) * (minimapCanvas.height / rect.height)
+            };
+        }
+        
+        const startDrag = (e) => {
+            e.preventDefault();
+            const pos = getMousePos(e);
+            const minimapScale = minimapCanvas.width / PITCH_WIDTH;
+            
+            let clickedPlayer = null;
+            let minClickDist = Infinity;
+            team.players.forEach(p => {
+                const playerCanvasPos = { x: p.tactics[this.activePhase].position.x * minimapScale, y: p.tactics[this.activePhase].position.y * minimapScale };
+                const distance = Math.sqrt((pos.x - playerCanvasPos.x)**2 + (pos.y - playerCanvasPos.y)**2);
+                if (distance < 15 && distance < minClickDist) { // Larger touch target
+                    clickedPlayer = p;
+                    minClickDist = distance;
+                }
+            });
+            if (clickedPlayer) {
+                 draggingPlayer = clickedPlayer;
+                 this.selectedPlayer = draggingPlayer;
+                 this.buildPlayerEditor();
+            }
+        };
+        
+        const drag = (e) => {
+            if (draggingPlayer) {
+                e.preventDefault();
+                const pos = getMousePos(e);
+                const minimapScale = minimapCanvas.width / PITCH_WIDTH;
+                draggingPlayer.tactics[this.activePhase].position.x = Math.max(0, Math.min(PITCH_WIDTH, pos.x / minimapScale));
+                draggingPlayer.tactics[this.activePhase].position.y = Math.max(0, Math.min(PITCH_HEIGHT, pos.y / minimapScale));
+                this.drawMinimap();
+                this.buildPlayerEditor();
+            }
+        };
+
+        const endDrag = () => { draggingPlayer = null; };
+
+        minimapCanvas.addEventListener('mousedown', startDrag);
+        minimapCanvas.addEventListener('mousemove', drag);
+        minimapCanvas.addEventListener('mouseup', endDrag);
+        minimapCanvas.addEventListener('mouseleave', endDrag);
+
+        minimapCanvas.addEventListener('touchstart', startDrag, { passive: false });
+        minimapCanvas.addEventListener('touchmove', drag, { passive: false });
+        minimapCanvas.addEventListener('touchend', endDrag);
+    }
+    
+    drawMinimap(teamId = this.activeTeam) {
+        const minimapCanvas = document.getElementById(`minimap-${teamId}`);
+        if(!minimapCanvas) return;
+        const miniCtx = minimapCanvas.getContext('2d');
+        const team = teamId === 'A' ? teamA : teamB;
+        
+        minimapCanvas.width = minimapCanvas.clientWidth;
+        minimapCanvas.height = minimapCanvas.clientHeight;
+        const minimapScale = minimapCanvas.width / PITCH_WIDTH;
+        
+        miniCtx.clearRect(0, 0, minimapCanvas.width, minimapCanvas.height);
+        
+        team.players.forEach(p => {
+            const pos = p.tactics[this.activePhase].position;
+            const x = pos.x * minimapScale;
+            const y = pos.y * minimapScale;
+            
+            miniCtx.beginPath();
+            miniCtx.arc(x, y, 4, 0, 2 * Math.PI);
+            miniCtx.fillStyle = p.color;
+            miniCtx.fill();
+
+            if (p === this.selectedPlayer) {
+                miniCtx.strokeStyle = '#f7b731';
+                miniCtx.lineWidth = 2;
+                miniCtx.stroke();
+            }
+
+            miniCtx.fillStyle = 'white';
+            miniCtx.font = 'bold 7px Arial';
+            miniCtx.textAlign = 'center';
+            miniCtx.textBaseline = 'middle';
+            miniCtx.fillText(p.number, x, y);
+        });
+    }
+    
+    buildPlayerEditor(teamId = this.activeTeam) {
+        const panel = document.getElementById(`player-editor-${teamId}`);
+        if (!panel) return;
+        if (!this.selectedPlayer) {
+            panel.innerHTML = '<p class="text-gray-400 text-center p-4">Cliquez sur un joueur sur la mini-carte pour le configurer.</p>';
+            return;
+        }
+        const player = this.selectedPlayer;
+        const playerPos = player.tactics[this.activePhase].position;
+        panel.innerHTML = `
+            <h3 class="text-lg font-bold text-yellow-400">Configuration Joueur #${player.number}</h3>
+            <div class="mt-2 space-y-3">
+                 <div>
+                    <label class="block text-sm font-medium">Position (X: ${playerPos.x.toFixed(1)}, Y: ${playerPos.y.toFixed(1)})</label>
+                </div>
+                <div>
+                    <label for="player-skill" class="block text-sm font-medium">Compétence de base: <span id="player-skill-value">${player.baseSkill}</span></label>
+                    <input id="player-skill" type="range" min="1" max="100" value="${player.baseSkill}" class="w-full h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer">
+                </div>
+                 <div class="mt-2">
+                     <h4 class="font-semibold">Instructions pour la phase (${this.activePhase.replace('_', ' ')}):</h4>
+                     <div class="text-sm mt-2 text-gray-300"><p>Fonctionnalité à venir...</p></div>
+                </div>
+            </div>
+        `;
+        document.getElementById('player-skill').addEventListener('input', e => {
+            player.baseSkill = parseInt(e.target.value);
+            document.getElementById('player-skill-value').textContent = player.baseSkill;
+        });
+    }
+
+    logEvent(message, type = 'info') {
+        const log = document.getElementById('event-log');
+        const time = matchEngine ? (matchEngine.time / 60).toFixed(0).padStart(2, '0') : '00';
+        const p = document.createElement('p');
+        p.textContent = `${time}': ${message}`;
+        if (type === 'goal') p.className = 'text-yellow-300 font-bold';
+        log.appendChild(p);
+        log.scrollTop = log.scrollHeight;
+    }
+
+    updateScore(scoreA, scoreB) {
+        document.getElementById('score-display').innerHTML = `
+            <span class="text-blue-400">${teamA.name}</span> ${scoreA} - ${scoreB} <span class="text-red-400">${teamB.name}</span>
+        `;
+    }
+
+    updateTime(seconds) {
+        const mins = Math.floor(seconds / 60).toString().padStart(2, '0');
+        const secs = Math.floor(seconds % 60).toString().padStart(2, '0');
+        document.getElementById('time-display').textContent = `${mins}:${secs}`;
+    }
+}
+
+// -----------------------------------------------------------------------------------
+// Section 5: Boucle principale et initialisation
+// -----------------------------------------------------------------------------------
+
+let teamA = new Team('A', 'Équipe A', '#3b82f6', 'left');
+let teamB = new Team('B', 'Équipe B', '#ef4444', 'right');
+let matchEngine = new MatchEngine(teamA, teamB);
+let renderer = new Renderer();
+let uiController = new UIController();
+
+let lastTime = 0;
+function gameLoop(timestamp) {
+    if (!lastTime) lastTime = timestamp;
+    const deltaTime = (timestamp - lastTime) / 1000;
+    lastTime = timestamp;
+
+    if (matchEngine && !matchEngine.isPaused) {
+        matchEngine.update(deltaTime || 0);
+    }
+    renderer.draw();
+    uiController.updateTime(matchEngine.time);
+    
+    requestAnimationFrame(gameLoop);
+}
+
+window.addEventListener('load', () => {
+    // Initial resize and draw
+    resizeCanvas();
+    uiController.drawMinimap('A'); 
+    uiController.drawMinimap('B');
+
+    // Use ResizeObserver for efficient resize handling
+    const mainArea = document.querySelector('main');
+    const resizeObserver = new ResizeObserver(entries => {
+        resizeCanvas();
+        uiController.drawMinimap('A');
+        uiController.drawMinimap('B');
+    });
+    if (mainArea) {
+       resizeObserver.observe(mainArea);
+    }
+
+    uiController.logEvent("Bienvenue ! Configurez vos équipes et lancez le match.");
+    requestAnimationFrame(gameLoop);
+});
 </script>
 </body>
 </html>
+

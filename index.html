@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simulateur Tactique de Football 2D (Corrigé)</title>
+    <title>Simulateur Tactique (Multi-Écrans)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
@@ -18,151 +18,142 @@
                 linear-gradient(90deg, rgba(255, 255, 255, 0.1) 1px, transparent 1px);
             background-size: 20px 20px;
         }
-        .no-select {
-            -webkit-user-select: none; /* Safari */
-            -ms-user-select: none; /* IE 10+ */
-            user-select: none; /* Standard syntax */
-        }
-        .tab-active {
-            background-color: #f7b731;
-            color: #1a202c;
-        }
-        .tab-inactive {
-            background-color: #4a5568;
-        }
-        .phase-active {
-            background-color: #2c7a7b;
-            border-color: #f7b731;
-        }
-        .phase-inactive {
-            background-color: #2d3748;
-        }
-        /* Make scrollbars less obtrusive */
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: #2d3748; }
-        ::-webkit-scrollbar-thumb { background: #4a5568; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #718096; }
+        .no-select { -webkit-user-select: none; -ms-user-select: none; user-select: none; }
+        .page { display: flex; flex-direction: column; width: 100%; height: 100%; }
+        .hidden { display: none !important; }
     </style>
 </head>
-<body class="bg-gray-900 text-white h-screen flex flex-col no-select">
+<body class="bg-gray-900 text-white h-screen flex flex-col no-select overflow-hidden">
 
-    <!-- Header -->
-    <header class="bg-gray-800 p-3 shadow-lg flex flex-col sm:flex-row items-center justify-between gap-2">
-        <h1 class="text-lg sm:text-xl font-bold text-gray-100 text-center sm:text-left">Simulateur Tactique 2D</h1>
-        <div id="score-display" class="text-xl sm:text-2xl font-bold tracking-wider text-center">
-            <span id="team-a-name-display" class="text-blue-400">Équipe A</span> 0 - 0 <span id="team-b-name-display" class="text-red-400">Équipe B</span>
-        </div>
-        <div class="text-xl font-mono" id="time-display">00:00</div>
-    </header>
-
-    <!-- Main Content: Flex column on mobile, flex row on large screens -->
-    <div class="flex flex-1 flex-col lg:flex-row overflow-hidden">
+    <!-- =========== ÉCRAN 1: SIMULATION (DASHBOARD) =========== -->
+    <div id="page-dashboard" class="page">
+        <!-- Header -->
+        <header class="bg-gray-800 p-3 shadow-lg flex flex-col sm:flex-row items-center justify-between gap-2">
+            <h1 class="text-lg sm:text-xl font-bold text-gray-100">Simulateur Tactique 2D</h1>
+            <div id="score-display" class="text-xl sm:text-2xl font-bold tracking-wider">
+                <span id="team-a-name-display-db" class="text-blue-400">Équipe A</span> 0 - 0 <span id="team-b-name-display-db" class="text-red-400">Équipe B</span>
+            </div>
+            <div class="text-xl font-mono" id="time-display">00:00</div>
+        </header>
         
-        <!-- Tactical Configuration Panel -->
-        <aside class="w-full lg:w-1/3 lg:max-w-md xl:max-w-lg bg-gray-800 p-4 overflow-y-auto flex flex-col space-y-4 lg:h-full">
+        <!-- Main Content -->
+        <div class="flex-1 flex flex-col lg:flex-row overflow-hidden p-4 gap-4">
+            <!-- Left Panel: Controls & Config Buttons -->
+            <aside class="w-full lg:w-80 xl:w-96 bg-gray-800 p-4 rounded-lg flex flex-col space-y-4 overflow-y-auto">
+                <div class="bg-gray-700 p-4 rounded-lg shadow-md">
+                    <h2 class="text-lg font-semibold mb-3">Contrôles du Match</h2>
+                    <div class="flex space-x-2">
+                        <button id="start-match" class="flex-1 bg-green-600 hover:bg-green-700 font-bold py-2 px-4 rounded-md">Lancer</button>
+                        <button id="pause-match" class="flex-1 bg-yellow-500 hover:bg-yellow-600 font-bold py-2 px-4 rounded-md" disabled>Pause</button>
+                        <button id="reset-match" class="flex-1 bg-red-600 hover:bg-red-700 font-bold py-2 px-4 rounded-md">Reset</button>
+                    </div>
+                    <div class="mt-3">
+                        <label for="sim-speed" class="block text-sm">Vitesse: <span id="sim-speed-value">1</span>x</label>
+                        <input id="sim-speed" type="range" min="1" max="10" value="1" class="w-full h-2 bg-gray-600 rounded-lg cursor-pointer">
+                    </div>
+                </div>
+
+                <div class="bg-gray-700 p-4 rounded-lg shadow-md">
+                    <h2 class="text-lg font-semibold mb-3">Paramètres Généraux</h2>
+                    <div>
+                        <label for="shot-distance" class="block text-sm">Distance de tir max: <span id="shot-distance-value">25</span>m</label>
+                        <input id="shot-distance" type="range" min="5" max="35" value="25" class="w-full h-2 bg-gray-600 rounded-lg cursor-pointer">
+                    </div>
+                </div>
+                
+                <div class="bg-gray-700 p-4 rounded-lg shadow-md flex-1">
+                    <h2 class="text-lg font-semibold mb-3">Configuration Tactique</h2>
+                    <div class="flex flex-col space-y-3">
+                        <button id="goto-config-a" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-md">Configurer Équipe A</button>
+                        <button id="goto-config-b" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-4 rounded-md">Configurer Équipe B</button>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Right Panel: Pitch & Log -->
+            <main class="flex-1 flex flex-col min-h-0">
+                <div class="w-full h-full flex items-center justify-center relative flex-1">
+                     <canvas id="football-pitch" class="bg-green-700 rounded-lg shadow-2xl pitch-bg border-2 border-gray-600"></canvas>
+                </div>
+                <div class="h-24 md:h-32 bg-gray-800 mt-4 rounded-lg p-2 overflow-y-auto">
+                    <h3 class="font-semibold text-gray-400">Log des Événements</h3>
+                    <div id="event-log" class="text-sm font-mono text-gray-300"></div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- =========== ÉCRAN 2: CONFIGURATION D'ÉQUIPE =========== -->
+    <div id="page-config" class="page hidden">
+        <header class="bg-gray-800 p-3 shadow-lg flex items-center justify-between">
+            <h1 id="config-title" class="text-xl font-bold">Configuration Tactique</h1>
+            <button id="back-to-dashboard" class="bg-gray-600 hover:bg-gray-700 font-bold py-2 px-4 rounded-md">Retour à la Simulation</button>
+        </header>
+
+        <div class="flex-1 flex flex-col lg:flex-row p-4 gap-4 overflow-hidden">
+            <!-- Left Panel: Minimap -->
+            <div class="flex-1 flex flex-col bg-gray-800 p-4 rounded-lg">
+                 <div class="flex rounded-md mb-4 bg-gray-700">
+                    <button id="config-phase-with-ball" class="config-phase-tab flex-1 p-3 font-semibold rounded-l-md">Avec Ballon</button>
+                    <button id="config-phase-without-ball" class="config-phase-tab flex-1 p-3 font-semibold rounded-r-md">Sans Ballon</button>
+                </div>
+                <div class="flex-1 w-full flex items-center justify-center">
+                    <canvas id="minimap-canvas" class="w-full max-w-full max-h-full aspect-[105/68] pitch-bg cursor-pointer rounded-md"></canvas>
+                </div>
+            </div>
             
-            <!-- Match Controls -->
-            <div class="bg-gray-700 p-4 rounded-lg shadow-md">
-                <h2 class="text-lg font-semibold mb-3 border-b border-gray-600 pb-2">Contrôles du Match</h2>
-                <div class="flex space-x-2">
-                    <button id="start-match" class="flex-1 bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-md transition duration-300">Lancer</button>
-                    <button id="pause-match" class="flex-1 bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-4 rounded-md transition duration-300" disabled>Pause</button>
-                    <button id="reset-match" class="flex-1 bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-md transition duration-300">Reset</button>
-                </div>
-                 <div class="mt-3">
-                    <label for="sim-speed" class="block text-sm font-medium text-gray-300">Vitesse: <span id="sim-speed-value">1</span>x</label>
-                    <input id="sim-speed" type="range" min="1" max="10" value="1" class="w-full h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer">
+            <!-- Right Panel: Player Editor -->
+            <div class="w-full lg:w-80 xl:w-96 bg-gray-800 p-4 rounded-lg overflow-y-auto">
+                <h2 class="text-lg font-semibold mb-3 border-b border-gray-600 pb-2">Paramètres du Joueur</h2>
+                <div id="player-editor">
+                    <p class="text-gray-400 text-center p-4">Cliquez sur un joueur sur la carte pour le configurer.</p>
                 </div>
             </div>
-
-            <!-- Global Settings -->
-            <div class="bg-gray-700 p-4 rounded-lg shadow-md">
-                <h2 class="text-lg font-semibold mb-3 border-b border-gray-600 pb-2">Paramètres de Tir</h2>
-                <div>
-                    <label for="shot-distance" class="block text-sm font-medium text-gray-300">Distance de tir max: <span id="shot-distance-value">25</span>m</label>
-                    <input id="shot-distance" type="range" min="5" max="35" value="25" class="w-full h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer">
-                </div>
-            </div>
-
-            <!-- Team Configuration Tabs -->
-            <div class="flex-1 bg-gray-700 p-4 rounded-lg shadow-md flex flex-col min-h-[400px] lg:min-h-0">
-                <div class="flex rounded-md mb-4">
-                    <button id="tab-team-a" class="tab-team flex-1 p-2 font-semibold rounded-l-md transition duration-300 tab-active">Équipe A</button>
-                    <button id="tab-team-b" class="tab-team flex-1 p-2 font-semibold rounded-r-md transition duration-300 tab-inactive">Équipe B</button>
-                </div>
-
-                <div id="config-panel-team-a" class="team-config-panel flex-1 flex flex-col min-h-0">
-                    <!-- Config content will be dynamically inserted here -->
-                </div>
-                 <div id="config-panel-team-b" class="team-config-panel hidden flex-1 flex flex-col min-h-0">
-                    <!-- Config content will be dynamically inserted here -->
-                </div>
-            </div>
-
-        </aside>
-
-        <!-- Main Simulation Area -->
-        <main class="flex-1 flex flex-col p-4 bg-gray-900 min-h-0">
-            <div class="w-full h-full flex items-center justify-center relative flex-1">
-                 <canvas id="football-pitch" class="bg-green-700 rounded-lg shadow-2xl pitch-bg border-2 border-gray-600"></canvas>
-            </div>
-            <!-- Event Log -->
-            <div class="h-24 md:h-32 bg-gray-800 mt-4 rounded-lg p-2 overflow-y-auto">
-                <h3 class="font-semibold text-gray-400">Log des Événements</h3>
-                <div id="event-log" class="text-sm font-mono text-gray-300 whitespace-pre-wrap"></div>
-            </div>
-        </main>
+        </div>
     </div>
 
 <script type="module">
 // ===================================================================================
-// ILN Niveau 1 - Unification dans un seul fichier
+// ARCHITECTURE & INITIALISATION
 // ===================================================================================
 
-// -----------------------------------------------------------------------------------
-// Section 0: Setup & Initialisation
-// -----------------------------------------------------------------------------------
-const PITCH_WIDTH = 105; // meters
-const PITCH_HEIGHT = 68; // meters
+// --- CONSTANTES ---
+const PITCH_WIDTH = 105;
+const PITCH_HEIGHT = 68;
 const GOAL_WIDTH = 7.32;
 
+// --- CANVAS & CONTEXTES ---
 const canvas = document.getElementById('football-pitch');
 const ctx = canvas.getContext('2d');
-
+const minimapCanvas = document.getElementById('minimap-canvas');
+const minimapCtx = minimapCanvas.getContext('2d');
 let scale;
-let canvasWidth, canvasHeight;
 
 function resizeCanvas() {
     const container = canvas.parentElement;
-    const containerStyle = getComputedStyle(container);
-    const availableWidth = container.clientWidth - parseFloat(containerStyle.paddingLeft) - parseFloat(containerStyle.paddingRight);
-    const availableHeight = container.clientHeight - parseFloat(containerStyle.paddingTop) - parseFloat(containerStyle.paddingBottom);
-    
-    if (availableWidth <= 0 || availableHeight <= 0) return; // Guard clause
+    if (!container || container.clientWidth === 0) return;
 
     const pitchRatio = PITCH_WIDTH / PITCH_HEIGHT;
-    const containerRatio = availableWidth / availableHeight;
+    const containerRatio = container.clientWidth / container.clientHeight;
     
+    let canvasWidth, canvasHeight;
     if (containerRatio > pitchRatio) {
-        canvasHeight = availableHeight;
+        canvasHeight = container.clientHeight;
         canvasWidth = canvasHeight * pitchRatio;
     } else {
-        canvasWidth = availableWidth;
+        canvasWidth = container.clientWidth;
         canvasHeight = canvasWidth / pitchRatio;
     }
     canvas.width = canvasWidth;
     canvas.height = canvasHeight;
     scale = canvasWidth / PITCH_WIDTH;
     
-    if(renderer) {
-        renderer.draw();
-    }
+    if(renderer) renderer.draw();
 }
 
-// -----------------------------------------------------------------------------------
-// Section 1: Classes de base (Vector, Player, Team, Ball, MatchEngine, Renderer, UIController)
-// -----------------------------------------------------------------------------------
-
+// ===================================================================================
+// CLASSES DE BASE (Logique du jeu)
+// ===================================================================================
 class Vector2D {
     constructor(x = 0, y = 0) { this.x = x; this.y = y; }
     add(v) { return new Vector2D(this.x + v.x, this.y + v.y); }
@@ -175,117 +166,59 @@ class Vector2D {
 
 class Player {
     constructor(id, team, number, color) {
-        this.id = id;
-        this.team = team;
-        this.number = number;
-        this.color = color;
+        this.id = id; this.team = team; this.number = number; this.color = color;
         this.isGoalkeeper = (number === 1);
-        
-        this.position = new Vector2D();
-        this.velocity = new Vector2D();
-        
-        this.stamina = 100;
-        this.burst = 100;
-        this.baseSkill = 70; // 0-100
-        this.fatigueFactor = 1;
-
+        this.position = new Vector2D(); this.velocity = new Vector2D();
+        this.stamina = 100; this.burst = 100; this.baseSkill = 70; this.fatigueFactor = 1;
         this.tactics = {
-            'with_ball': { position: new Vector2D(), instructions: [] },
-            'without_ball': { position: new Vector2D(), instructions: [] }
+            'with_ball': { position: new Vector2D() }, 'without_ball': { position: new Vector2D() }
         };
         this.targetPosition = new Vector2D();
     }
-
     update(deltaTime, intensity) {
-        // Movement
         const direction = this.targetPosition.subtract(this.position);
-        const distance = direction.magnitude();
-        if (distance > 0.1) {
-            this.velocity = direction.normalize().multiply(this.isGoalkeeper ? 3 : 5 * this.fatigueFactor);
+        if (direction.magnitude() > 0.1) {
+            this.velocity = direction.normalize().multiply((this.isGoalkeeper ? 3 : 5) * this.fatigueFactor);
             this.position = this.position.add(this.velocity.multiply(deltaTime));
         }
-
-        // Energy
-        this.updateEnergy(deltaTime, intensity);
-    }
-    
-    updateEnergy(deltaTime, intensity) {
         const minuteFraction = deltaTime / 60;
-        const staminaDrainRate = { 'low': 0.4, 'normal': 1.0, 'high': 2.5 };
-        this.stamina -= (staminaDrainRate[intensity] || 1.0) * minuteFraction;
+        this.stamina -= ({ low: 0.4, normal: 1.0, high: 2.5 }[intensity] || 1.0) * minuteFraction;
         this.stamina = Math.max(0, this.stamina);
-
-        this.burst += 1.5 * minuteFraction;
-        this.burst = Math.min(100, this.burst);
-        
+        this.burst = Math.min(100, this.burst + 1.5 * minuteFraction);
         this.fatigueFactor = 0.5 + (this.stamina / 100) * 0.5;
     }
-
     useBurst(amount) {
-        if (this.burst >= amount) {
-            this.burst -= amount;
-            return true;
-        }
-        return false;
+        if (this.burst < amount) return false;
+        this.burst -= amount;
+        return true;
     }
 }
 
 class Team {
     constructor(id, name, color, side) {
-        this.id = id;
-        this.name = name;
-        this.color = color;
-        this.side = side; // 'left' or 'right'
-        this.players = [];
-        this.score = 0;
-        this.hasBall = false;
-        
-        this.generalTactics = {
-            offensiveStyle: 'possession',
-            defensiveStyle: 'mid_block'
-        };
-
+        this.id = id; this.name = name; this.color = color; this.side = side;
+        this.players = []; this.score = 0; this.hasBall = false;
         for (let i = 1; i <= 11; i++) {
             this.players.push(new Player(`${id}-${i}`, this, i, color));
         }
         this.setInitialPositions();
     }
-
-    setInitialPositions(formation = '442') {
-        const positions = {
-            '442': [
-                [0.05, 0.5], // GK
-                [0.2, 0.2], [0.2, 0.4], [0.2, 0.6], [0.2, 0.8], // DEF
-                [0.5, 0.2], [0.5, 0.4], [0.5, 0.6], [0.5, 0.8], // MID
-                [0.8, 0.4], [0.8, 0.6] // FWD
-            ]
-        };
-        
-        const formationPos = positions[formation];
+    setInitialPositions(formationKey = '442') {
+        const positions = { '442': [[0.05, 0.5], [0.2, 0.2], [0.2, 0.4], [0.2, 0.6], [0.2, 0.8], [0.5, 0.2], [0.5, 0.4], [0.5, 0.6], [0.5, 0.8], [0.8, 0.4], [0.8, 0.6]] };
         this.players.forEach((player, i) => {
-            let x = formationPos[i][0] * PITCH_WIDTH;
-            let y = formationPos[i][1] * PITCH_HEIGHT;
-            if(this.side === 'right') x = PITCH_WIDTH - x;
-
-            const pos = new Vector2D(x, y);
-            player.tactics.with_ball.position = new Vector2D(pos.x, pos.y);
-            player.tactics.without_ball.position = new Vector2D(pos.x, pos.y);
-            player.position = new Vector2D(pos.x, pos.y);
+            let [px, py] = positions[formationKey][i];
+            let x = this.side === 'left' ? px * PITCH_WIDTH : (1 - px) * PITCH_WIDTH;
+            let y = py * PITCH_HEIGHT;
+            player.tactics.with_ball.position = new Vector2D(x, y);
+            player.tactics.without_ball.position = new Vector2D(x, y);
+            player.position = new Vector2D(x, y);
         });
     }
-
     update(deltaTime) {
-        let intensity = 'normal';
-        if (this.generalTactics.defensiveStyle === 'high_press' && !this.hasBall) {
-            intensity = 'high';
-        } else if(this.generalTactics.offensiveStyle === 'possession' && this.hasBall) {
-            intensity = 'low';
-        }
-
         this.players.forEach(p => {
             const currentPhase = this.hasBall ? 'with_ball' : 'without_ball';
             p.targetPosition = p.tactics[currentPhase].position;
-            p.update(deltaTime, intensity);
+            p.update(deltaTime, 'normal');
         });
     }
 }
@@ -293,11 +226,8 @@ class Team {
 class Ball {
     constructor() {
         this.position = new Vector2D(PITCH_WIDTH / 2, PITCH_HEIGHT / 2);
-        this.velocity = new Vector2D();
-        this.carrier = null;
-        this.friction = 0.98;
+        this.velocity = new Vector2D(); this.carrier = null; this.friction = 0.98;
     }
-
     update(deltaTime) {
         if (this.carrier) {
             this.position = this.carrier.position.add(new Vector2D(0.5, 0.5));
@@ -311,581 +241,362 @@ class Ball {
 
 class MatchEngine {
     constructor(teamA, teamB) {
-        this.teamA = teamA;
-        this.teamB = teamB;
-        this.ball = new Ball();
-        
-        this.time = 0;
-        this.isPaused = true;
-        this.simulationSpeed = 1;
-        this.eventCooldown = false;
-
-        this.kickOff();
+        this.teamA = teamA; this.teamB = teamB; this.ball = new Ball();
+        this.time = 0; this.isPaused = true; this.simulationSpeed = 1; this.eventCooldown = false;
     }
-
     kickOff() {
-        this.isPaused = true;
-        this.ball.position = new Vector2D(PITCH_WIDTH / 2, PITCH_HEIGHT / 2);
-        this.ball.velocity = new Vector2D();
-        this.ball.carrier = null;
-        this.teamA.hasBall = false;
-        this.teamB.hasBall = false;
-        
+        this.isPaused = true; this.ball.position = new Vector2D(PITCH_WIDTH / 2, PITCH_HEIGHT / 2);
+        this.ball.velocity = new Vector2D(); this.ball.carrier = null;
+        this.teamA.hasBall = false; this.teamB.hasBall = false;
         setTimeout(() => {
-             const startingTeam = Math.random() < 0.5 ? this.teamA : this.teamB;
-             const startingPlayer = startingTeam.players.find(p => p.number === 10) || startingTeam.players[8];
-             this.ball.carrier = startingPlayer;
-             startingTeam.hasBall = true;
-             
-             if(document.getElementById('start-match').disabled) {
-                this.isPaused = false;
-             }
+            const startingTeam = Math.random() < 0.5 ? this.teamA : this.teamB;
+            this.ball.carrier = startingTeam.players[8]; startingTeam.hasBall = true;
+            if (document.getElementById('start-match').disabled) this.isPaused = false;
         }, 1500);
     }
-    
     update(deltaTime) {
         if (this.isPaused) return;
-
         const scaledDelta = deltaTime * this.simulationSpeed;
         this.time += scaledDelta;
-
-        this.teamA.update(scaledDelta);
-        this.teamB.update(scaledDelta);
-        this.ball.update(scaledDelta);
-        
-        this.checkPossession();
-        this.executePlayerActions();
-        this.checkBoundariesAndGoals();
+        this.teamA.update(scaledDelta); this.teamB.update(scaledDelta); this.ball.update(scaledDelta);
+        this.checkPossession(); this.executePlayerActions(); this.checkBoundariesAndGoals();
     }
-    
     checkPossession() {
         if (this.ball.carrier) return;
-
-        let closestPlayer = null;
-        let minDistance = Infinity;
-
-        [...this.teamA.players, ...this.teamB.players].forEach(player => {
-            const distance = player.position.distanceTo(this.ball.position);
-            if (distance < minDistance) {
-                minDistance = distance;
-                closestPlayer = player;
-            }
+        let closestPlayer = null; let minDistance = Infinity;
+        [...this.teamA.players, ...this.teamB.players].forEach(p => {
+            const d = p.position.distanceTo(this.ball.position);
+            if (d < minDistance) { minDistance = d; closestPlayer = p; }
         });
-
         if (closestPlayer && minDistance < 1) {
             this.ball.carrier = closestPlayer;
-            this.teamA.hasBall = (closestPlayer.team.id === 'A');
-            this.teamB.hasBall = (closestPlayer.team.id === 'B');
-            uiController.logEvent(`${closestPlayer.team.name} #${closestPlayer.number} récupère le ballon.`);
+            this.teamA.hasBall = (closestPlayer.team.id === 'A'); this.teamB.hasBall = (closestPlayer.team.id === 'B');
+            ui.logEvent(`${closestPlayer.team.name} #${closestPlayer.number} récupère le ballon.`);
         }
     }
-
     executePlayerActions() {
-        if (this.eventCooldown) return;
+        if (this.eventCooldown || !this.ball.carrier) return;
         const carrier = this.ball.carrier;
-        if (!carrier) return;
-
-        const opponentGoal = carrier.team.side === 'left' 
-            ? new Vector2D(PITCH_WIDTH, PITCH_HEIGHT / 2)
-            : new Vector2D(0, PITCH_HEIGHT / 2);
-
-        const distanceToGoal = carrier.position.distanceTo(opponentGoal);
-        
-        if (distanceToGoal < uiController.settings.maxShotDistance) {
-            this.attemptShot(carrier, opponentGoal);
-        } else {
-            this.attemptPass(carrier);
-        }
+        const opponentGoal = carrier.team.side === 'left' ? new Vector2D(PITCH_WIDTH, PITCH_HEIGHT / 2) : new Vector2D(0, PITCH_HEIGHT / 2);
+        if (carrier.position.distanceTo(opponentGoal) < ui.settings.maxShotDistance) this.attemptShot(carrier, opponentGoal);
+        else this.attemptPass(carrier);
     }
-
     attemptShot(shooter, goalPosition) {
-        if (Math.random() > 0.1) return; // Reduce frequency of actions
-
-        if (!shooter.useBurst(8)) {
-            uiController.logEvent(`${shooter.team.name} #${shooter.number} est trop fatigué pour tirer.`);
-            this.attemptPass(shooter);
-            return;
-        }
-
-        const distance = shooter.position.distanceTo(goalPosition);
-        const Pshot = this.calculatePshot(shooter, distance);
-        uiController.logEvent(`${shooter.team.name} #${shooter.number} tire ! (Pshot: ${Pshot.toFixed(2)})`);
-
-        if (Math.random() * 100 < Pshot) {
-            this.ball.velocity = goalPosition.subtract(shooter.position).normalize().multiply(30);
-        } else {
-            this.ball.velocity = goalPosition.subtract(shooter.position).normalize().multiply(20 + Math.random() * 10);
-            this.ball.velocity.y += (Math.random() - 0.5) * 10;
-        }
+        if (Math.random() > 0.1 || !shooter.useBurst(8)) return;
+        const dist = shooter.position.distanceTo(goalPosition);
+        const pShot = shooter.baseSkill * shooter.fatigueFactor * Math.max(0.2, 1 - (dist / (ui.settings.maxShotDistance + 5)));
+        ui.logEvent(`${shooter.team.name} #${shooter.number} tire ! (Pshot: ${pShot.toFixed(2)})`);
+        this.ball.velocity = goalPosition.subtract(shooter.position).normalize().multiply(Math.random() * 100 < pShot ? 30 : 25);
         this.ball.carrier = null;
     }
-
-    calculatePshot(shooter, distance) {
-        const BaseSkill = shooter.baseSkill;
-        const Ffatigue = shooter.fatigueFactor;
-        const Dfactor = Math.max(0.2, 1 - (distance / (uiController.settings.maxShotDistance + 5)));
-        const SituationalFactor = 1.0;
-        
-        return BaseSkill * Ffatigue * Dfactor * SituationalFactor;
-    }
-    
     attemptPass(passer) {
-        if (Math.random() > 0.2) return; // Reduce frequency
-        if (!passer.useBurst(1)) return;
-
-        const teammates = passer.team.players.filter(p => p !== passer);
-        let bestTarget = null;
-        let minDistance = Infinity;
-        teammates.forEach(t => {
-            const dist = passer.position.distanceTo(t.position);
-            if (dist < minDistance && dist > 2) {
-                minDistance = dist;
-                bestTarget = t;
-            }
-        });
-        
-        if(bestTarget) {
-            const passDirection = bestTarget.position.subtract(passer.position).normalize();
-            this.ball.velocity = passDirection.multiply(15 + Math.random() * 5);
+        if (Math.random() > 0.2 || !passer.useBurst(1)) return;
+        const bestTarget = passer.team.players.filter(p => p !== passer).sort((a,b) => a.position.distanceTo(passer.position) - b.position.distanceTo(passer.position))[0];
+        if (bestTarget) {
+            this.ball.velocity = bestTarget.position.subtract(passer.position).normalize().multiply(20);
             this.ball.carrier = null;
         }
     }
-    
     checkBoundariesAndGoals() {
         if (this.eventCooldown) return;
         const { x, y } = this.ball.position;
-        const goalYMin = (PITCH_HEIGHT / 2) - (GOAL_WIDTH / 2);
-        const goalYMax = (PITCH_HEIGHT / 2) + (GOAL_WIDTH / 2);
-
+        const goalYMin = (PITCH_HEIGHT / 2) - (GOAL_WIDTH / 2); const goalYMax = (PITCH_HEIGHT / 2) + (GOAL_WIDTH / 2);
         let eventOccurred = false;
         const scoringTeam = x < 0 ? this.teamB : (x > PITCH_WIDTH ? this.teamA : null);
-
-        if (scoringTeam && y > goalYMin && y < goalYMax) {
-            this.goalScored(scoringTeam);
-            eventOccurred = true;
-        } else if (x < -2 || x > PITCH_WIDTH + 2 || y < -2 || y > PITCH_HEIGHT + 2) {
-             uiController.logEvent("Le ballon sort des limites. Remise en jeu.");
-             this.resetPositionsAfterEvent();
-             this.kickOff();
-             eventOccurred = true;
+        if (scoringTeam && y > goalYMin && y < goalYMax) { this.goalScored(scoringTeam); eventOccurred = true; }
+        else if (x < -2 || x > PITCH_WIDTH + 2 || y < -2 || y > PITCH_HEIGHT + 2) {
+            ui.logEvent("Le ballon sort des limites."); this.resetAfterEvent(); this.kickOff(); eventOccurred = true;
         }
-
-        if(eventOccurred) {
-            this.eventCooldown = true;
-            setTimeout(() => { this.eventCooldown = false; }, 2000);
-        }
+        if (eventOccurred) { this.eventCooldown = true; setTimeout(() => { this.eventCooldown = false; }, 2000); }
     }
-
-    goalScored(scoringTeam) {
-        scoringTeam.score++;
-        uiController.logEvent(`BUT pour ${scoringTeam.name} !`, 'goal');
-        uiController.updateScore(this.teamA.score, this.teamB.score);
-        this.resetPositionsAfterEvent();
-        this.kickOff();
+    goalScored(team) {
+        team.score++; ui.logEvent(`BUT pour ${team.name} !`, 'goal'); ui.updateScore();
+        this.resetAfterEvent(); this.kickOff();
     }
-    
-    resetPositionsAfterEvent() {
-        this.teamA.players.forEach(p => p.position = new Vector2D(p.tactics.without_ball.position.x, p.tactics.without_ball.position.y));
-        this.teamB.players.forEach(p => p.position = new Vector2D(p.tactics.without_ball.position.x, p.tactics.without_ball.position.y));
+    resetAfterEvent() {
+        [...this.teamA.players, ...this.teamB.players].forEach(p => p.position = new Vector2D(p.tactics.without_ball.position.x, p.tactics.without_ball.position.y));
         this.isPaused = true;
     }
 }
 
+// ===================================================================================
+// CLASSES DE RENDU (Affichage)
+// ===================================================================================
+
 class Renderer {
     draw() {
-        if (!canvas || !ctx) return;
+        if (!canvas || !ctx || !scale) return;
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-        this.drawPitch();
-        
+        this.drawPitchLines(ctx, canvas.width, canvas.height, scale);
         if (matchEngine) {
-             this.drawShootingZone(matchEngine.teamA);
-             this.drawShootingZone(matchEngine.teamB);
-             matchEngine.teamA.players.forEach(p => this.drawPlayer(p));
-             matchEngine.teamB.players.forEach(p => this.drawPlayer(p));
-             this.drawBall(matchEngine.ball);
+            this.drawShootingZone(matchEngine.teamA); this.drawShootingZone(matchEngine.teamB);
+            matchEngine.teamA.players.forEach(p => this.drawPlayer(p)); matchEngine.teamB.players.forEach(p => this.drawPlayer(p));
+            this.drawBall(matchEngine.ball);
         }
     }
-
-    drawPitch() {
-        ctx.save();
-        ctx.strokeStyle = 'rgba(255, 255, 255, 0.8)';
-        ctx.lineWidth = Math.max(1, 2 * (scale/10));
-        ctx.strokeRect(0, 0, canvas.width, canvas.height);
-
-        ctx.beginPath();
-        ctx.moveTo(canvas.width / 2, 0);
-        ctx.lineTo(canvas.width / 2, canvas.height);
-        ctx.stroke();
-
-        ctx.beginPath();
-        ctx.arc(canvas.width / 2, canvas.height / 2, 9.15 * scale, 0, 2 * Math.PI);
-        ctx.stroke();
-
-        this.drawBox(16.5, 40.3);
-        this.drawBox(5.5, 18.3);
-        
-        ctx.fillStyle = 'rgba(0,0,0,0.4)';
-        ctx.fillRect(-2*scale, (canvasHeight/2) - (GOAL_WIDTH/2 * scale), 2*scale, GOAL_WIDTH * scale);
-        ctx.fillRect(canvasWidth, (canvasHeight/2) - (GOAL_WIDTH/2 * scale), 2*scale, GOAL_WIDTH * scale);
-
-        ctx.restore();
+    drawPitchLines(c, w, h, s) {
+        c.save();
+        c.strokeStyle = 'rgba(255, 255, 255, 0.8)'; c.lineWidth = Math.max(1, 2 * (s/10));
+        c.strokeRect(0, 0, w, h); c.beginPath(); c.moveTo(w / 2, 0); c.lineTo(w / 2, h); c.stroke();
+        c.beginPath(); c.arc(w / 2, h / 2, 9.15 * s, 0, 2 * Math.PI); c.stroke();
+        const drawBox = (x_m, y_m) => {
+            const bw = x_m * s, bh = y_m * s;
+            c.strokeRect(0, (h - bh) / 2, bw, bh); c.strokeRect(w - bw, (h - bh) / 2, bw, bh);
+        };
+        drawBox(16.5, 40.3); drawBox(5.5, 18.3);
+        c.restore();
     }
-    
-    drawBox(x_m, y_m) {
-        const boxWidth = x_m * scale;
-        const boxHeight = y_m * scale;
-        ctx.strokeRect(0, (canvasHeight - boxHeight) / 2, boxWidth, boxHeight);
-        ctx.strokeRect(canvasWidth - boxWidth, (canvasHeight - boxHeight) / 2, boxWidth, boxHeight);
-    }
-    
     drawPlayer(player) {
-        const x = player.position.x * scale;
-        const y = player.position.y * scale;
-        const radius = Math.max(2, (player.isGoalkeeper ? 6 : 5) * (scale/10));
-
-        ctx.beginPath();
-        ctx.arc(x, y, radius, 0, 2 * Math.PI);
-        ctx.fillStyle = player.color;
-        ctx.fill();
-        ctx.strokeStyle = 'black';
-        ctx.lineWidth = 1;
-        ctx.stroke();
-
-        if (radius > 3) {
-            ctx.fillStyle = 'white';
-            ctx.font = `bold ${Math.max(4, 8 * (scale/10))}px Arial`;
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-            ctx.fillText(player.number, x, y);
+        const x = player.position.x * scale; const y = player.position.y * scale;
+        const r = Math.max(2, (player.isGoalkeeper ? 6 : 5) * (scale/10));
+        ctx.beginPath(); ctx.arc(x, y, r, 0, 2 * Math.PI);
+        ctx.fillStyle = player.color; ctx.fill(); ctx.strokeStyle = 'black'; ctx.lineWidth = 1; ctx.stroke();
+        if (r > 3) {
+            ctx.fillStyle = 'white'; ctx.font = `bold ${Math.max(4, 8 * (scale/10))}px Arial`;
+            ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(player.number, x, y);
         }
     }
-
     drawBall(ball) {
-        const x = ball.position.x * scale;
-        const y = ball.position.y * scale;
-        
-        ctx.beginPath();
-        ctx.arc(x, y, Math.max(1.5, 3 * (scale/10)), 0, 2 * Math.PI);
-        ctx.fillStyle = 'white';
-        ctx.fill();
-        ctx.strokeStyle = 'black';
-        ctx.lineWidth = 1;
-        ctx.stroke();
+        const x = ball.position.x * scale; const y = ball.position.y * scale;
+        const r = Math.max(1.5, 3 * (scale/10));
+        ctx.beginPath(); ctx.arc(x, y, r, 0, 2 * Math.PI);
+        ctx.fillStyle = 'white'; ctx.fill(); ctx.strokeStyle = 'black'; ctx.lineWidth = 1; ctx.stroke();
     }
-    
     drawShootingZone(team) {
-        const maxDist = uiController.settings.maxShotDistance * scale;
-        const goalX = team.side === 'left' ? canvasWidth : 0;
-        const goalY = canvasHeight / 2;
-
+        const goalX = team.side === 'left' ? canvas.width : 0;
         ctx.beginPath();
-        const startAngle = team.side === 'left' ? Math.PI * 1.5 : Math.PI * 0.5;
-        const endAngle = team.side === 'left' ? Math.PI * 0.5 : Math.PI * 1.5;
+        ctx.arc(goalX, canvas.height / 2, ui.settings.maxShotDistance * scale, team.side === 'left' ? 1.5*Math.PI : 0.5*Math.PI, team.side === 'left' ? 0.5*Math.PI : 1.5*Math.PI);
+        ctx.strokeStyle = 'rgba(255, 255, 0, 0.3)'; ctx.lineWidth = 1; ctx.stroke();
+    }
+    drawMinimap() {
+        if (!minimapCanvas || !minimapCtx || !ui.configTeam) return;
+        minimapCanvas.width = minimapCanvas.clientWidth; minimapCanvas.height = minimapCanvas.clientHeight;
+        const minimapScale = minimapCanvas.width / PITCH_WIDTH;
+        minimapCtx.clearRect(0, 0, minimapCanvas.width, minimapCanvas.height);
         
-        ctx.arc(goalX, goalY, maxDist, startAngle, endAngle);
-        ctx.strokeStyle = 'rgba(255, 255, 0, 0.3)';
-        ctx.lineWidth = 1;
-        ctx.stroke();
+        ui.configTeam.players.forEach(p => {
+            const pos = p.tactics[ui.configPhase].position;
+            const x = pos.x * minimapScale; const y = pos.y * minimapScale;
+            minimapCtx.beginPath(); minimapCtx.arc(x, y, 5, 0, 2 * Math.PI);
+            minimapCtx.fillStyle = p.color; minimapCtx.fill();
+            if (p === ui.selectedPlayer) { minimapCtx.strokeStyle = '#f7b731'; minimapCtx.lineWidth = 2; minimapCtx.stroke(); }
+            minimapCtx.fillStyle = 'white'; minimapCtx.font = 'bold 8px Arial'; minimapCtx.textAlign = 'center'; minimapCtx.textBaseline = 'middle';
+            minimapCtx.fillText(p.number, x, y);
+        });
     }
 }
+
+// ===================================================================================
+// CLASSE UI (Interface Utilisateur & Gestion des Écrans)
+// ===================================================================================
 
 class UIController {
     constructor() {
         this.settings = { maxShotDistance: 25, simSpeed: 1 };
-        this.activeTeam = 'A';
-        this.activePhase = 'with_ball';
-        this.selectedPlayer = null;
+        this.configTeam = null; this.configPhase = 'with_ball'; this.selectedPlayer = null;
         this.initEventListeners();
-        this.buildTeamConfigPanel('A');
-        this.buildTeamConfigPanel('B');
     }
 
     initEventListeners() {
+        // Dashboard controls
         document.getElementById('start-match').addEventListener('click', () => this.startMatch());
         document.getElementById('pause-match').addEventListener('click', () => this.pauseMatch());
-        document.getElementById('reset-match').addEventListener('click', () => this.resetMatch());
+        document.getElementById('reset-match').addEventListener('click', () => location.reload());
+        document.getElementById('sim-speed').addEventListener('input', e => this.updateSimSpeed(e.target.value));
+        document.getElementById('shot-distance').addEventListener('input', e => this.updateShotDistance(e.target.value));
         
-        document.getElementById('sim-speed').addEventListener('input', (e) => this.updateSimSpeed(e.target.value));
-        document.getElementById('shot-distance').addEventListener('input', (e) => this.updateShotDistance(e.target.value));
-        document.getElementById('tab-team-a').addEventListener('click', () => this.switchTeamTab('A'));
-        document.getElementById('tab-team-b').addEventListener('click', () => this.switchTeamTab('B'));
+        // Navigation
+        document.getElementById('goto-config-a').addEventListener('click', () => this.showPage('config', teamA));
+        document.getElementById('goto-config-b').addEventListener('click', () => this.showPage('config', teamB));
+        document.getElementById('back-to-dashboard').addEventListener('click', () => this.showPage('dashboard'));
+
+        // Config page controls
+        document.getElementById('config-phase-with-ball').addEventListener('click', () => this.switchConfigPhase('with_ball'));
+        document.getElementById('config-phase-without-ball').addEventListener('click', () => this.switchConfigPhase('without_ball'));
+        this.setupMinimapDrag();
     }
     
+    // --- Page Navigation ---
+    showPage(pageId, data = null) {
+        document.querySelectorAll('.page').forEach(p => p.classList.add('hidden'));
+        document.getElementById(`page-${pageId}`).classList.remove('hidden');
+
+        if (pageId === 'config') {
+            this.configTeam = data;
+            this.selectedPlayer = null;
+            this.configPhase = 'with_ball';
+            this.setupConfigPage();
+        }
+
+        if (pageId === 'dashboard') {
+            // THE FIX: Defer resize until the browser has painted the new layout
+            requestAnimationFrame(() => resizeCanvas());
+        }
+    }
+
+    // --- Dashboard Methods ---
     startMatch() {
         matchEngine.isPaused = false;
         document.getElementById('start-match').disabled = true;
         document.getElementById('pause-match').disabled = false;
         document.getElementById('pause-match').textContent = 'Pause';
     }
-
     pauseMatch() {
         matchEngine.isPaused = !matchEngine.isPaused;
         document.getElementById('pause-match').textContent = matchEngine.isPaused ? 'Reprendre' : 'Pause';
     }
-
-    resetMatch() { location.reload(); }
-    
     updateSimSpeed(value) {
         this.settings.simSpeed = parseInt(value);
         if (matchEngine) matchEngine.simulationSpeed = this.settings.simSpeed;
         document.getElementById('sim-speed-value').textContent = value;
     }
-
     updateShotDistance(value) {
         this.settings.maxShotDistance = parseInt(value);
         document.getElementById('shot-distance-value').textContent = value;
-        renderer.draw();
+    }
+    logEvent(message, type = 'info') {
+        const log = document.getElementById('event-log');
+        const p = document.createElement('p');
+        p.textContent = `${Math.floor(matchEngine.time / 60).toString().padStart(2, '0')}': ${message}`;
+        if (type === 'goal') p.className = 'text-yellow-300 font-bold';
+        log.prepend(p);
+    }
+    updateScore() {
+        document.getElementById('team-a-name-display-db').textContent = teamA.name;
+        document.getElementById('team-b-name-display-db').textContent = teamB.name;
+        document.getElementById('score-display').innerHTML = `<span class="text-blue-400">${teamA.name}</span> ${teamA.score} - ${teamB.score} <span class="text-red-400">${teamB.name}</span>`;
+    }
+    updateTime() {
+        const time = matchEngine.time;
+        document.getElementById('time-display').textContent = `${Math.floor(time / 60).toString().padStart(2, '0')}:${Math.floor(time % 60).toString().padStart(2, '0')}`;
     }
 
-    switchTeamTab(teamId) {
-        this.activeTeam = teamId;
-        this.selectedPlayer = null;
-        ['A', 'B'].forEach(id => {
-            document.getElementById(`tab-team-${id.toLowerCase()}`).classList.toggle('tab-active', id === teamId);
-            document.getElementById(`tab-team-${id.toLowerCase()}`).classList.toggle('tab-inactive', id !== teamId);
-            document.getElementById(`config-panel-team-${id.toLowerCase()}`).classList.toggle('hidden', id !== teamId);
-        });
-    }
-
-    switchPhaseTab(phase) {
-        this.activePhase = phase;
-        this.selectedPlayer = null;
+    // --- Config Page Methods ---
+    setupConfigPage() {
+        document.getElementById('config-title').textContent = `Configuration: ${this.configTeam.name}`;
+        document.getElementById('config-title').style.color = this.configTeam.color;
+        this.switchConfigPhase('with_ball', true); // Force reset to 'with_ball'
         this.buildPlayerEditor();
-        document.querySelectorAll(`.phase-tab-${this.activeTeam}`).forEach(tab => {
-            tab.classList.toggle('phase-active', tab.dataset.phase === phase);
-            tab.classList.toggle('phase-inactive', tab.dataset.phase !== phase);
-        });
-        
-        this.drawMinimap();
+        renderer.drawMinimap();
     }
-    
-    buildTeamConfigPanel(teamId) {
-        const team = teamId === 'A' ? teamA : teamB;
-        const panel = document.getElementById(`config-panel-team-${teamId}`);
-        panel.innerHTML = `
-            <div class="mb-4">
-                <label class="font-semibold">Nom de l'équipe:</label>
-                <input type="text" value="${team.name}" class="bg-gray-800 rounded p-1 w-full mt-1" id="team-name-${teamId}">
-            </div>
-            <div class="flex rounded-md mb-4">
-                <button data-phase="with_ball" class="phase-tab-${teamId} flex-1 p-2 font-semibold rounded-l-md transition duration-300 phase-active">Avec Ballon</button>
-                <button data-phase="without_ball" class="phase-tab-${teamId} flex-1 p-2 font-semibold rounded-r-md transition duration-300 phase-inactive">Sans Ballon</button>
-            </div>
-            <div class="bg-gray-800 p-2 rounded-lg mb-4">
-                <canvas id="minimap-${teamId}" class="w-full aspect-[105/68] pitch-bg cursor-pointer"></canvas>
-            </div>
-            <div id="player-editor-${teamId}" class="flex-1 bg-gray-800 rounded-lg p-3 overflow-y-auto"></div>
-        `;
-        
-        document.getElementById(`team-name-${teamId}`).addEventListener('change', e => {
-            team.name = e.target.value;
-            document.getElementById(`team-${teamId.toLowerCase()}-name-display`).textContent = team.name;
-        });
-
-        document.querySelectorAll(`.phase-tab-${teamId}`).forEach(tab => {
-            tab.addEventListener('click', () => this.switchPhaseTab(tab.dataset.phase));
-        });
-        
-        this.setupMinimap(teamId);
-        this.buildPlayerEditor(teamId);
+    switchConfigPhase(phase, force = false) {
+        if (this.configPhase === phase && !force) return;
+        this.configPhase = phase;
+        this.selectedPlayer = null;
+        document.getElementById('config-phase-with-ball').style.backgroundColor = phase === 'with_ball' ? '#f7b731' : '#4a5568';
+        document.getElementById('config-phase-without-ball').style.backgroundColor = phase === 'without_ball' ? '#f7b731' : '#4a5568';
+        this.buildPlayerEditor();
+        renderer.drawMinimap();
     }
-
-    setupMinimap(teamId) {
-        const minimapCanvas = document.getElementById(`minimap-${teamId}`);
-        const team = teamId === 'A' ? teamA : teamB;
+    buildPlayerEditor() {
+        const editor = document.getElementById('player-editor');
+        if (!this.selectedPlayer) {
+            editor.innerHTML = '<p class="text-gray-400 text-center p-4">Cliquez sur un joueur sur la carte pour le configurer.</p>';
+            return;
+        }
+        const p = this.selectedPlayer;
+        const pos = p.tactics[this.configPhase].position;
+        editor.innerHTML = `
+            <h3 class="text-lg font-bold" style="color:${p.color};">Joueur #${p.number}</h3>
+            <div class="mt-2 space-y-3">
+                 <div><label class="block text-sm">Position (X: ${pos.x.toFixed(1)}, Y: ${pos.y.toFixed(1)})</label></div>
+                <div>
+                    <label for="player-skill" class="block text-sm">Compétence: <span id="player-skill-value">${p.baseSkill}</span></label>
+                    <input id="player-skill" type="range" min="1" max="100" value="${p.baseSkill}" class="w-full h-2 bg-gray-600 rounded-lg cursor-pointer">
+                </div>
+            </div>`;
+        document.getElementById('player-skill').addEventListener('input', e => {
+            p.baseSkill = parseInt(e.target.value);
+            document.getElementById('player-skill-value').textContent = p.baseSkill;
+        });
+    }
+    setupMinimapDrag() {
         let draggingPlayer = null;
-
         const getMousePos = (e) => {
             const rect = minimapCanvas.getBoundingClientRect();
             const clientX = e.touches ? e.touches[0].clientX : e.clientX;
             const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-            return {
-                x: (clientX - rect.left) * (minimapCanvas.width / rect.width),
-                y: (clientY - rect.top) * (minimapCanvas.height / rect.height)
-            };
-        }
-        
+            return { x: clientX - rect.left, y: clientY - rect.top };
+        };
         const startDrag = (e) => {
             e.preventDefault();
             const pos = getMousePos(e);
-            const minimapScale = minimapCanvas.width / PITCH_WIDTH;
-            
+            const minimapScale = minimapCanvas.clientWidth / PITCH_WIDTH;
             let clickedPlayer = null;
-            let minClickDist = Infinity;
-            team.players.forEach(p => {
-                const playerCanvasPos = { x: p.tactics[this.activePhase].position.x * minimapScale, y: p.tactics[this.activePhase].position.y * minimapScale };
-                const distance = Math.sqrt((pos.x - playerCanvasPos.x)**2 + (pos.y - playerCanvasPos.y)**2);
-                if (distance < 15 && distance < minClickDist) { // Larger touch target
-                    clickedPlayer = p;
-                    minClickDist = distance;
-                }
+            this.configTeam.players.forEach(p => {
+                const pPos = p.tactics[this.configPhase].position;
+                const d = Math.sqrt((pos.x - pPos.x * minimapScale)**2 + (pos.y - pPos.y * minimapScale)**2);
+                if (d < 15) clickedPlayer = p;
             });
             if (clickedPlayer) {
-                 draggingPlayer = clickedPlayer;
-                 this.selectedPlayer = draggingPlayer;
-                 this.buildPlayerEditor();
+                draggingPlayer = clickedPlayer;
+                this.selectedPlayer = draggingPlayer;
+                this.buildPlayerEditor(); renderer.drawMinimap();
             }
         };
-        
         const drag = (e) => {
             if (draggingPlayer) {
                 e.preventDefault();
                 const pos = getMousePos(e);
-                const minimapScale = minimapCanvas.width / PITCH_WIDTH;
-                draggingPlayer.tactics[this.activePhase].position.x = Math.max(0, Math.min(PITCH_WIDTH, pos.x / minimapScale));
-                draggingPlayer.tactics[this.activePhase].position.y = Math.max(0, Math.min(PITCH_HEIGHT, pos.y / minimapScale));
-                this.drawMinimap();
-                this.buildPlayerEditor();
+                const minimapScale = minimapCanvas.clientWidth / PITCH_WIDTH;
+                const newX = Math.max(0, Math.min(PITCH_WIDTH, pos.x / minimapScale));
+                const newY = Math.max(0, Math.min(PITCH_HEIGHT, pos.y / minimapScale));
+                draggingPlayer.tactics[this.configPhase].position.x = newX;
+                draggingPlayer.tactics[this.configPhase].position.y = newY;
+                this.buildPlayerEditor(); renderer.drawMinimap();
             }
         };
-
         const endDrag = () => { draggingPlayer = null; };
-
-        minimapCanvas.addEventListener('mousedown', startDrag);
-        minimapCanvas.addEventListener('mousemove', drag);
-        minimapCanvas.addEventListener('mouseup', endDrag);
-        minimapCanvas.addEventListener('mouseleave', endDrag);
-
+        minimapCanvas.addEventListener('mousedown', startDrag); minimapCanvas.addEventListener('mousemove', drag);
+        minimapCanvas.addEventListener('mouseup', endDrag); minimapCanvas.addEventListener('mouseleave', endDrag);
         minimapCanvas.addEventListener('touchstart', startDrag, { passive: false });
         minimapCanvas.addEventListener('touchmove', drag, { passive: false });
         minimapCanvas.addEventListener('touchend', endDrag);
     }
-    
-    drawMinimap(teamId = this.activeTeam) {
-        const minimapCanvas = document.getElementById(`minimap-${teamId}`);
-        if(!minimapCanvas) return;
-        const miniCtx = minimapCanvas.getContext('2d');
-        const team = teamId === 'A' ? teamA : teamB;
-        
-        minimapCanvas.width = minimapCanvas.clientWidth;
-        minimapCanvas.height = minimapCanvas.clientHeight;
-        const minimapScale = minimapCanvas.width / PITCH_WIDTH;
-        
-        miniCtx.clearRect(0, 0, minimapCanvas.width, minimapCanvas.height);
-        
-        team.players.forEach(p => {
-            const pos = p.tactics[this.activePhase].position;
-            const x = pos.x * minimapScale;
-            const y = pos.y * minimapScale;
-            
-            miniCtx.beginPath();
-            miniCtx.arc(x, y, 4, 0, 2 * Math.PI);
-            miniCtx.fillStyle = p.color;
-            miniCtx.fill();
-
-            if (p === this.selectedPlayer) {
-                miniCtx.strokeStyle = '#f7b731';
-                miniCtx.lineWidth = 2;
-                miniCtx.stroke();
-            }
-
-            miniCtx.fillStyle = 'white';
-            miniCtx.font = 'bold 7px Arial';
-            miniCtx.textAlign = 'center';
-            miniCtx.textBaseline = 'middle';
-            miniCtx.fillText(p.number, x, y);
-        });
-    }
-    
-    buildPlayerEditor(teamId = this.activeTeam) {
-        const panel = document.getElementById(`player-editor-${teamId}`);
-        if (!panel) return;
-        if (!this.selectedPlayer) {
-            panel.innerHTML = '<p class="text-gray-400 text-center p-4">Cliquez sur un joueur sur la mini-carte pour le configurer.</p>';
-            return;
-        }
-        const player = this.selectedPlayer;
-        const playerPos = player.tactics[this.activePhase].position;
-        panel.innerHTML = `
-            <h3 class="text-lg font-bold text-yellow-400">Configuration Joueur #${player.number}</h3>
-            <div class="mt-2 space-y-3">
-                 <div>
-                    <label class="block text-sm font-medium">Position (X: ${playerPos.x.toFixed(1)}, Y: ${playerPos.y.toFixed(1)})</label>
-                </div>
-                <div>
-                    <label for="player-skill" class="block text-sm font-medium">Compétence de base: <span id="player-skill-value">${player.baseSkill}</span></label>
-                    <input id="player-skill" type="range" min="1" max="100" value="${player.baseSkill}" class="w-full h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer">
-                </div>
-                 <div class="mt-2">
-                     <h4 class="font-semibold">Instructions pour la phase (${this.activePhase.replace('_', ' ')}):</h4>
-                     <div class="text-sm mt-2 text-gray-300"><p>Fonctionnalité à venir...</p></div>
-                </div>
-            </div>
-        `;
-        document.getElementById('player-skill').addEventListener('input', e => {
-            player.baseSkill = parseInt(e.target.value);
-            document.getElementById('player-skill-value').textContent = player.baseSkill;
-        });
-    }
-
-    logEvent(message, type = 'info') {
-        const log = document.getElementById('event-log');
-        const time = matchEngine ? (matchEngine.time / 60).toFixed(0).padStart(2, '0') : '00';
-        const p = document.createElement('p');
-        p.textContent = `${time}': ${message}`;
-        if (type === 'goal') p.className = 'text-yellow-300 font-bold';
-        log.appendChild(p);
-        log.scrollTop = log.scrollHeight;
-    }
-
-    updateScore(scoreA, scoreB) {
-        document.getElementById('score-display').innerHTML = `
-            <span class="text-blue-400">${teamA.name}</span> ${scoreA} - ${scoreB} <span class="text-red-400">${teamB.name}</span>
-        `;
-    }
-
-    updateTime(seconds) {
-        const mins = Math.floor(seconds / 60).toString().padStart(2, '0');
-        const secs = Math.floor(seconds % 60).toString().padStart(2, '0');
-        document.getElementById('time-display').textContent = `${mins}:${secs}`;
-    }
 }
 
-// -----------------------------------------------------------------------------------
-// Section 5: Boucle principale et initialisation
-// -----------------------------------------------------------------------------------
+// ===================================================================================
+// DÉMARRAGE DE L'APPLICATION
+// ===================================================================================
 
 let teamA = new Team('A', 'Équipe A', '#3b82f6', 'left');
 let teamB = new Team('B', 'Équipe B', '#ef4444', 'right');
 let matchEngine = new MatchEngine(teamA, teamB);
 let renderer = new Renderer();
-let uiController = new UIController();
+let ui = new UIController();
 
-let lastTime = 0;
 function gameLoop(timestamp) {
-    if (!lastTime) lastTime = timestamp;
-    const deltaTime = (timestamp - lastTime) / 1000;
+    const deltaTime = (timestamp - (lastTime || timestamp)) / 1000;
     lastTime = timestamp;
-
     if (matchEngine && !matchEngine.isPaused) {
-        matchEngine.update(deltaTime || 0);
+        matchEngine.update(deltaTime);
+        ui.updateTime();
     }
     renderer.draw();
-    uiController.updateTime(matchEngine.time);
-    
     requestAnimationFrame(gameLoop);
 }
+let lastTime = 0;
 
 window.addEventListener('load', () => {
-    // Initial resize and draw
-    resizeCanvas();
-    uiController.drawMinimap('A'); 
-    uiController.drawMinimap('B');
-
-    // Use ResizeObserver for efficient resize handling
-    const mainArea = document.querySelector('main');
-    const resizeObserver = new ResizeObserver(entries => {
-        resizeCanvas();
-        uiController.drawMinimap('A');
-        uiController.drawMinimap('B');
+    ui.updateScore();
+    ui.showPage('dashboard'); // Start on the dashboard
+    window.addEventListener('resize', () => {
+        if(document.getElementById('page-dashboard').style.display !== 'none') {
+            resizeCanvas();
+        }
+        renderer.drawMinimap();
     });
-    if (mainArea) {
-       resizeObserver.observe(mainArea);
-    }
+    
+    // Final check to draw canvas after a short delay, ensuring layout is stable
+    setTimeout(() => {
+        if(document.getElementById('page-dashboard').style.display !== 'none') {
+            resizeCanvas();
+        }
+    }, 100);
 
-    uiController.logEvent("Bienvenue ! Configurez vos équipes et lancez le match.");
     requestAnimationFrame(gameLoop);
 });
+
 </script>
 </body>
 </html>

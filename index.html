@@ -1,603 +1,1382 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simulateur Tactique (Multi-Écrans)</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            overscroll-behavior: none;
-        }
-        .pitch-bg {
-            background-color: #2a9d8f;
-            background-image:
-                linear-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(255, 255, 255, 0.1) 1px, transparent 1px);
-            background-size: 20px 20px;
-        }
-        .no-select { -webkit-user-select: none; -ms-user-select: none; user-select: none; }
-        .page { display: flex; flex-direction: column; width: 100%; height: 100%; }
-        .hidden { display: none !important; }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Démonstration complète HTML5 avec toutes fonctionnalités natives">
+  <title>Ultimate HTML5 Showcase - Toutes Fonctionnalités</title>
+  
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      line-height: 1.6;
+      color: #333;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+    
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      overflow: hidden;
+    }
+    
+    header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 40px;
+      text-align: center;
+    }
+    
+    header h1 {
+      font-size: 3em;
+      margin-bottom: 10px;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    }
+    
+    nav {
+      background: #2c3e50;
+      padding: 15px;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+    }
+    
+    nav ul {
+      list-style: none;
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+    
+    nav a {
+      color: white;
+      text-decoration: none;
+      padding: 10px 20px;
+      border-radius: 5px;
+      transition: all 0.3s;
+      font-weight: 500;
+    }
+    
+    nav a:hover {
+      background: #667eea;
+      transform: translateY(-2px);
+    }
+    
+    main {
+      padding: 40px;
+    }
+    
+    section {
+      margin-bottom: 60px;
+      padding: 30px;
+      background: #f8f9fa;
+      border-radius: 15px;
+      border-left: 5px solid #667eea;
+    }
+    
+    section h2 {
+      color: #667eea;
+      font-size: 2em;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+      margin-top: 20px;
+    }
+    
+    .feature-box {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      transition: transform 0.3s;
+    }
+    
+    .feature-box:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+    }
+    
+    /* Formulaires */
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+    
+    label {
+      font-weight: 600;
+      color: #2c3e50;
+      display: block;
+      margin-bottom: 5px;
+    }
+    
+    input, textarea, select {
+      padding: 12px;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      font-size: 16px;
+      transition: border-color 0.3s;
+      width: 100%;
+    }
+    
+    input:focus, textarea:focus, select:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+    
+    input:valid {
+      border-color: #27ae60;
+    }
+    
+    input:invalid:not(:placeholder-shown) {
+      border-color: #e74c3c;
+    }
+    
+    button {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 15px 30px;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+    }
+    
+    button:active {
+      transform: translateY(0);
+    }
+    
+    /* Éléments interactifs */
+    details {
+      background: white;
+      padding: 15px;
+      border-radius: 8px;
+      margin: 10px 0;
+      border: 2px solid #e0e0e0;
+    }
+    
+    summary {
+      font-weight: 600;
+      cursor: pointer;
+      padding: 10px;
+      border-radius: 5px;
+      transition: background 0.3s;
+    }
+    
+    summary:hover {
+      background: #f0f0f0;
+    }
+    
+    details[open] summary {
+      color: #667eea;
+      margin-bottom: 15px;
+    }
+    
+    /* Progress & Meter */
+    progress, meter {
+      width: 100%;
+      height: 30px;
+      border-radius: 15px;
+    }
+    
+    progress {
+      appearance: none;
+    }
+    
+    progress::-webkit-progress-bar {
+      background: #e0e0e0;
+      border-radius: 15px;
+    }
+    
+    progress::-webkit-progress-value {
+      background: linear-gradient(90deg, #667eea, #764ba2);
+      border-radius: 15px;
+    }
+    
+    /* Canvas */
+    canvas {
+      border: 2px solid #e0e0e0;
+      border-radius: 10px;
+      max-width: 100%;
+    }
+    
+    /* Dialog */
+    dialog {
+      border: none;
+      border-radius: 15px;
+      padding: 30px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+      max-width: 500px;
+    }
+    
+    dialog::backdrop {
+      background: rgba(0,0,0,0.7);
+    }
+    
+    /* Tableaux */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    
+    th, td {
+      padding: 15px;
+      text-align: left;
+    }
+    
+    th {
+      background: #667eea;
+      color: white;
+      font-weight: 600;
+    }
+    
+    tr:nth-child(even) {
+      background: #f8f9fa;
+    }
+    
+    tr:hover {
+      background: #e8eaf6;
+    }
+    
+    /* Media */
+    video, audio {
+      width: 100%;
+      border-radius: 10px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    }
+    
+    /* Output & Résultats */
+    output {
+      display: block;
+      padding: 15px;
+      background: #e8f5e9;
+      border-radius: 8px;
+      font-weight: 600;
+      color: #27ae60;
+      margin-top: 10px;
+    }
+    
+    .api-response {
+      background: #fff3cd;
+      padding: 15px;
+      border-radius: 8px;
+      border-left: 4px solid #ffc107;
+      margin-top: 10px;
+      font-family: 'Courier New', monospace;
+    }
+    
+    footer {
+      background: #2c3e50;
+      color: white;
+      padding: 40px;
+      text-align: center;
+    }
+    
+    /* Animations */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    section {
+      animation: fadeIn 0.6s ease-out;
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+      header h1 {
+        font-size: 2em;
+      }
+      
+      nav ul {
+        flex-direction: column;
+      }
+      
+      .feature-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
 </head>
-<body class="bg-gray-900 text-white h-screen flex flex-col no-select overflow-hidden">
+<body>
+  <div class="container">
+    <header>
+      <h1>🚀 Ultimate HTML5 Showcase</h1>
+      <p>Démonstration complète de TOUTES les fonctionnalités HTML5 modernes</p>
+    </header>
 
-    <!-- =========== ÉCRAN 1: SIMULATION (DASHBOARD) =========== -->
-    <div id="page-dashboard" class="page">
-        <!-- Header -->
-        <header class="bg-gray-800 p-3 shadow-lg flex flex-col sm:flex-row items-center justify-between gap-2">
-            <h1 class="text-lg sm:text-xl font-bold text-gray-100">Simulateur Tactique 2D</h1>
-            <div id="score-display" class="text-xl sm:text-2xl font-bold tracking-wider">
-                <span id="team-a-name-display-db" class="text-blue-400">Équipe A</span> 0 - 0 <span id="team-b-name-display-db" class="text-red-400">Équipe B</span>
-            </div>
-            <div class="text-xl font-mono" id="time-display">00:00</div>
-        </header>
+    <nav>
+      <ul>
+        <li><a href="#forms">📋 Formulaires</a></li>
+        <li><a href="#interactive">🎮 Interactif</a></li>
+        <li><a href="#multimedia">🎥 Multimédia</a></li>
+        <li><a href="#canvas">🎨 Canvas</a></li>
+        <li><a href="#api">⚡ API Embarquée</a></li>
+        <li><a href="#data">📊 Données</a></li>
+      </ul>
+    </nav>
+
+    <main>
+      <!-- SECTION 1: FORMULAIRES AVANCÉS -->
+      <section id="forms">
+        <h2>📋 Formulaires avec Validation Native</h2>
         
-        <!-- Main Content -->
-        <div class="flex-1 flex flex-col lg:flex-row overflow-hidden p-4 gap-4">
-            <!-- Left Panel: Controls & Config Buttons -->
-            <aside class="w-full lg:w-80 xl:w-96 bg-gray-800 p-4 rounded-lg flex flex-col space-y-4 overflow-y-auto">
-                <div class="bg-gray-700 p-4 rounded-lg shadow-md">
-                    <h2 class="text-lg font-semibold mb-3">Contrôles du Match</h2>
-                    <div class="flex space-x-2">
-                        <button id="start-match" class="flex-1 bg-green-600 hover:bg-green-700 font-bold py-2 px-4 rounded-md">Lancer</button>
-                        <button id="pause-match" class="flex-1 bg-yellow-500 hover:bg-yellow-600 font-bold py-2 px-4 rounded-md" disabled>Pause</button>
-                        <button id="reset-match" class="flex-1 bg-red-600 hover:bg-red-700 font-bold py-2 px-4 rounded-md">Reset</button>
-                    </div>
-                    <div class="mt-3">
-                        <label for="sim-speed" class="block text-sm">Vitesse: <span id="sim-speed-value">1</span>x</label>
-                        <input id="sim-speed" type="range" min="1" max="10" value="1" class="w-full h-2 bg-gray-600 rounded-lg cursor-pointer">
-                    </div>
-                </div>
+        <div class="feature-grid">
+          <div class="feature-box">
+            <h3>Tous les types d'input</h3>
+            <form id="mainForm">
+              <label for="email">Email (requis) :</label>
+              <input type="email" id="email" name="email" required 
+                     placeholder="votre@email.com">
+              
+              <label for="url">URL :</label>
+              <input type="url" id="url" name="url" 
+                     placeholder="https://example.com">
+              
+              <label for="tel">Téléphone :</label>
+              <input type="tel" id="tel" name="tel" 
+                     pattern="[0-9]{10}" 
+                     placeholder="0123456789">
+              
+              <label for="number">Nombre (1-100) :</label>
+              <input type="number" id="number" name="number" 
+                     min="1" max="100" value="50">
+              
+              <label for="range">Range :</label>
+              <input type="range" id="range" name="range" 
+                     min="0" max="100" value="50" 
+                     oninput="rangeValue.value = this.value">
+              <output id="rangeValue">50</output>
+              
+              <label for="date">Date :</label>
+              <input type="date" id="date" name="date">
+              
+              <label for="time">Heure :</label>
+              <input type="time" id="time" name="time">
+              
+              <label for="color">Couleur :</label>
+              <input type="color" id="color" name="color" value="#667eea">
+              
+              <label for="search">Recherche :</label>
+              <input type="search" id="search" name="search" 
+                     placeholder="Rechercher...">
+              
+              <label for="password">Mot de passe :</label>
+              <input type="password" id="password" name="password" 
+                     minlength="8" required
+                     placeholder="Min 8 caractères">
+              
+              <button type="submit">✅ Valider le formulaire</button>
+            </form>
+          </div>
 
-                <div class="bg-gray-700 p-4 rounded-lg shadow-md">
-                    <h2 class="text-lg font-semibold mb-3">Paramètres Généraux</h2>
-                    <div>
-                        <label for="shot-distance" class="block text-sm">Distance de tir max: <span id="shot-distance-value">25</span>m</label>
-                        <input id="shot-distance" type="range" min="5" max="35" value="25" class="w-full h-2 bg-gray-600 rounded-lg cursor-pointer">
-                    </div>
-                </div>
-                
-                <div class="bg-gray-700 p-4 rounded-lg shadow-md flex-1">
-                    <h2 class="text-lg font-semibold mb-3">Configuration Tactique</h2>
-                    <div class="flex flex-col space-y-3">
-                        <button id="goto-config-a" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-md">Configurer Équipe A</button>
-                        <button id="goto-config-b" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-4 rounded-md">Configurer Équipe B</button>
-                    </div>
-                </div>
-            </aside>
-
-            <!-- Right Panel: Pitch & Log -->
-            <main class="flex-1 flex flex-col min-h-0">
-                <div class="w-full h-full flex items-center justify-center relative flex-1">
-                     <canvas id="football-pitch" class="bg-green-700 rounded-lg shadow-2xl pitch-bg border-2 border-gray-600"></canvas>
-                </div>
-                <div class="h-24 md:h-32 bg-gray-800 mt-4 rounded-lg p-2 overflow-y-auto">
-                    <h3 class="font-semibold text-gray-400">Log des Événements</h3>
-                    <div id="event-log" class="text-sm font-mono text-gray-300"></div>
-                </div>
-            </main>
-        </div>
-    </div>
-
-    <!-- =========== ÉCRAN 2: CONFIGURATION D'ÉQUIPE =========== -->
-    <div id="page-config" class="page hidden">
-        <header class="bg-gray-800 p-3 shadow-lg flex items-center justify-between">
-            <h1 id="config-title" class="text-xl font-bold">Configuration Tactique</h1>
-            <button id="back-to-dashboard" class="bg-gray-600 hover:bg-gray-700 font-bold py-2 px-4 rounded-md">Retour à la Simulation</button>
-        </header>
-
-        <div class="flex-1 flex flex-col lg:flex-row p-4 gap-4 overflow-hidden">
-            <!-- Left Panel: Minimap -->
-            <div class="flex-1 flex flex-col bg-gray-800 p-4 rounded-lg">
-                 <div class="flex rounded-md mb-4 bg-gray-700">
-                    <button id="config-phase-with-ball" class="config-phase-tab flex-1 p-3 font-semibold rounded-l-md">Avec Ballon</button>
-                    <button id="config-phase-without-ball" class="config-phase-tab flex-1 p-3 font-semibold rounded-r-md">Sans Ballon</button>
-                </div>
-                <div class="flex-1 w-full flex items-center justify-center">
-                    <canvas id="minimap-canvas" class="w-full max-w-full max-h-full aspect-[105/68] pitch-bg cursor-pointer rounded-md"></canvas>
-                </div>
-            </div>
+          <div class="feature-box">
+            <h3>Datalist (Autocomplétion)</h3>
+            <label for="browser">Choisir un navigateur :</label>
+            <input list="browsers" id="browser" name="browser" 
+                   placeholder="Tapez pour autocomplete">
+            <datalist id="browsers">
+              <option value="Chrome">
+              <option value="Firefox">
+              <option value="Safari">
+              <option value="Edge">
+              <option value="Opera">
+            </datalist>
             
-            <!-- Right Panel: Player Editor -->
-            <div class="w-full lg:w-80 xl:w-96 bg-gray-800 p-4 rounded-lg overflow-y-auto">
-                <h2 class="text-lg font-semibold mb-3 border-b border-gray-600 pb-2">Paramètres du Joueur</h2>
-                <div id="player-editor">
-                    <p class="text-gray-400 text-center p-4">Cliquez sur un joueur sur la carte pour le configurer.</p>
-                </div>
-            </div>
+            <h3 style="margin-top: 20px;">Select Multiple</h3>
+            <label for="languages">Langages préférés :</label>
+            <select id="languages" name="languages" multiple size="5">
+              <optgroup label="Frontend">
+                <option value="html">HTML</option>
+                <option value="css">CSS</option>
+                <option value="js">JavaScript</option>
+              </optgroup>
+              <optgroup label="Backend">
+                <option value="python">Python</option>
+                <option value="node">Node.js</option>
+                <option value="go">Go</option>
+              </optgroup>
+            </select>
+          </div>
+
+          <div class="feature-box">
+            <h3>Textarea avec compteur</h3>
+            <label for="message">Message (max 200 caractères) :</label>
+            <textarea id="message" name="message" 
+                      rows="5" maxlength="200" 
+                      oninput="charCount.value = this.value.length"
+                      placeholder="Écrivez votre message..."></textarea>
+            <output id="charCount">0</output> / 200 caractères
+            
+            <h3 style="margin-top: 20px;">Checkbox & Radio</h3>
+            <fieldset style="border: 2px solid #e0e0e0; padding: 15px; border-radius: 8px;">
+              <legend>Préférences</legend>
+              <label>
+                <input type="checkbox" name="newsletter" checked>
+                Newsletter
+              </label>
+              <label>
+                <input type="checkbox" name="notifications">
+                Notifications
+              </label>
+              
+              <div style="margin-top: 15px;">
+                <label>
+                  <input type="radio" name="theme" value="light" checked>
+                  Thème Clair
+                </label>
+                <label>
+                  <input type="radio" name="theme" value="dark">
+                  Thème Sombre
+                </label>
+              </div>
+            </fieldset>
+          </div>
         </div>
-    </div>
+      </section>
 
-<script type="module">
-// ===================================================================================
-// ARCHITECTURE & INITIALISATION
-// ===================================================================================
-
-// --- CONSTANTES ---
-const PITCH_WIDTH = 105;
-const PITCH_HEIGHT = 68;
-const GOAL_WIDTH = 7.32;
-
-// --- CANVAS & CONTEXTES ---
-const canvas = document.getElementById('football-pitch');
-const ctx = canvas.getContext('2d');
-const minimapCanvas = document.getElementById('minimap-canvas');
-const minimapCtx = minimapCanvas.getContext('2d');
-let scale;
-
-function resizeCanvas() {
-    const container = canvas.parentElement;
-    if (!container || container.clientWidth === 0) return;
-
-    const pitchRatio = PITCH_WIDTH / PITCH_HEIGHT;
-    const containerRatio = container.clientWidth / container.clientHeight;
-    
-    let canvasWidth, canvasHeight;
-    if (containerRatio > pitchRatio) {
-        canvasHeight = container.clientHeight;
-        canvasWidth = canvasHeight * pitchRatio;
-    } else {
-        canvasWidth = container.clientWidth;
-        canvasHeight = canvasWidth / pitchRatio;
-    }
-    canvas.width = canvasWidth;
-    canvas.height = canvasHeight;
-    scale = canvasWidth / PITCH_WIDTH;
-    
-    if(renderer) renderer.draw();
-}
-
-// ===================================================================================
-// CLASSES DE BASE (Logique du jeu)
-// ===================================================================================
-class Vector2D {
-    constructor(x = 0, y = 0) { this.x = x; this.y = y; }
-    add(v) { return new Vector2D(this.x + v.x, this.y + v.y); }
-    subtract(v) { return new Vector2D(this.x - v.x, this.y - v.y); }
-    multiply(s) { return new Vector2D(this.x * s, this.y * s); }
-    magnitude() { return Math.sqrt(this.x * this.x + this.y * this.y); }
-    normalize() { const mag = this.magnitude(); return mag > 0 ? this.multiply(1 / mag) : new Vector2D(); }
-    distanceTo(v) { return this.subtract(v).magnitude(); }
-}
-
-class Player {
-    constructor(id, team, number, color) {
-        this.id = id; this.team = team; this.number = number; this.color = color;
-        this.isGoalkeeper = (number === 1);
-        this.position = new Vector2D(); this.velocity = new Vector2D();
-        this.stamina = 100; this.burst = 100; this.baseSkill = 70; this.fatigueFactor = 1;
-        this.tactics = {
-            'with_ball': { position: new Vector2D() }, 'without_ball': { position: new Vector2D() }
-        };
-        this.targetPosition = new Vector2D();
-    }
-    update(deltaTime, intensity) {
-        const direction = this.targetPosition.subtract(this.position);
-        if (direction.magnitude() > 0.1) {
-            this.velocity = direction.normalize().multiply((this.isGoalkeeper ? 3 : 5) * this.fatigueFactor);
-            this.position = this.position.add(this.velocity.multiply(deltaTime));
-        }
-        const minuteFraction = deltaTime / 60;
-        this.stamina -= ({ low: 0.4, normal: 1.0, high: 2.5 }[intensity] || 1.0) * minuteFraction;
-        this.stamina = Math.max(0, this.stamina);
-        this.burst = Math.min(100, this.burst + 1.5 * minuteFraction);
-        this.fatigueFactor = 0.5 + (this.stamina / 100) * 0.5;
-    }
-    useBurst(amount) {
-        if (this.burst < amount) return false;
-        this.burst -= amount;
-        return true;
-    }
-}
-
-class Team {
-    constructor(id, name, color, side) {
-        this.id = id; this.name = name; this.color = color; this.side = side;
-        this.players = []; this.score = 0; this.hasBall = false;
-        for (let i = 1; i <= 11; i++) {
-            this.players.push(new Player(`${id}-${i}`, this, i, color));
-        }
-        this.setInitialPositions();
-    }
-    setInitialPositions(formationKey = '442') {
-        const positions = { '442': [[0.05, 0.5], [0.2, 0.2], [0.2, 0.4], [0.2, 0.6], [0.2, 0.8], [0.5, 0.2], [0.5, 0.4], [0.5, 0.6], [0.5, 0.8], [0.8, 0.4], [0.8, 0.6]] };
-        this.players.forEach((player, i) => {
-            let [px, py] = positions[formationKey][i];
-            let x = this.side === 'left' ? px * PITCH_WIDTH : (1 - px) * PITCH_WIDTH;
-            let y = py * PITCH_HEIGHT;
-            player.tactics.with_ball.position = new Vector2D(x, y);
-            player.tactics.without_ball.position = new Vector2D(x, y);
-            player.position = new Vector2D(x, y);
-        });
-    }
-    update(deltaTime) {
-        this.players.forEach(p => {
-            const currentPhase = this.hasBall ? 'with_ball' : 'without_ball';
-            p.targetPosition = p.tactics[currentPhase].position;
-            p.update(deltaTime, 'normal');
-        });
-    }
-}
-
-class Ball {
-    constructor() {
-        this.position = new Vector2D(PITCH_WIDTH / 2, PITCH_HEIGHT / 2);
-        this.velocity = new Vector2D(); this.carrier = null; this.friction = 0.98;
-    }
-    update(deltaTime) {
-        if (this.carrier) {
-            this.position = this.carrier.position.add(new Vector2D(0.5, 0.5));
-            this.velocity = new Vector2D();
-        } else {
-            this.position = this.position.add(this.velocity.multiply(deltaTime));
-            this.velocity = this.velocity.multiply(this.friction);
-        }
-    }
-}
-
-class MatchEngine {
-    constructor(teamA, teamB) {
-        this.teamA = teamA; this.teamB = teamB; this.ball = new Ball();
-        this.time = 0; this.isPaused = true; this.simulationSpeed = 1; this.eventCooldown = false;
-    }
-    kickOff() {
-        this.isPaused = true; this.ball.position = new Vector2D(PITCH_WIDTH / 2, PITCH_HEIGHT / 2);
-        this.ball.velocity = new Vector2D(); this.ball.carrier = null;
-        this.teamA.hasBall = false; this.teamB.hasBall = false;
-        setTimeout(() => {
-            const startingTeam = Math.random() < 0.5 ? this.teamA : this.teamB;
-            this.ball.carrier = startingTeam.players[8]; startingTeam.hasBall = true;
-            if (document.getElementById('start-match').disabled) this.isPaused = false;
-        }, 1500);
-    }
-    update(deltaTime) {
-        if (this.isPaused) return;
-        const scaledDelta = deltaTime * this.simulationSpeed;
-        this.time += scaledDelta;
-        this.teamA.update(scaledDelta); this.teamB.update(scaledDelta); this.ball.update(scaledDelta);
-        this.checkPossession(); this.executePlayerActions(); this.checkBoundariesAndGoals();
-    }
-    checkPossession() {
-        if (this.ball.carrier) return;
-        let closestPlayer = null; let minDistance = Infinity;
-        [...this.teamA.players, ...this.teamB.players].forEach(p => {
-            const d = p.position.distanceTo(this.ball.position);
-            if (d < minDistance) { minDistance = d; closestPlayer = p; }
-        });
-        if (closestPlayer && minDistance < 1) {
-            this.ball.carrier = closestPlayer;
-            this.teamA.hasBall = (closestPlayer.team.id === 'A'); this.teamB.hasBall = (closestPlayer.team.id === 'B');
-            ui.logEvent(`${closestPlayer.team.name} #${closestPlayer.number} récupère le ballon.`);
-        }
-    }
-    executePlayerActions() {
-        if (this.eventCooldown || !this.ball.carrier) return;
-        const carrier = this.ball.carrier;
-        const opponentGoal = carrier.team.side === 'left' ? new Vector2D(PITCH_WIDTH, PITCH_HEIGHT / 2) : new Vector2D(0, PITCH_HEIGHT / 2);
-        if (carrier.position.distanceTo(opponentGoal) < ui.settings.maxShotDistance) this.attemptShot(carrier, opponentGoal);
-        else this.attemptPass(carrier);
-    }
-    attemptShot(shooter, goalPosition) {
-        if (Math.random() > 0.1 || !shooter.useBurst(8)) return;
-        const dist = shooter.position.distanceTo(goalPosition);
-        const pShot = shooter.baseSkill * shooter.fatigueFactor * Math.max(0.2, 1 - (dist / (ui.settings.maxShotDistance + 5)));
-        ui.logEvent(`${shooter.team.name} #${shooter.number} tire ! (Pshot: ${pShot.toFixed(2)})`);
-        this.ball.velocity = goalPosition.subtract(shooter.position).normalize().multiply(Math.random() * 100 < pShot ? 30 : 25);
-        this.ball.carrier = null;
-    }
-    attemptPass(passer) {
-        if (Math.random() > 0.2 || !passer.useBurst(1)) return;
-        const bestTarget = passer.team.players.filter(p => p !== passer).sort((a,b) => a.position.distanceTo(passer.position) - b.position.distanceTo(passer.position))[0];
-        if (bestTarget) {
-            this.ball.velocity = bestTarget.position.subtract(passer.position).normalize().multiply(20);
-            this.ball.carrier = null;
-        }
-    }
-    checkBoundariesAndGoals() {
-        if (this.eventCooldown) return;
-        const { x, y } = this.ball.position;
-        const goalYMin = (PITCH_HEIGHT / 2) - (GOAL_WIDTH / 2); const goalYMax = (PITCH_HEIGHT / 2) + (GOAL_WIDTH / 2);
-        let eventOccurred = false;
-        const scoringTeam = x < 0 ? this.teamB : (x > PITCH_WIDTH ? this.teamA : null);
-        if (scoringTeam && y > goalYMin && y < goalYMax) { this.goalScored(scoringTeam); eventOccurred = true; }
-        else if (x < -2 || x > PITCH_WIDTH + 2 || y < -2 || y > PITCH_HEIGHT + 2) {
-            ui.logEvent("Le ballon sort des limites."); this.resetAfterEvent(); this.kickOff(); eventOccurred = true;
-        }
-        if (eventOccurred) { this.eventCooldown = true; setTimeout(() => { this.eventCooldown = false; }, 2000); }
-    }
-    goalScored(team) {
-        team.score++; ui.logEvent(`BUT pour ${team.name} !`, 'goal'); ui.updateScore();
-        this.resetAfterEvent(); this.kickOff();
-    }
-    resetAfterEvent() {
-        [...this.teamA.players, ...this.teamB.players].forEach(p => p.position = new Vector2D(p.tactics.without_ball.position.x, p.tactics.without_ball.position.y));
-        this.isPaused = true;
-    }
-}
-
-// ===================================================================================
-// CLASSES DE RENDU (Affichage)
-// ===================================================================================
-
-class Renderer {
-    draw() {
-        if (!canvas || !ctx || !scale) return;
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        this.drawPitchLines(ctx, canvas.width, canvas.height, scale);
-        if (matchEngine) {
-            this.drawShootingZone(matchEngine.teamA); this.drawShootingZone(matchEngine.teamB);
-            matchEngine.teamA.players.forEach(p => this.drawPlayer(p)); matchEngine.teamB.players.forEach(p => this.drawPlayer(p));
-            this.drawBall(matchEngine.ball);
-        }
-    }
-    drawPitchLines(c, w, h, s) {
-        c.save();
-        c.strokeStyle = 'rgba(255, 255, 255, 0.8)'; c.lineWidth = Math.max(1, 2 * (s/10));
-        c.strokeRect(0, 0, w, h); c.beginPath(); c.moveTo(w / 2, 0); c.lineTo(w / 2, h); c.stroke();
-        c.beginPath(); c.arc(w / 2, h / 2, 9.15 * s, 0, 2 * Math.PI); c.stroke();
-        const drawBox = (x_m, y_m) => {
-            const bw = x_m * s, bh = y_m * s;
-            c.strokeRect(0, (h - bh) / 2, bw, bh); c.strokeRect(w - bw, (h - bh) / 2, bw, bh);
-        };
-        drawBox(16.5, 40.3); drawBox(5.5, 18.3);
-        c.restore();
-    }
-    drawPlayer(player) {
-        const x = player.position.x * scale; const y = player.position.y * scale;
-        const r = Math.max(2, (player.isGoalkeeper ? 6 : 5) * (scale/10));
-        ctx.beginPath(); ctx.arc(x, y, r, 0, 2 * Math.PI);
-        ctx.fillStyle = player.color; ctx.fill(); ctx.strokeStyle = 'black'; ctx.lineWidth = 1; ctx.stroke();
-        if (r > 3) {
-            ctx.fillStyle = 'white'; ctx.font = `bold ${Math.max(4, 8 * (scale/10))}px Arial`;
-            ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(player.number, x, y);
-        }
-    }
-    drawBall(ball) {
-        const x = ball.position.x * scale; const y = ball.position.y * scale;
-        const r = Math.max(1.5, 3 * (scale/10));
-        ctx.beginPath(); ctx.arc(x, y, r, 0, 2 * Math.PI);
-        ctx.fillStyle = 'white'; ctx.fill(); ctx.strokeStyle = 'black'; ctx.lineWidth = 1; ctx.stroke();
-    }
-    drawShootingZone(team) {
-        const goalX = team.side === 'left' ? canvas.width : 0;
-        ctx.beginPath();
-        ctx.arc(goalX, canvas.height / 2, ui.settings.maxShotDistance * scale, team.side === 'left' ? 1.5*Math.PI : 0.5*Math.PI, team.side === 'left' ? 0.5*Math.PI : 1.5*Math.PI);
-        ctx.strokeStyle = 'rgba(255, 255, 0, 0.3)'; ctx.lineWidth = 1; ctx.stroke();
-    }
-    drawMinimap() {
-        if (!minimapCanvas || !minimapCtx || !ui.configTeam) return;
-        minimapCanvas.width = minimapCanvas.clientWidth; minimapCanvas.height = minimapCanvas.clientHeight;
-        const minimapScale = minimapCanvas.width / PITCH_WIDTH;
-        minimapCtx.clearRect(0, 0, minimapCanvas.width, minimapCanvas.height);
+      <!-- SECTION 2: ÉLÉMENTS INTERACTIFS -->
+      <section id="interactive">
+        <h2>🎮 Éléments Interactifs Natifs</h2>
         
-        ui.configTeam.players.forEach(p => {
-            const pos = p.tactics[ui.configPhase].position;
-            const x = pos.x * minimapScale; const y = pos.y * minimapScale;
-            minimapCtx.beginPath(); minimapCtx.arc(x, y, 5, 0, 2 * Math.PI);
-            minimapCtx.fillStyle = p.color; minimapCtx.fill();
-            if (p === ui.selectedPlayer) { minimapCtx.strokeStyle = '#f7b731'; minimapCtx.lineWidth = 2; minimapCtx.stroke(); }
-            minimapCtx.fillStyle = 'white'; minimapCtx.font = 'bold 8px Arial'; minimapCtx.textAlign = 'center'; minimapCtx.textBaseline = 'middle';
-            minimapCtx.fillText(p.number, x, y);
-        });
-    }
-}
+        <div class="feature-grid">
+          <div class="feature-box">
+            <h3>Details / Summary (Accordéon)</h3>
+            <details>
+              <summary>🔍 Cliquez pour voir les détails</summary>
+              <p>Contenu révélé ! Cette fonctionnalité fonctionne sans aucun JavaScript. C'est un accordéon natif HTML5.</p>
+              <ul>
+                <li>✅ Aucun JS requis</li>
+                <li>✅ Accessible par défaut</li>
+                <li>✅ Support universel</li>
+              </ul>
+            </details>
+            
+            <details open>
+              <summary>🎯 Exemple ouvert par défaut</summary>
+              <p>Utilisez l'attribut <code>open</code> pour afficher par défaut.</p>
+            </details>
+            
+            <details>
+              <summary>📊 Encore un exemple</summary>
+              <p>Vous pouvez avoir autant de sections que nécessaire.</p>
+            </details>
+          </div>
 
-// ===================================================================================
-// CLASSE UI (Interface Utilisateur & Gestion des Écrans)
-// ===================================================================================
+          <div class="feature-box">
+            <h3>Dialog (Modale Native)</h3>
+            <button onclick="document.getElementById('myDialog').showModal()">
+              🔔 Ouvrir la modale
+            </button>
+            
+            <dialog id="myDialog">
+              <h2>Modale Native HTML5</h2>
+              <p>Ceci est une modale créée avec l'élément <code>&lt;dialog&gt;</code>.</p>
+              <p>Aucune librairie JS nécessaire !</p>
+              <button onclick="document.getElementById('myDialog').close()">
+                ❌ Fermer
+              </button>
+            </dialog>
+          </div>
 
-class UIController {
-    constructor() {
-        this.settings = { maxShotDistance: 25, simSpeed: 1 };
-        this.configTeam = null; this.configPhase = 'with_ball'; this.selectedPlayer = null;
-        this.initEventListeners();
-    }
+          <div class="feature-box">
+            <h3>Progress Bar</h3>
+            <label>Installation en cours...</label>
+            <progress value="70" max="100"></progress>
+            <p>70% complété</p>
+            
+            <button onclick="updateProgress()">📈 Simuler progression</button>
+            
+            <h3 style="margin-top: 20px;">Meter (Jauge)</h3>
+            <label>Niveau de batterie :</label>
+            <meter value="0.6" min="0" max="1" 
+                   low="0.3" high="0.7" optimum="0.8">60%</meter>
+            
+            <label>Utilisation disque :</label>
+            <meter value="80" min="0" max="100" 
+                   low="30" high="70" optimum="50">80 GB</meter>
+          </div>
+        </div>
+      </section>
 
-    initEventListeners() {
-        // Dashboard controls
-        document.getElementById('start-match').addEventListener('click', () => this.startMatch());
-        document.getElementById('pause-match').addEventListener('click', () => this.pauseMatch());
-        document.getElementById('reset-match').addEventListener('click', () => location.reload());
-        document.getElementById('sim-speed').addEventListener('input', e => this.updateSimSpeed(e.target.value));
-        document.getElementById('shot-distance').addEventListener('input', e => this.updateShotDistance(e.target.value));
+      <!-- SECTION 3: MULTIMÉDIA -->
+      <section id="multimedia">
+        <h2>🎥 Multimédia Natif</h2>
         
-        // Navigation
-        document.getElementById('goto-config-a').addEventListener('click', () => this.showPage('config', teamA));
-        document.getElementById('goto-config-b').addEventListener('click', () => this.showPage('config', teamB));
-        document.getElementById('back-to-dashboard').addEventListener('click', () => this.showPage('dashboard'));
+        <div class="feature-grid">
+          <div class="feature-box">
+            <h3>Video Native</h3>
+            <video controls width="100%" poster="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='640' height='360'%3E%3Crect fill='%23667eea' width='640' height='360'/%3E%3Ctext fill='white' font-size='48' x='50%25' y='50%25' text-anchor='middle' dy='.3em'%3EVideo Placeholder%3C/text%3E%3C/svg%3E">
+              <source src="https://www.w3schools.com/html/mov_bbb.mp4" type="video/mp4">
+              Votre navigateur ne supporte pas la vidéo.
+            </video>
+          </div>
 
-        // Config page controls
-        document.getElementById('config-phase-with-ball').addEventListener('click', () => this.switchConfigPhase('with_ball'));
-        document.getElementById('config-phase-without-ball').addEventListener('click', () => this.switchConfigPhase('without_ball'));
-        this.setupMinimapDrag();
+          <div class="feature-box">
+            <h3>Audio Native</h3>
+            <audio controls>
+              <source src="https://www.w3schools.com/html/horse.mp3" type="audio/mpeg">
+              Votre navigateur ne supporte pas l'audio.
+            </audio>
+            
+            <h3 style="margin-top: 20px;">Picture (Images Responsive)</h3>
+            <picture>
+              <source media="(min-width: 800px)" srcset="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='800' height='400'%3E%3Crect fill='%2327ae60' width='800' height='400'/%3E%3Ctext fill='white' font-size='36' x='50%25' y='50%25' text-anchor='middle' dy='.3em'%3ELarge Image%3C/text%3E%3C/svg%3E">
+              <source media="(min-width: 400px)" srcset="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='200'%3E%3Crect fill='%23f39c12' width='400' height='200'/%3E%3Ctext fill='white' font-size='24' x='50%25' y='50%25' text-anchor='middle' dy='.3em'%3EMedium Image%3C/text%3E%3C/svg%3E">
+              <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='150'%3E%3Crect fill='%23e74c3c' width='300' height='150'/%3E%3Ctext fill='white' font-size='18' x='50%25' y='50%25' text-anchor='middle' dy='.3em'%3ESmall Image%3C/text%3E%3C/svg%3E" alt="Image responsive">
+            </picture>
+            <p><small>Redimensionnez la fenêtre pour voir l'image changer</small></p>
+          </div>
+
+          <div class="feature-box">
+            <h3>SVG Inline</h3>
+            <svg width="300" height="200" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" style="stop-color:#667eea;stop-opacity:1" />
+                  <stop offset="100%" style="stop-color:#764ba2;stop-opacity:1" />
+                </linearGradient>
+              </defs>
+              <rect width="300" height="200" fill="url(#grad1)" rx="15"/>
+              <circle cx="150" cy="100" r="50" fill="white" opacity="0.3"/>
+              <text x="150" y="110" text-anchor="middle" fill="white" font-size="24" font-weight="bold">SVG Native</text>
+            </svg>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION 4: CANVAS -->
+      <section id="canvas">
+        <h2>🎨 Canvas (Dessin Dynamique)</h2>
+        
+        <div class="feature-grid">
+          <div class="feature-box">
+            <h3>Canvas 2D Interactif</h3>
+            <canvas id="myCanvas" width="400" height="300"></canvas>
+            <div style="margin-top: 15px; display: flex; gap: 10px;">
+              <button onclick="drawShape('rectangle')">⬜ Rectangle</button>
+              <button onclick="drawShape('circle')">⭕ Cercle</button>
+              <button onclick="drawShape('line')">📏 Ligne</button>
+              <button onclick="clearCanvas()">🗑️ Effacer</button>
+            </div>
+          </div>
+
+          <div class="feature-box">
+            <h3>Canvas Animation</h3>
+            <canvas id="animCanvas" width="400" height="300"></canvas>
+            <button onclick="toggleAnimation()">▶️ Start/Stop</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION 5: API EMBARQUÉE -->
+      <section id="api">
+        <h2>⚡ API Embarquée (Sans Backend)</h2>
+        
+        <div class="feature-grid">
+          <div class="feature-box">
+            <h3>API Locale Dynamique</h3>
+            <p>Cette API fonctionne entièrement côté client, sans serveur !</p>
+            
+            <button onclick="callAPI('getData')">📥 GET Data</button>
+            <button onclick="callAPI('processData')">⚙️ Process Data</button>
+            <button onclick="callAPI('calculate')">🔢 Calculate</button>
+            
+            <div id="apiOutput" class="api-response" style="margin-top: 15px; display: none;">
+              <strong>Réponse API:</strong>
+              <pre id="apiResult"></pre>
+            </div>
+          </div>
+
+          <div class="feature-box">
+            <h3>Local Storage Demo</h3>
+            <input type="text" id="storageInput" placeholder="Entrez du texte">
+            <button onclick="saveToStorage()">💾 Sauvegarder</button>
+            <button onclick="loadFromStorage()">📂 Charger</button>
+            <button onclick="clearStorage()">🗑️ Effacer</button>
+            <output id="storageOutput"></output>
+          </div>
+
+          <div class="feature-box">
+            <h3>Geolocation</h3>
+            <button onclick="getLocation()">📍 Obtenir ma position</button>
+            <div id="locationOutput" style="margin-top: 15px;"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION 6: DONNÉES -->
+      <section id="data">
+        <h2>📊 Tableaux et Données Structurées</h2>
+        
+        <div class="feature-box">
+          <h3>Tableau HTML Sémantique</h3>
+          <table>
+            <caption>Performance des fonctionnalités HTML5</caption>
+            <thead>
+              <tr>
+                <th scope="col">Fonctionnalité</th>
+                <th scope="col">Support Navigateurs</th>
+                <th scope="col">Performance</th>
+                <th scope="col">Complexité</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Formulaires natifs</td>
+                <td>✅ 100%</td>
+                <td>⚡ Excellent</td>
+                <td>🟢 Faible</td>
+              </tr>
+              <tr>
+                <td>Canvas 2D</td>
+                <td>✅ 100%</td>
+                <td>⚡ Excellent</td>
+                <td>🟡 Moyenne</td>
+              </tr>
+              <tr>
+                <td>Video/Audio</td>
+                <td>✅ 100%</td>
+                <td>⚡ Excellent</td>
+                <td>🟢 Faible</td>
+              </tr>
+              <tr>
+                <td>Dialog</td>
+                <td>✅ 95%</td>
+                <td>⚡ Excellent</td>
+                <td>🟢 Faible</td>
+              </tr>
+              <tr>
+                <td>Web Storage</td>
+                <td>✅ 100%</td>
+                <td>⚡ Excellent</td>
+                <td>🟢 Faible</td>
+              </tr>
+            </tbody>
+            <tfoot>
+              <tr>
+                <td colspan="4" style="text-align: center; font-weight: 600;">
+                  Moyenne globale: Excellent support et performance
+                </td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      </section>
+
+      <!-- SECTION 7: TESTS AUTOMATIQUES -->
+      <section id="tests" style="border-left-color: #e74c3c;">
+        <h2>🧪 Tests Automatiques et Rigoureux</h2>
+        
+        <div class="feature-box" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+          <h3 style="color: white;">Panneau de Contrôle des Tests</h3>
+          <div style="display: flex; gap: 15px; flex-wrap: wrap; margin-top: 20px;">
+            <button onclick="runAllTests()" style="background: #27ae60; flex: 1; min-width: 200px;">
+              🚀 Lancer TOUS les Tests
+            </button>
+            <button onclick="clearTestLogs()" style="background: #e74c3c; flex: 1; min-width: 200px;">
+              🗑️ Effacer les Logs
+            </button>
+            <button onclick="copyLogsToClipboard()" style="background: #f39c12; flex: 1; min-width: 200px;">
+              📋 Copier les Logs
+            </button>
+            <button onclick="exportTestReport()" style="background: #3498db; flex: 1; min-width: 200px;">
+              💾 Exporter Rapport JSON
+            </button>
+          </div>
+          
+          <div style="margin-top: 20px; display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 10px;">
+            <button onclick="runBrowserTests()" style="background: rgba(255,255,255,0.2);">
+              🌐 Tests Navigateur
+            </button>
+            <button onclick="runHTMLTests()" style="background: rgba(255,255,255,0.2);">
+              📄 Tests HTML
+            </button>
+            <button onclick="runCSSTests()" style="background: rgba(255,255,255,0.2);">
+              🎨 Tests CSS
+            </button>
+            <button onclick="runJSTests()" style="background: rgba(255,255,255,0.2);">
+              ⚡ Tests JavaScript
+            </button>
+            <button onclick="runAPITests()" style="background: rgba(255,255,255,0.2);">
+              🔌 Tests API
+            </button>
+            <button onclick="runPerformanceTests()" style="background: rgba(255,255,255,0.2);">
+              📊 Tests Performance
+            </button>
+            <button onclick="runSecurityTests()" style="background: rgba(255,255,255,0.2);">
+              🔒 Tests Sécurité
+            </button>
+            <button onclick="runAccessibilityTests()" style="background: rgba(255,255,255,0.2);">
+              ♿ Tests Accessibilité
+            </button>
+          </div>
+        </div>
+
+        <div class="feature-box" style="margin-top: 20px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+            <h3 style="margin: 0;">📊 Résumé des Tests</h3>
+            <div id="testSummary" style="display: flex; gap: 15px; font-weight: 600;">
+              <span style="color: #27ae60;">✅ Réussis: <span id="passedCount">0</span></span>
+              <span style="color: #e74c3c;">❌ Échoués: <span id="failedCount">0</span></span>
+              <span style="color: #f39c12;">⚠️ Warnings: <span id="warningCount">0</span></span>
+              <span style="color: #3498db;">ℹ️ Total: <span id="totalCount">0</span></span>
+            </div>
+          </div>
+          
+          <div id="testProgress" style="margin-bottom: 15px; display: none;">
+            <progress id="testProgressBar" value="0" max="100" style="width: 100%;"></progress>
+            <p id="testProgressText" style="text-align: center; margin-top: 5px; font-weight: 600;"></p>
+          </div>
+        </div>
+
+        <div class="feature-box" style="margin-top: 20px;">
+          <h3>📝 Logs de Tests (Copier et Coller pour Analyse)</h3>
+          <div style="position: relative;">
+            <textarea id="testLogs" readonly 
+              style="width: 100%; min-height: 500px; font-family: 'Courier New', monospace; 
+              font-size: 13px; background: #1e1e1e; color: #d4d4d4; padding: 20px; 
+              border: 2px solid #667eea; border-radius: 10px; resize: vertical;
+              line-height: 1.6;"></textarea>
+            <div style="position: absolute; top: 10px; right: 10px; display: flex; gap: 5px;">
+              <button onclick="copyLogsToClipboard()" 
+                style="padding: 8px 15px; font-size: 12px; background: #27ae60;">
+                📋 Copier
+              </button>
+              <button onclick="downloadLogs()" 
+                style="padding: 8px 15px; font-size: 12px; background: #3498db;">
+                💾 Télécharger
+              </button>
+            </div>
+          </div>
+          
+          <div style="margin-top: 15px; padding: 15px; background: #fff3cd; border-radius: 8px; border-left: 4px solid #ffc107;">
+            <strong>💡 Instructions :</strong>
+            <ol style="margin: 10px 0 0 20px;">
+              <li>Cliquez sur "🚀 Lancer TOUS les Tests" pour exécuter la suite complète</li>
+              <li>Attendez la fin des tests (progression affichée)</li>
+              <li>Cliquez sur "📋 Copier les Logs" pour copier tous les résultats</li>
+              <li>Collez les logs dans votre conversation avec Claude pour analyse</li>
+            </ol>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <h3>📚 À propos de ce Showcase</h3>
+      <p>Démonstration complète HTML5 créée par Anzize Daouda</p>
+      <p>Architecture ILN - Self-contained, Offline-capable, Production-ready</p>
+      <address>
+        <a href="mailto:contact@example.com" style="color: #667eea;">Contact</a>
+      </address>
+      <p style="margin-top: 20px;">&copy; 2025 - Tous droits réservés</p>
+    </footer>
+  </div>
+
+  <script>
+    // API Embarquée
+    const EmbeddedAPI = {
+      endpoints: {
+        getData: function() {
+          return {
+            success: true,
+            data: {
+              message: "Données récupérées avec succès",
+              timestamp: new Date().toISOString(),
+              items: ['Item 1', 'Item 2', 'Item 3']
+            }
+          };
+        },
+        
+        processData: function() {
+          return {
+            success: true,
+            processed: {
+              input: "Raw data",
+              output: "Processed data",
+              transformations: 5,
+              duration: "23ms"
+            }
+          };
+        },
+        
+        calculate: function() {
+          const num1 = Math.floor(Math.random() * 100);
+          const num2 = Math.floor(Math.random() * 100);
+          return {
+            success: true,
+            calculation: {
+              operand1: num1,
+              operand2: num2,
+              sum: num1 + num2,
+              product: num1 * num2
+            }
+          };
+        }
+      },
+      
+      call: function(endpoint) {
+        if (this.endpoints[endpoint]) {
+          return this.endpoints[endpoint]();
+        }
+        return { success: false, error: "Endpoint not found" };
+      }
+    };
+
+    function callAPI(endpoint) {
+      const result = EmbeddedAPI.call(endpoint);
+      document.getElementById('apiOutput').style.display = 'block';
+      document.getElementById('apiResult').textContent = JSON.stringify(result, null, 2);
+    }
+
+    // Canvas Drawing
+    const canvas = document.getElementById('myCanvas');
+    const ctx = canvas.getContext('2d');
+    
+    // Style canvas initial
+    ctx.fillStyle = '#f8f9fa';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    
+    function drawShape(shape) {
+      const colors = ['#667eea', '#764ba2', '#27ae60', '#e74c3c', '#f39c12'];
+      const randomColor = colors[Math.floor(Math.random() * colors.length)];
+      ctx.fillStyle = randomColor;
+      ctx.strokeStyle = randomColor;
+      ctx.lineWidth = 3;
+      
+      const x = Math.random() * (canvas.width - 100) + 50;
+      const y = Math.random() * (canvas.height - 100) + 50;
+      
+      switch(shape) {
+        case 'rectangle':
+          ctx.fillRect(x, y, 80, 60);
+          break;
+        case 'circle':
+          ctx.beginPath();
+          ctx.arc(x, y, 40, 0, Math.PI * 2);
+          ctx.fill();
+          break;
+        case 'line':
+          ctx.beginPath();
+          ctx.moveTo(x, y);
+          ctx.lineTo(x + 100, y + 80);
+          ctx.stroke();
+          break;
+      }
     }
     
-    // --- Page Navigation ---
-    showPage(pageId, data = null) {
-        document.querySelectorAll('.page').forEach(p => p.classList.add('hidden'));
-        document.getElementById(`page-${pageId}`).classList.remove('hidden');
+    function clearCanvas() {
+      ctx.fillStyle = '#f8f9fa';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+    }
 
-        if (pageId === 'config') {
-            this.configTeam = data;
-            this.selectedPlayer = null;
-            this.configPhase = 'with_ball';
-            this.setupConfigPage();
+    // Canvas Animation
+    const animCanvas = document.getElementById('animCanvas');
+    const animCtx = animCanvas.getContext('2d');
+    let animationRunning = false;
+    let animationId;
+    
+    class Ball {
+      constructor() {
+        this.x = Math.random() * animCanvas.width;
+        this.y = Math.random() * animCanvas.height;
+        this.radius = 10 + Math.random() * 20;
+        this.dx = (Math.random() - 0.5) * 4;
+        this.dy = (Math.random() - 0.5) * 4;
+        this.color = `hsl(${Math.random() * 360}, 70%, 60%)`;
+      }
+      
+      draw() {
+        animCtx.beginPath();
+        animCtx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+        animCtx.fillStyle = this.color;
+        animCtx.fill();
+        animCtx.closePath();
+      }
+      
+      update() {
+        if (this.x + this.radius > animCanvas.width || this.x - this.radius < 0) {
+          this.dx = -this.dx;
         }
-
-        if (pageId === 'dashboard') {
-            // THE FIX: Defer resize until the browser has painted the new layout
-            requestAnimationFrame(() => resizeCanvas());
+        if (this.y + this.radius > animCanvas.height || this.y - this.radius < 0) {
+          this.dy = -this.dy;
         }
+        
+        this.x += this.dx;
+        this.y += this.dy;
+        this.draw();
+      }
     }
+    
+    const balls = [];
+    for (let i = 0; i < 10; i++) {
+      balls.push(new Ball());
+    }
+    
+    function animate() {
+      animCtx.fillStyle = 'rgba(255, 255, 255, 0.1)';
+      animCtx.fillRect(0, 0, animCanvas.width, animCanvas.height);
+      
+      balls.forEach(ball => ball.update());
+      
+      if (animationRunning) {
+        animationId = requestAnimationFrame(animate);
+      }
+    }
+    
+    function toggleAnimation() {
+      animationRunning = !animationRunning;
+      if (animationRunning) {
+        animate();
+      } else {
+        cancelAnimationFrame(animationId);
+      }
+    }
+    
+    // Initial canvas background
+    animCtx.fillStyle = '#f8f9fa';
+    animCtx.fillRect(0, 0, animCanvas.width, animCanvas.height);
 
-    // --- Dashboard Methods ---
-    startMatch() {
-        matchEngine.isPaused = false;
-        document.getElementById('start-match').disabled = true;
-        document.getElementById('pause-match').disabled = false;
-        document.getElementById('pause-match').textContent = 'Pause';
-    }
-    pauseMatch() {
-        matchEngine.isPaused = !matchEngine.isPaused;
-        document.getElementById('pause-match').textContent = matchEngine.isPaused ? 'Reprendre' : 'Pause';
-    }
-    updateSimSpeed(value) {
-        this.settings.simSpeed = parseInt(value);
-        if (matchEngine) matchEngine.simulationSpeed = this.settings.simSpeed;
-        document.getElementById('sim-speed-value').textContent = value;
-    }
-    updateShotDistance(value) {
-        this.settings.maxShotDistance = parseInt(value);
-        document.getElementById('shot-distance-value').textContent = value;
-    }
-    logEvent(message, type = 'info') {
-        const log = document.getElementById('event-log');
-        const p = document.createElement('p');
-        p.textContent = `${Math.floor(matchEngine.time / 60).toString().padStart(2, '0')}': ${message}`;
-        if (type === 'goal') p.className = 'text-yellow-300 font-bold';
-        log.prepend(p);
-    }
-    updateScore() {
-        document.getElementById('team-a-name-display-db').textContent = teamA.name;
-        document.getElementById('team-b-name-display-db').textContent = teamB.name;
-        document.getElementById('score-display').innerHTML = `<span class="text-blue-400">${teamA.name}</span> ${teamA.score} - ${teamB.score} <span class="text-red-400">${teamB.name}</span>`;
-    }
-    updateTime() {
-        const time = matchEngine.time;
-        document.getElementById('time-display').textContent = `${Math.floor(time / 60).toString().padStart(2, '0')}:${Math.floor(time % 60).toString().padStart(2, '0')}`;
-    }
-
-    // --- Config Page Methods ---
-    setupConfigPage() {
-        document.getElementById('config-title').textContent = `Configuration: ${this.configTeam.name}`;
-        document.getElementById('config-title').style.color = this.configTeam.color;
-        this.switchConfigPhase('with_ball', true); // Force reset to 'with_ball'
-        this.buildPlayerEditor();
-        renderer.drawMinimap();
-    }
-    switchConfigPhase(phase, force = false) {
-        if (this.configPhase === phase && !force) return;
-        this.configPhase = phase;
-        this.selectedPlayer = null;
-        document.getElementById('config-phase-with-ball').style.backgroundColor = phase === 'with_ball' ? '#f7b731' : '#4a5568';
-        document.getElementById('config-phase-without-ball').style.backgroundColor = phase === 'without_ball' ? '#f7b731' : '#4a5568';
-        this.buildPlayerEditor();
-        renderer.drawMinimap();
-    }
-    buildPlayerEditor() {
-        const editor = document.getElementById('player-editor');
-        if (!this.selectedPlayer) {
-            editor.innerHTML = '<p class="text-gray-400 text-center p-4">Cliquez sur un joueur sur la carte pour le configurer.</p>';
-            return;
+    // Progress Bar Animation
+    function updateProgress() {
+      const progressBar = document.querySelector('progress');
+      let currentValue = parseInt(progressBar.value);
+      
+      const interval = setInterval(() => {
+        currentValue += 5;
+        if (currentValue > 100) {
+          currentValue = 0;
         }
-        const p = this.selectedPlayer;
-        const pos = p.tactics[this.configPhase].position;
-        editor.innerHTML = `
-            <h3 class="text-lg font-bold" style="color:${p.color};">Joueur #${p.number}</h3>
-            <div class="mt-2 space-y-3">
-                 <div><label class="block text-sm">Position (X: ${pos.x.toFixed(1)}, Y: ${pos.y.toFixed(1)})</label></div>
-                <div>
-                    <label for="player-skill" class="block text-sm">Compétence: <span id="player-skill-value">${p.baseSkill}</span></label>
-                    <input id="player-skill" type="range" min="1" max="100" value="${p.baseSkill}" class="w-full h-2 bg-gray-600 rounded-lg cursor-pointer">
-                </div>
-            </div>`;
-        document.getElementById('player-skill').addEventListener('input', e => {
-            p.baseSkill = parseInt(e.target.value);
-            document.getElementById('player-skill-value').textContent = p.baseSkill;
-        });
+        progressBar.value = currentValue;
+        progressBar.nextElementSibling.textContent = currentValue + '% complété';
+      }, 200);
+      
+      setTimeout(() => clearInterval(interval), 4000);
     }
-    setupMinimapDrag() {
-        let draggingPlayer = null;
-        const getMousePos = (e) => {
-            const rect = minimapCanvas.getBoundingClientRect();
-            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-            return { x: clientX - rect.left, y: clientY - rect.top };
-        };
-        const startDrag = (e) => {
-            e.preventDefault();
-            const pos = getMousePos(e);
-            const minimapScale = minimapCanvas.clientWidth / PITCH_WIDTH;
-            let clickedPlayer = null;
-            this.configTeam.players.forEach(p => {
-                const pPos = p.tactics[this.configPhase].position;
-                const d = Math.sqrt((pos.x - pPos.x * minimapScale)**2 + (pos.y - pPos.y * minimapScale)**2);
-                if (d < 15) clickedPlayer = p;
-            });
-            if (clickedPlayer) {
-                draggingPlayer = clickedPlayer;
-                this.selectedPlayer = draggingPlayer;
-                this.buildPlayerEditor(); renderer.drawMinimap();
-            }
-        };
-        const drag = (e) => {
-            if (draggingPlayer) {
-                e.preventDefault();
-                const pos = getMousePos(e);
-                const minimapScale = minimapCanvas.clientWidth / PITCH_WIDTH;
-                const newX = Math.max(0, Math.min(PITCH_WIDTH, pos.x / minimapScale));
-                const newY = Math.max(0, Math.min(PITCH_HEIGHT, pos.y / minimapScale));
-                draggingPlayer.tactics[this.configPhase].position.x = newX;
-                draggingPlayer.tactics[this.configPhase].position.y = newY;
-                this.buildPlayerEditor(); renderer.drawMinimap();
-            }
-        };
-        const endDrag = () => { draggingPlayer = null; };
-        minimapCanvas.addEventListener('mousedown', startDrag); minimapCanvas.addEventListener('mousemove', drag);
-        minimapCanvas.addEventListener('mouseup', endDrag); minimapCanvas.addEventListener('mouseleave', endDrag);
-        minimapCanvas.addEventListener('touchstart', startDrag, { passive: false });
-        minimapCanvas.addEventListener('touchmove', drag, { passive: false });
-        minimapCanvas.addEventListener('touchend', endDrag);
+
+    // Local Storage
+    function saveToStorage() {
+      const value = document.getElementById('storageInput').value;
+      if (value) {
+        localStorage.setItem('demoData', value);
+        document.getElementById('storageOutput').textContent = '✅ Sauvegardé: ' + value;
+        document.getElementById('storageOutput').style.color = '#27ae60';
+      }
     }
-}
-
-// ===================================================================================
-// DÉMARRAGE DE L'APPLICATION
-// ===================================================================================
-
-let teamA = new Team('A', 'Équipe A', '#3b82f6', 'left');
-let teamB = new Team('B', 'Équipe B', '#ef4444', 'right');
-let matchEngine = new MatchEngine(teamA, teamB);
-let renderer = new Renderer();
-let ui = new UIController();
-
-function gameLoop(timestamp) {
-    const deltaTime = (timestamp - (lastTime || timestamp)) / 1000;
-    lastTime = timestamp;
-    if (matchEngine && !matchEngine.isPaused) {
-        matchEngine.update(deltaTime);
-        ui.updateTime();
+    
+    function loadFromStorage() {
+      const value = localStorage.getItem('demoData');
+      if (value) {
+        document.getElementById('storageInput').value = value;
+        document.getElementById('storageOutput').textContent = '📂 Chargé: ' + value;
+        document.getElementById('storageOutput').style.color = '#667eea';
+      } else {
+        document.getElementById('storageOutput').textContent = '⚠️ Aucune donnée sauvegardée';
+        document.getElementById('storageOutput').style.color = '#f39c12';
+      }
     }
-    renderer.draw();
-    requestAnimationFrame(gameLoop);
-}
-let lastTime = 0;
+    
+    function clearStorage() {
+      localStorage.removeItem('demoData');
+      document.getElementById('storageInput').value = '';
+      document.getElementById('storageOutput').textContent = '🗑️ Données effacées';
+      document.getElementById('storageOutput').style.color = '#e74c3c';
+    }
 
-window.addEventListener('load', () => {
-    ui.updateScore();
-    ui.showPage('dashboard'); // Start on the dashboard
-    window.addEventListener('resize', () => {
-        if(document.getElementById('page-dashboard').style.display !== 'none') {
-            resizeCanvas();
+    // Geolocation
+    function getLocation() {
+      const output = document.getElementById('locationOutput');
+      
+      if (!navigator.geolocation) {
+        output.innerHTML = '<p style="color: #e74c3c;">❌ Géolocalisation non supportée</p>';
+        return;
+      }
+      
+      output.innerHTML = '<p style="color: #667eea;">🔄 Récupération de la position...</p>';
+      
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const lat = position.coords.latitude.toFixed(6);
+          const lon = position.coords.longitude.toFixed(6);
+          const accuracy = position.coords.accuracy.toFixed(0);
+          
+          output.innerHTML = `
+            <div style="background: #e8f5e9; padding: 15px; border-radius: 8px; border-left: 4px solid #27ae60;">
+              <p><strong>✅ Position obtenue:</strong></p>
+              <p>📍 Latitude: ${lat}</p>
+              <p>📍 Longitude: ${lon}</p>
+              <p>🎯 Précision: ±${accuracy}m</p>
+              <p><small>Timestamp: ${new Date(position.timestamp).toLocaleString()}</small></p>
+            </div>
+          `;
+        },
+        (error) => {
+          let errorMsg = '';
+          switch(error.code) {
+            case error.PERMISSION_DENIED:
+              errorMsg = 'Permission refusée par l\'utilisateur';
+              break;
+            case error.POSITION_UNAVAILABLE:
+              errorMsg = 'Position non disponible';
+              break;
+            case error.TIMEOUT:
+              errorMsg = 'Timeout dépassé';
+              break;
+            default:
+              errorMsg = 'Erreur inconnue';
+          }
+          
+          output.innerHTML = `
+            <p style="color: #e74c3c;">❌ Erreur: ${errorMsg}</p>
+          `;
+        },
+        {
+          enableHighAccuracy: true,
+          timeout: 5000,
+          maximumAge: 0
         }
-        renderer.drawMinimap();
+      );
+    }
+
+    // Form Validation Custom Messages
+    document.getElementById('mainForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      if (this.checkValidity()) {
+        alert('✅ Formulaire valide ! Toutes les données sont correctes.\n\nDans une vraie application, les données seraient envoyées au serveur.');
+        
+        // Afficher les données du formulaire
+        const formData = new FormData(this);
+        console.log('Données du formulaire:');
+        for (let [key, value] of formData.entries()) {
+          console.log(`${key}: ${value}`);
+        }
+      } else {
+        alert('❌ Veuillez corriger les erreurs dans le formulaire.');
+      }
+    });
+
+    // Custom validation messages
+    const emailInput = document.getElementById('email');
+    emailInput.addEventListener('invalid', function() {
+      if (this.validity.valueMissing) {
+        this.setCustomValidity('L\'email est obligatoire');
+      } else if (this.validity.typeMismatch) {
+        this.setCustomValidity('Veuillez entrer un email valide (ex: nom@domaine.com)');
+      } else {
+        this.setCustomValidity('');
+      }
     });
     
-    // Final check to draw canvas after a short delay, ensuring layout is stable
-    setTimeout(() => {
-        if(document.getElementById('page-dashboard').style.display !== 'none') {
-            resizeCanvas();
+    emailInput.addEventListener('input', function() {
+      this.setCustomValidity('');
+    });
+
+    const passwordInput = document.getElementById('password');
+    passwordInput.addEventListener('invalid', function() {
+      if (this.validity.valueMissing) {
+        this.setCustomValidity('Le mot de passe est obligatoire');
+      } else if (this.validity.tooShort) {
+        this.setCustomValidity(`Le mot de passe doit contenir au moins ${this.minLength} caractères`);
+      } else {
+        this.setCustomValidity('');
+      }
+    });
+    
+    passwordInput.addEventListener('input', function() {
+      this.setCustomValidity('');
+    });
+
+    // Smooth scroll pour navigation
+    document.querySelectorAll('nav a').forEach(anchor => {
+      anchor.addEventListener('click', function(e) {
+        e.preventDefault();
+        const targetId = this.getAttribute('href');
+        const targetElement = document.querySelector(targetId);
+        
+        if (targetElement) {
+          targetElement.scrollIntoView({
+            behavior: 'smooth',
+            block: 'start'
+          });
         }
-    }, 100);
+      });
+    });
 
-    requestAnimationFrame(gameLoop);
-});
+    // Notification de bienvenue
+    setTimeout(() => {
+      if ('Notification' in window && Notification.permission === 'default') {
+        Notification.requestPermission().then(permission => {
+          if (permission === 'granted') {
+            new Notification('🚀 Bienvenue sur Ultimate HTML5 Showcase!', {
+              body: 'Explorez toutes les fonctionnalités HTML5 modernes',
+              icon: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="64" height="64"%3E%3Ccircle cx="32" cy="32" r="30" fill="%23667eea"/%3E%3Ctext x="32" y="42" text-anchor="middle" fill="white" font-size="36" font-weight="bold"%3E🚀%3C/text%3E%3C/svg%3E'
+            });
+          }
+        });
+      }
+    }, 2000);
 
-</script>
+    // Web Worker simulation (inline)
+    function heavyComputation() {
+      const start = Date.now();
+      let result = 0;
+      for (let i = 0; i < 1000000; i++) {
+        result += Math.sqrt(i);
+      }
+      const duration = Date.now() - start;
+      console.log(`Calcul intensif terminé en ${duration}ms. Résultat: ${result.toFixed(2)}`);
+    }
+
+    // Battery Status API (si supporté)
+    if ('getBattery' in navigator) {
+      navigator.getBattery().then(battery => {
+        console.log('🔋 Niveau de batterie:', (battery.level * 100) + '%');
+        console.log('⚡ En charge:', battery.charging ? 'Oui' : 'Non');
+      });
+    }
+
+    // Online/Offline detection
+    window.addEventListener('online', () => {
+      console.log('✅ Connexion internet rétablie');
+    });
+    
+    window.addEventListener('offline', () => {
+      console.log('❌ Connexion internet perdue');
+    });
+
+    // Performance API
+    if ('performance' in window) {
+      window.addEventListener('load', () => {
+        setTimeout(() => {
+          const perfData = performance.getEntriesByType('navigation')[0];
+          console.log('⚡ Performance de chargement:');
+          console.log(`- DOM chargé: ${perfData.domContentLoadedEventEnd.toFixed(0)}ms`);
+          console.log(`- Page complète: ${perfData.loadEventEnd.toFixed(0)}ms`);
+        }, 0);
+      });
+    }
+
+    // Intersection Observer pour animations au scroll
+    if ('IntersectionObserver' in window) {
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.style.opacity = '1';
+            entry.target.style.transform = 'translateY(0)';
+          }
+        });
+      }, {
+        threshold: 0.1
+      });
+
+      document.querySelectorAll('section').forEach(section => {
+        section.style.opacity = '0';
+        section.style.transform = 'translateY(20px)';
+        section.style.transition = 'opacity 0.6s ease-out, transform 0.6s ease-out';
+        observer.observe(section);
+      });
+    }
+
+    // Console welcome message
+    console.log('%c🚀 Ultimate HTML5 Showcase', 'font-size: 24px; font-weight: bold; color: #667eea;');
+    console.log('%cCréé par Anzize Daouda - Architecture ILN', 'font-size: 14px; color: #764ba2;');
+    console.log('%cToutes les fonctionnalités HTML5 modernes en un seul fichier!', 'font-size: 12px; color: #27ae60;');
+    console.log('\n📊 Fonctionnalités actives:');
+    console.log('✅ Formulaires avec validation native');
+    console.log('✅ Canvas 2D avec animations');
+    console.log('✅ API embarquée (sans backend)');
+    console.log('✅ Local Storage');
+    console.log('✅ Geolocation');
+    console.log('✅ Multimédia natif (video/audio)');
+    console.log('✅ Dialog/Details/Summary');
+    console.log('✅ Progressive Web App ready');
+    console.log('\n💡 Ouvrez les DevTools pour voir les logs en temps réel!');
+
+    // Service Worker registration (si HTTPS)
+    if ('serviceWorker' in navigator && window.location.protocol === 'https:') {
+      // Note: Service Worker nécessite un fichier séparé sw.js
+      // Dans un déploiement réel, décommentez cette section
+      /*
+      navigator.serviceWorker.register('/sw.js')
+        .then(reg => console.log('✅ Service Worker enregistré:', reg))
+        .catch(err => console.log('❌ Service Worker erreur:', err));
+      */
+      console.log('ℹ️ Service Worker supporté mais nécessite fichier sw.js séparé');
+    }
+
+    // Clipboard API demo
+    function copyToClipboard(text) {
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(text).then(() => {
+          console.log('✅ Copié dans le presse-papier:', text);
+        });
+      }
+    }
+
+    // Vibration API (mobile)
+    function vibrateDevice() {
+      if ('vibrate' in navigator) {
+        navigator.vibrate([100, 50, 100]);
+        console.log('📳 Vibration activée');
+      }
+    }
+
+    // Page Visibility API
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) {
+        console.log('👋 Page cachée (utilisateur a changé d\'onglet)');
+      } else {
+        console.log('👀 Page visible (utilisateur est revenu)');
+      }
+    });
+
+    // Fullscreen API
+    function toggleFullscreen() {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen();
+      } else {
+        document.exitFullscreen();
+      }
+    }
+
+    // Screen Orientation API
+    if ('orientation' in screen) {
+      console.log('📱 Orientation écran:', screen.orientation.type);
+      
+      screen.orientation.addEventListener('change', () => {
+        console.log('🔄 Orientation changée:', screen.orientation.type);
+      });
+    }
+
+    // Network Information API
+    if ('connection' in navigator) {
+      const connection = navigator.connection;
+      console.log('🌐 Type de connexion:', connection.effectiveType);
+      console.log('📶 Débit estimé:', connection.downlink + ' Mbps');
+    }
+
+    // Media Devices API (camera/micro)
+    if ('mediaDevices' in navigator) {
+      navigator.mediaDevices.enumerateDevices().then(devices => {
+        const cameras = devices.filter(d => d.kind === 'videoinput');
+        const microphones = devices.filter(d => d.kind === 'audioinput');
+        console.log(`📷 Caméras disponibles: ${cameras.length}`);
+        console.log(`🎤 Microphones disponibles: ${microphones.length}`);
+      });
+    }
+
+    // WebGL Support Check
+    function checkWebGLSupport() {
+      const canvas = document.createElement('canvas');
+      const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+      if (gl) {
+        console.log('✅ WebGL supporté');
+        console.log('🎮 Renderer:', gl.getParameter(gl.RENDERER));
+      } else {
+        console.log('❌ WebGL non supporté');
+      }
+    }
+    checkWebGLSupport();
+
+    // IndexedDB Support Check
+    if ('indexedDB' in window) {
+      console.log('✅ IndexedDB supporté (base de données locale avancée)');
+    }
+
+    // Web Animations API demo
+    function animateElement(element) {
+      element.animate([
+        { transform: 'scale(1)', opacity: 1 },
+        { transform: 'scale(1.1)', opacity: 0.8 },
+        { transform: 'scale(1)', opacity: 1 }
+      ], {
+        duration: 500,
+        easing: 'ease-in-out'
+      });
+    }
+
+    // Ajouter animation sur boutons
+    document.querySelectorAll('button').forEach(btn => {
+      btn.addEventListener('click', function() {
+        animateElement(this);
+      });
+    });
+
+    // Résumé des capacités du navigateur
+    console.log('\n🔍 ANALYSE DES CAPACITÉS DU NAVIGATEUR:');
+    console.log('=====================================');
+    console.log('✅ Service Worker:', 'serviceWorker' in navigator);
+    console.log('✅ Geolocation:', 'geolocation' in navigator);
+    console.log('✅ Notifications:', 'Notification' in window);
+    console.log('✅ Local Storage:', 'localStorage' in window);
+    console.log('✅ IndexedDB:', 'indexedDB' in window);
+    console.log('✅ Web Workers:', 'Worker' in window);
+    console.log('✅ WebSocket:', 'WebSocket' in window);
+    console.log('✅ Canvas:', !!document.createElement('canvas').getContext);
+    console.log('✅ Vibration:', 'vibrate' in navigator);
+    console.log('✅ Battery API:', 'getBattery' in navigator);
+    console.log('✅ Clipboard API:', 'clipboard' in navigator);
+    console.log('✅ Fullscreen API:', 'fullscreenEnabled' in document);
+    console.log('=====================================\n');
+
+    // Easter egg - Konami code
+    let konamiCode = [];
+    const konami = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'b', 'a'];
+    
+    document.addEventListener('keydown', (e) => {
+      konamiCode.push(e.key);
+      konamiCode = konamiCode.slice(-10);
+      
+      if (konamiCode.join(',') === konami.join(',')) {
+        document.body.style.animation = 'rainbow 2s linear infinite';
+        console.log('🎉 KONAMI CODE ACTIVATED! 🎉');
+        setTimeout(() => {
+          document.body.style.animation = '';
+        }, 5000);
+      }
+    });
+
+    // Ajout animation rainbow pour easter egg
+    const style = document.createElement('style');
+    style.textContent = `
+      @keyframes rainbow {
+        0% { filter: hue-rotate(0deg); }
+        100% { filter: hue-rotate(360deg); }
+      }
+    `;
+    document.head.appendChild(style);
+  </script>
 </body>
 </html>
-

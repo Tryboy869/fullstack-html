@@ -3,8 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Démonstration complète HTML5 avec toutes fonctionnalités natives">
-  <title>Ultimate HTML5 Showcase - Tests Complets</title>
+  <title>eval() API - Service Worker Bridge</title>
   
   <style>
     * {
@@ -15,15 +14,13 @@
     
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      line-height: 1.6;
-      color: #333;
       background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       min-height: 100vh;
       padding: 20px;
     }
     
     .container {
-      max-width: 1400px;
+      max-width: 1200px;
       margin: 0 auto;
       background: white;
       border-radius: 20px;
@@ -39,74 +36,75 @@
     }
     
     header h1 {
-      font-size: 3em;
+      font-size: 2.5em;
       margin-bottom: 10px;
     }
     
-    nav {
-      background: #2c3e50;
-      padding: 15px;
-      position: sticky;
-      top: 0;
-      z-index: 1000;
+    .status {
+      display: inline-block;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-weight: 600;
+      margin: 10px 5px;
     }
     
-    nav ul {
-      list-style: none;
-      display: flex;
-      justify-content: center;
-      flex-wrap: wrap;
-      gap: 20px;
-    }
-    
-    nav a {
+    .status.active {
+      background: #27ae60;
       color: white;
-      text-decoration: none;
-      padding: 10px 20px;
-      border-radius: 5px;
-      transition: all 0.3s;
     }
     
-    nav a:hover {
-      background: #667eea;
+    .status.inactive {
+      background: #e74c3c;
+      color: white;
     }
     
     main {
       padding: 40px;
     }
     
-    section {
-      margin-bottom: 60px;
-      padding: 30px;
+    .section {
+      margin-bottom: 30px;
+      padding: 25px;
       background: #f8f9fa;
       border-radius: 15px;
       border-left: 5px solid #667eea;
     }
     
-    section h2 {
+    .section h2 {
       color: #667eea;
-      font-size: 2em;
-      margin-bottom: 20px;
+      margin-bottom: 15px;
     }
     
-    .feature-box {
+    .card {
       background: white;
       padding: 20px;
       border-radius: 10px;
       box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-      margin-top: 20px;
+      margin-top: 15px;
+    }
+    
+    .endpoint {
+      background: #1e1e1e;
+      color: #d4d4d4;
+      padding: 15px;
+      border-radius: 8px;
+      font-family: 'Courier New', monospace;
+      font-size: 13px;
+      margin: 10px 0;
+      border-left: 4px solid #27ae60;
     }
     
     button {
       background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       color: white;
-      padding: 15px 30px;
+      padding: 12px 25px;
       border: none;
       border-radius: 8px;
       font-size: 16px;
       font-weight: 600;
       cursor: pointer;
       transition: all 0.3s;
+      margin: 5px;
     }
     
     button:hover {
@@ -114,444 +112,491 @@
       box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
     }
     
-    textarea {
-      width: 100%;
-      min-height: 500px;
-      font-family: 'Courier New', monospace;
+    button.success {
+      background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
+    }
+    
+    pre {
+      background: #1e1e1e;
+      color: #d4d4d4;
+      padding: 15px;
+      border-radius: 8px;
+      overflow-x: auto;
       font-size: 13px;
+      margin: 10px 0;
+    }
+    
+    .output {
       background: #1e1e1e;
       color: #d4d4d4;
       padding: 20px;
-      border: 2px solid #667eea;
-      border-radius: 10px;
-      resize: vertical;
-      line-height: 1.6;
+      border-radius: 8px;
+      font-family: 'Courier New', monospace;
+      font-size: 13px;
+      min-height: 100px;
+      max-height: 400px;
+      overflow-y: auto;
+      margin-top: 15px;
+      white-space: pre-wrap;
     }
     
-    progress {
-      width: 100%;
-      height: 30px;
-      border-radius: 15px;
-      appearance: none;
+    .badge {
+      display: inline-block;
+      padding: 5px 10px;
+      border-radius: 5px;
+      font-size: 0.85em;
+      font-weight: 600;
+      margin: 5px;
     }
     
-    progress::-webkit-progress-bar {
-      background: #e0e0e0;
-      border-radius: 15px;
+    .badge.success {
+      background: #d4edda;
+      color: #155724;
     }
     
-    progress::-webkit-progress-value {
-      background: linear-gradient(90deg, #667eea, #764ba2);
-      border-radius: 15px;
+    .badge.warning {
+      background: #fff3cd;
+      color: #856404;
+    }
+    
+    code {
+      background: #f5f5f5;
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-family: 'Courier New', monospace;
+      color: #e74c3c;
     }
   </style>
 </head>
 <body>
   <div class="container">
     <header>
-      <h1>🚀 Ultimate HTML5 Showcase</h1>
-      <p>Tests Automatiques Complets</p>
+      <h1>🚀 eval() API - Service Worker Bridge</h1>
+      <p>API HTTP réelle propulsée par eval() côté client</p>
+      <div>
+        <span class="status" id="swStatus">⏳ Initialisation...</span>
+        <span class="status" id="apiStatus">⏳ En attente...</span>
+      </div>
     </header>
 
-    <nav>
-      <ul>
-        <li><a href="#tests">🧪 Tests Auto</a></li>
-      </ul>
-    </nav>
-
     <main>
-      <section id="tests">
-        <h2>🧪 Tests Automatiques Rigoureux</h2>
+      <!-- Section 1: Instructions -->
+      <div class="section">
+        <h2>📖 Comment ça marche ?</h2>
+        <div class="card">
+          <h3>Architecture Innovante</h3>
+          <p><strong>Service Worker</strong> agit comme un serveur HTTP local qui intercepte les requêtes et exécute eval() de manière sécurisée.</p>
+          
+          <ol style="margin: 15px 0 15px 25px; line-height: 1.8;">
+            <li><strong>Service Worker enregistré</strong> → Intercepte toutes les requêtes vers <code>/api/*</code></li>
+            <li><strong>Requête reçue</strong> → Parse JSON et extrait le code à exécuter</li>
+            <li><strong>eval() sécurisé</strong> → Exécution dans sandbox avec whitelist</li>
+            <li><strong>Réponse JSON</strong> → Résultat retourné comme une vraie API</li>
+          </ol>
+          
+          <div style="background: #fff3cd; padding: 15px; border-radius: 8px; margin-top: 15px;">
+            <strong>⚠️ Important :</strong> Cette page doit être servie en <strong>HTTPS</strong> pour que le Service Worker fonctionne (sauf sur localhost).
+          </div>
+        </div>
+      </div>
+
+      <!-- Section 2: Endpoints disponibles -->
+      <div class="section">
+        <h2>⚡ Endpoints API Disponibles</h2>
+        <div class="card">
+          <h3>1. Exécuter du code eval()</h3>
+          <div class="endpoint">POST /api/eval</div>
+          <pre>{
+  "code": "return Math.sqrt(144);"
+}</pre>
+          <button class="success" onclick="testEvalEndpoint()">🧪 Tester</button>
+        </div>
         
-        <div class="feature-box" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
-          <h3 style="color: white;">Panneau de Contrôle</h3>
-          <div style="display: flex; gap: 15px; flex-wrap: wrap; margin-top: 20px;">
-            <button onclick="runAllTests()" style="background: #27ae60; flex: 1;">
-              🚀 LANCER TOUS LES TESTS
-            </button>
-            <button onclick="clearTestLogs()" style="background: #e74c3c; flex: 1;">
-              🗑️ Effacer
-            </button>
-            <button onclick="copyLogsToClipboard()" style="background: #f39c12; flex: 1;">
-              📋 COPIER LES LOGS
-            </button>
-          </div>
+        <div class="card">
+          <h3>2. Charger un plugin</h3>
+          <div class="endpoint">POST /api/plugin/load</div>
+          <pre>{
+  "name": "MathPlugin",
+  "code": "({ add: (a,b) => a+b })"
+}</pre>
+          <button class="success" onclick="testPluginLoad()">🧪 Tester</button>
         </div>
+        
+        <div class="card">
+          <h3>3. Appeler un plugin</h3>
+          <div class="endpoint">POST /api/plugin/call</div>
+          <pre>{
+  "plugin": "MathPlugin",
+  "method": "add",
+  "args": [5, 3]
+}</pre>
+          <button class="success" onclick="testPluginCall()">🧪 Tester</button>
+        </div>
+        
+        <div class="card">
+          <h3>4. Health check</h3>
+          <div class="endpoint">GET /api/health</div>
+          <button class="success" onclick="testHealth()">🧪 Tester</button>
+        </div>
+      </div>
 
-        <div class="feature-box" style="margin-top: 20px;">
-          <div style="display: flex; justify-content: space-between; margin-bottom: 15px;">
-            <h3>📊 Résumé</h3>
-            <div style="display: flex; gap: 15px; font-weight: 600;">
-              <span style="color: #27ae60;">✅ <span id="passedCount">0</span></span>
-              <span style="color: #e74c3c;">❌ <span id="failedCount">0</span></span>
-              <span style="color: #f39c12;">⚠️ <span id="warningCount">0</span></span>
-            </div>
-          </div>
-          
-          <div id="testProgress" style="display: none; margin-bottom: 15px;">
-            <progress id="testProgressBar" value="0" max="100"></progress>
-            <p id="testProgressText" style="text-align: center; margin-top: 5px;"></p>
-          </div>
-        </div>
+      <!-- Section 3: Test depuis Colab -->
+      <div class="section">
+        <h2>🐍 Code Python pour Google Colab</h2>
+        <div class="card">
+          <h3>Copiez ce code dans Colab</h3>
+          <pre id="pythonCode">import requests
+import json
 
-        <div class="feature-box" style="margin-top: 20px;">
-          <h3>📝 Logs (Copiez et collez dans Claude)</h3>
-          <textarea id="testLogs" readonly></textarea>
-          
-          <div style="margin-top: 15px; padding: 15px; background: #fff3cd; border-radius: 8px;">
-            <strong>💡 Instructions:</strong>
-            <ol style="margin: 10px 0 0 20px;">
-              <li>Cliquez "🚀 LANCER TOUS LES TESTS"</li>
-              <li>Attendez la fin (30-60 secondes)</li>
-              <li>Cliquez "📋 COPIER LES LOGS"</li>
-              <li>Collez dans Claude pour analyse</li>
-            </ol>
-          </div>
+# URL de votre app déployée
+BASE_URL = "https://VOTRE-APP.onrender.com"
+
+# Test 1: Health check
+response = requests.get(f"{BASE_URL}/api/health")
+print("Health:", response.json())
+
+# Test 2: Exécuter eval()
+response = requests.post(
+    f"{BASE_URL}/api/eval",
+    json={"code": "return Math.pow(2, 10);"}
+)
+print("Eval résultat:", response.json())
+
+# Test 3: Charger plugin
+response = requests.post(
+    f"{BASE_URL}/api/plugin/load",
+    json={
+        "name": "Calculator",
+        "code": "({add: (a,b) => a+b, multiply: (a,b) => a*b})"
+    }
+)
+print("Plugin chargé:", response.json())
+
+# Test 4: Appeler plugin
+response = requests.post(
+    f"{BASE_URL}/api/plugin/call",
+    json={
+        "plugin": "Calculator",
+        "method": "multiply",
+        "args": [7, 6]
+    }
+)
+print("Plugin résultat:", response.json())</pre>
+          <button onclick="copyPythonCode()">📋 Copier le code Python</button>
         </div>
-      </section>
+      </div>
+
+      <!-- Section 4: Logs -->
+      <div class="section">
+        <h2>📊 Logs en Temps Réel</h2>
+        <div class="card">
+          <div id="logs" class="output">Initialisation...</div>
+          <button onclick="clearLogs()">🗑️ Effacer</button>
+        </div>
+      </div>
     </main>
   </div>
 
   <script>
-    console.log('🚀 Script chargé - Tests prêts!');
+    const logs = [];
     
-    // Système de tests
-    const TestSuite = {
-      logs: [],
-      results: { passed: 0, failed: 0, warnings: 0, total: 0 },
-      startTime: null,
+    function log(message, type = 'info') {
+      const timestamp = new Date().toISOString();
+      const symbols = { info: 'ℹ️', success: '✅', error: '❌', warning: '⚠️' };
+      const symbol = symbols[type] || 'ℹ️';
       
-      log(message, type = 'info') {
-        const timestamp = new Date().toISOString();
-        this.logs.push({ timestamp, type, message });
-        
-        const symbols = {
-          pass: '✅', fail: '❌', warn: '⚠️', info: 'ℹ️', start: '🚀', end: '🏁'
-        };
-        
-        const symbol = symbols[type] || 'ℹ️';
-        const line = `[${timestamp}] ${symbol} ${message}\n`;
-        
-        const textarea = document.getElementById('testLogs');
-        textarea.value += line;
-        textarea.scrollTop = textarea.scrollHeight;
-        console.log(line);
-      },
+      const entry = `[${timestamp}] ${symbol} ${message}`;
+      logs.push(entry);
       
-      updateSummary() {
-        document.getElementById('passedCount').textContent = this.results.passed;
-        document.getElementById('failedCount').textContent = this.results.failed;
-        document.getElementById('warningCount').textContent = this.results.warnings;
-      },
+      const logsDiv = document.getElementById('logs');
+      logsDiv.textContent = logs.join('\n');
+      logsDiv.scrollTop = logsDiv.scrollHeight;
       
-      updateProgress(current, total, message) {
-        const progress = document.getElementById('testProgress');
-        const bar = document.getElementById('testProgressBar');
-        const text = document.getElementById('testProgressText');
-        
-        progress.style.display = 'block';
-        bar.value = (current / total) * 100;
-        text.textContent = `${message} (${current}/${total})`;
-        
-        if (current === total) {
-          setTimeout(() => progress.style.display = 'none', 2000);
-        }
-      },
-      
-      assert(condition, testName, details = '') {
-        this.results.total++;
-        if (condition) {
-          this.results.passed++;
-          this.log(`PASS: ${testName}${details ? ' - ' + details : ''}`, 'pass');
-        } else {
-          this.results.failed++;
-          this.log(`FAIL: ${testName}${details ? ' - ' + details : ''}`, 'fail');
-        }
-      },
-      
-      warn(message) {
-        this.results.warnings++;
-        this.log(`WARNING: ${message}`, 'warn');
-      }
-    };
-
-    // Tests Navigateur
-    async function runBrowserTests() {
-      TestSuite.log('='.repeat(60), 'start');
-      TestSuite.log('TESTS NAVIGATEUR', 'start');
-      TestSuite.log('='.repeat(60), 'start');
-      
-      TestSuite.log(`User Agent: ${navigator.userAgent}`, 'info');
-      TestSuite.log(`Langue: ${navigator.language}`, 'info');
-      TestSuite.log(`Plateforme: ${navigator.platform}`, 'info');
-      
-      TestSuite.assert('serviceWorker' in navigator, 'Service Worker');
-      TestSuite.assert('geolocation' in navigator, 'Geolocation');
-      TestSuite.assert('Notification' in window, 'Notifications');
-      TestSuite.assert('localStorage' in window, 'Local Storage');
-      TestSuite.assert('sessionStorage' in window, 'Session Storage');
-      TestSuite.assert('indexedDB' in window, 'IndexedDB');
-      TestSuite.assert('Worker' in window, 'Web Workers');
-      TestSuite.assert('WebSocket' in window, 'WebSocket');
-      TestSuite.assert('fetch' in window, 'Fetch API');
-      TestSuite.assert('Promise' in window, 'Promise');
-      
-      const canvas = document.createElement('canvas');
-      const ctx2d = canvas.getContext('2d');
-      const webgl = canvas.getContext('webgl');
-      
-      TestSuite.assert(!!ctx2d, 'Canvas 2D');
-      TestSuite.assert(!!webgl, 'WebGL');
-      
-      TestSuite.assert('clipboard' in navigator, 'Clipboard API');
-      TestSuite.assert('vibrate' in navigator, 'Vibration API');
-      
-      TestSuite.log('Tests navigateur OK', 'end');
-      TestSuite.updateSummary();
-    }
-
-    // Tests HTML
-    async function runHTMLTests() {
-      TestSuite.log('='.repeat(60), 'start');
-      TestSuite.log('TESTS HTML', 'start');
-      TestSuite.log('='.repeat(60), 'start');
-      
-      TestSuite.assert(!!document.doctype, 'DOCTYPE présent');
-      TestSuite.assert(document.documentElement.tagName === 'HTML', '<html> présent');
-      TestSuite.assert(!!document.head, '<head> présent');
-      TestSuite.assert(!!document.body, '<body> présent');
-      
-      const charset = document.querySelector('meta[charset]');
-      const viewport = document.querySelector('meta[name="viewport"]');
-      
-      TestSuite.assert(!!charset, 'Meta charset');
-      TestSuite.assert(!!viewport, 'Meta viewport');
-      
-      const header = document.querySelector('header');
-      const nav = document.querySelector('nav');
-      const main = document.querySelector('main');
-      
-      TestSuite.assert(!!header, '<header> présent');
-      TestSuite.assert(!!nav, '<nav> présent');
-      TestSuite.assert(!!main, '<main> présent');
-      
-      const h1 = document.querySelectorAll('h1');
-      TestSuite.assert(h1.length === 1, 'Un seul H1', `Trouvés: ${h1.length}`);
-      
-      TestSuite.log('Tests HTML OK', 'end');
-      TestSuite.updateSummary();
-    }
-
-    // Tests JavaScript
-    async function runJSTests() {
-      TestSuite.log('='.repeat(60), 'start');
-      TestSuite.log('TESTS JAVASCRIPT', 'start');
-      TestSuite.log('='.repeat(60), 'start');
-      
-      TestSuite.assert(typeof Promise !== 'undefined', 'Promise');
-      TestSuite.assert(typeof Map !== 'undefined', 'Map');
-      TestSuite.assert(typeof Set !== 'undefined', 'Set');
-      TestSuite.assert(typeof Symbol !== 'undefined', 'Symbol');
-      
-      TestSuite.assert(typeof Array.prototype.map === 'function', 'Array.map');
-      TestSuite.assert(typeof Array.prototype.filter === 'function', 'Array.filter');
-      TestSuite.assert(typeof Array.prototype.reduce === 'function', 'Array.reduce');
-      
-      const testArray = [1, 2, 3];
-      const doubled = testArray.map(x => x * 2);
-      TestSuite.assert(doubled.toString() === '2,4,6', 'Array.map fonctionne');
-      
-      TestSuite.log('Tests JavaScript OK', 'end');
-      TestSuite.updateSummary();
-    }
-
-    // Tests Performance
-    async function runPerformanceTests() {
-      TestSuite.log('='.repeat(60), 'start');
-      TestSuite.log('TESTS PERFORMANCE', 'start');
-      TestSuite.log('='.repeat(60), 'start');
-      
-      if ('performance' in window) {
-        const perfData = performance.getEntriesByType('navigation')[0];
-        
-        if (perfData) {
-          const loadTime = perfData.loadEventEnd - perfData.fetchStart;
-          const domReady = perfData.domContentLoadedEventEnd - perfData.fetchStart;
-          
-          TestSuite.log(`Temps chargement: ${loadTime.toFixed(0)}ms`, 'info');
-          TestSuite.log(`DOM Ready: ${domReady.toFixed(0)}ms`, 'info');
-          
-          TestSuite.assert(loadTime < 5000, 'Chargement < 5s');
-          TestSuite.assert(domReady < 3000, 'DOM Ready < 3s');
-        }
-        
-        if (performance.memory) {
-          const memUsed = (performance.memory.usedJSHeapSize / 1048576).toFixed(2);
-          TestSuite.log(`Mémoire: ${memUsed} MB`, 'info');
-        }
-      }
-      
-      // Test Canvas
-      const canvas = document.createElement('canvas');
-      canvas.width = 1000;
-      canvas.height = 1000;
-      const ctx = canvas.getContext('2d');
-      
-      const start = performance.now();
-      for (let i = 0; i < 1000; i++) {
-        ctx.fillRect(Math.random() * 1000, Math.random() * 1000, 10, 10);
-      }
-      const time = performance.now() - start;
-      
-      TestSuite.log(`Canvas 1000 rects: ${time.toFixed(2)}ms`, 'info');
-      TestSuite.assert(time < 100, 'Performance Canvas OK');
-      
-      TestSuite.log('Tests Performance OK', 'end');
-      TestSuite.updateSummary();
-    }
-
-    // Tests Sécurité
-    async function runSecurityTests() {
-      TestSuite.log('='.repeat(60), 'start');
-      TestSuite.log('TESTS SÉCURITÉ', 'start');
-      TestSuite.log('='.repeat(60), 'start');
-      
-      const protocol = window.location.protocol;
-      TestSuite.log(`Protocole: ${protocol}`, 'info');
-      
-      TestSuite.assert(
-        protocol === 'https:' || protocol === 'file:',
-        'Protocole sécurisé'
-      );
-      
-      const externalLinks = Array.from(document.querySelectorAll('a[target="_blank"]'));
-      let secureLinks = 0;
-      
-      externalLinks.forEach(link => {
-        const rel = link.getAttribute('rel') || '';
-        if (rel.includes('noopener') && rel.includes('noreferrer')) {
-          secureLinks++;
-        }
-      });
-      
-      if (externalLinks.length > 0) {
-        TestSuite.log(`Liens externes: ${externalLinks.length}`, 'info');
-        TestSuite.log(`Liens sécurisés: ${secureLinks}`, 'info');
-      }
-      
-      TestSuite.log('Tests Sécurité OK', 'end');
-      TestSuite.updateSummary();
-    }
-
-    // Tests Accessibilité
-    async function runAccessibilityTests() {
-      TestSuite.log('='.repeat(60), 'start');
-      TestSuite.log('TESTS ACCESSIBILITÉ', 'start');
-      TestSuite.log('='.repeat(60), 'start');
-      
-      const html = document.documentElement;
-      TestSuite.assert(html.hasAttribute('lang'), 'Attribut lang', `Langue: ${html.lang}`);
-      
-      const buttons = document.querySelectorAll('button');
-      let buttonsOK = 0;
-      
-      buttons.forEach(btn => {
-        if (btn.textContent.trim() || btn.getAttribute('aria-label')) {
-          buttonsOK++;
-        }
-      });
-      
-      TestSuite.assert(buttonsOK === buttons.length, 'Boutons accessibles', `${buttonsOK}/${buttons.length}`);
-      
-      TestSuite.log('Tests Accessibilité OK', 'end');
-      TestSuite.updateSummary();
-    }
-
-    // FONCTION PRINCIPALE
-    async function runAllTests() {
-      console.log('🚀 Début des tests...');
-      
-      TestSuite.results = { passed: 0, failed: 0, warnings: 0, total: 0 };
-      TestSuite.logs = [];
-      TestSuite.startTime = Date.now();
-      
-      document.getElementById('testLogs').value = '';
-      
-      TestSuite.log('╔════════════════════════════════════════════════╗', 'start');
-      TestSuite.log('║     SUITE DE TESTS AUTOMATIQUES COMPLÈTE      ║', 'start');
-      TestSuite.log('╚════════════════════════════════════════════════╝', 'start');
-      TestSuite.log('', 'info');
-      TestSuite.log(`Date: ${new Date().toLocaleString()}`, 'info');
-      TestSuite.log(`URL: ${window.location.href}`, 'info');
-      TestSuite.log('', 'info');
-      
-      const tests = [
-        { name: 'Navigateur', fn: runBrowserTests },
-        { name: 'HTML', fn: runHTMLTests },
-        { name: 'JavaScript', fn: runJSTests },
-        { name: 'Performance', fn: runPerformanceTests },
-        { name: 'Sécurité', fn: runSecurityTests },
-        { name: 'Accessibilité', fn: runAccessibilityTests }
-      ];
-      
-      for (let i = 0; i < tests.length; i++) {
-        TestSuite.updateProgress(i + 1, tests.length, `Tests ${tests[i].name}`);
-        await tests[i].fn();
-        TestSuite.log('', 'info');
-        await new Promise(r => setTimeout(r, 100));
-      }
-      
-      const duration = Date.now() - TestSuite.startTime;
-      
-      TestSuite.log('╔════════════════════════════════════════════════╗', 'end');
-      TestSuite.log('║              RÉSUMÉ FINAL                      ║', 'end');
-      TestSuite.log('╚════════════════════════════════════════════════╝', 'end');
-      TestSuite.log('', 'info');
-      TestSuite.log(`✅ Réussis: ${TestSuite.results.passed}`, 'pass');
-      TestSuite.log(`❌ Échoués: ${TestSuite.results.failed}`, 'fail');
-      TestSuite.log(`⚠️  Warnings: ${TestSuite.results.warnings}`, 'warn');
-      TestSuite.log(`⏱️  Durée: ${(duration / 1000).toFixed(2)}s`, 'info');
-      
-      const rate = ((TestSuite.results.passed / TestSuite.results.total) * 100).toFixed(2);
-      TestSuite.log(`📈 Taux réussite: ${rate}%`, 'info');
-      TestSuite.log('', 'info');
-      TestSuite.log('💡 Cliquez "📋 COPIER LES LOGS" puis collez dans Claude', 'info');
-      
-      console.log('✅ Tests terminés!');
-    }
-
-    // Utilitaires
-    function clearTestLogs() {
-      document.getElementById('testLogs').value = '';
-      TestSuite.logs = [];
-      TestSuite.results = { passed: 0, failed: 0, warnings: 0, total: 0 };
-      TestSuite.updateSummary();
-      console.log('🗑️ Logs effacés');
+      console.log(entry);
     }
     
-    async function copyLogsToClipboard() {
-      const logs = document.getElementById('testLogs').value;
+    function clearLogs() {
+      logs.length = 0;
+      document.getElementById('logs').textContent = '';
+    }
+    
+    // Service Worker inline (pour éviter fichier séparé)
+    const swCode = `
+      const EVAL_API = {
+        plugins: new Map(),
+        
+        whitelist: {
+          console, Math, JSON, Date, Array, Object, String, Number, Boolean
+        },
+        
+        createSandbox() {
+          return new Proxy({}, {
+            get(target, key) {
+              if (key in EVAL_API.whitelist) {
+                return EVAL_API.whitelist[key];
+              }
+              throw new Error(\`Accès refusé: "\${key}"\`);
+            }
+          });
+        },
+        
+        executeCode(code) {
+          try {
+            const sandbox = this.createSandbox();
+            const fn = new Function(...Object.keys(this.whitelist), \`"use strict"; \${code}\`);
+            const result = fn.apply(sandbox, Object.values(this.whitelist));
+            
+            return { success: true, result };
+          } catch (error) {
+            return { success: false, error: error.message };
+          }
+        },
+        
+        loadPlugin(name, code) {
+          try {
+            const result = this.executeCode(code);
+            if (!result.success) throw new Error(result.error);
+            
+            this.plugins.set(name, result.result);
+            return { success: true, plugin: name };
+          } catch (error) {
+            return { success: false, error: error.message };
+          }
+        },
+        
+        callPlugin(name, method, args) {
+          try {
+            if (!this.plugins.has(name)) {
+              throw new Error(\`Plugin "\${name}" non trouvé\`);
+            }
+            
+            const plugin = this.plugins.get(name);
+            if (typeof plugin[method] !== 'function') {
+              throw new Error(\`Méthode "\${method}" non trouvée\`);
+            }
+            
+            const result = plugin[method](...args);
+            return { success: true, result };
+          } catch (error) {
+            return { success: false, error: error.message };
+          }
+        }
+      };
       
-      if (!logs) {
-        alert('⚠️ Aucun log à copier! Lancez d\'abord les tests.');
-        return;
+      self.addEventListener('install', (event) => {
+        console.log('Service Worker installé');
+        self.skipWaiting();
+      });
+      
+      self.addEventListener('activate', (event) => {
+        console.log('Service Worker activé');
+        event.waitUntil(clients.claim());
+      });
+      
+      self.addEventListener('fetch', (event) => {
+        const url = new URL(event.request.url);
+        
+        // Intercepte seulement /api/*
+        if (!url.pathname.startsWith('/api/')) {
+          return;
+        }
+        
+        event.respondWith(
+          (async () => {
+            try {
+              // Health check
+              if (url.pathname === '/api/health') {
+                return new Response(
+                  JSON.stringify({
+                    status: 'ok',
+                    timestamp: new Date().toISOString(),
+                    plugins: Array.from(EVAL_API.plugins.keys())
+                  }),
+                  { headers: { 'Content-Type': 'application/json' } }
+                );
+              }
+              
+              // Parse request body
+              const body = event.request.method === 'POST' 
+                ? await event.request.json() 
+                : {};
+              
+              let result;
+              
+              // Route: /api/eval
+              if (url.pathname === '/api/eval') {
+                result = EVAL_API.executeCode(body.code);
+              }
+              
+              // Route: /api/plugin/load
+              else if (url.pathname === '/api/plugin/load') {
+                result = EVAL_API.loadPlugin(body.name, body.code);
+              }
+              
+              // Route: /api/plugin/call
+              else if (url.pathname === '/api/plugin/call') {
+                result = EVAL_API.callPlugin(body.plugin, body.method, body.args || []);
+              }
+              
+              else {
+                result = { success: false, error: 'Endpoint non trouvé' };
+              }
+              
+              return new Response(
+                JSON.stringify(result),
+                { headers: { 'Content-Type': 'application/json' } }
+              );
+              
+            } catch (error) {
+              return new Response(
+                JSON.stringify({ success: false, error: error.message }),
+                { headers: { 'Content-Type': 'application/json' }, status: 500 }
+              );
+            }
+          })()
+        );
+      });
+    `;
+    
+    // Enregistrer Service Worker
+    async function registerServiceWorker() {
+      if (!('serviceWorker' in navigator)) {
+        log('❌ Service Worker non supporté', 'error');
+        document.getElementById('swStatus').textContent = '❌ Non supporté';
+        document.getElementById('swStatus').className = 'status inactive';
+        return false;
       }
       
       try {
-        await navigator.clipboard.writeText(logs);
-        alert('✅ LOGS COPIÉS!\n\nVous pouvez maintenant les coller dans Claude.');
-        console.log('📋 Logs copiés dans le presse-papier');
-      } catch (err) {
-        const textarea = document.getElementById('testLogs');
-        textarea.select();
-        document.execCommand('copy');
-        alert('✅ Logs copiés! (fallback)');
+        // Créer blob avec le code du Service Worker
+        const blob = new Blob([swCode], { type: 'application/javascript' });
+        const swUrl = URL.createObjectURL(blob);
+        
+        const registration = await navigator.serviceWorker.register(swUrl);
+        
+        log('✅ Service Worker enregistré', 'success');
+        document.getElementById('swStatus').textContent = '✅ Service Worker actif';
+        document.getElementById('swStatus').className = 'status active';
+        
+        // Attendre que le SW soit actif
+        await navigator.serviceWorker.ready;
+        
+        log('✅ Service Worker prêt', 'success');
+        document.getElementById('apiStatus').textContent = '✅ API prête';
+        document.getElementById('apiStatus').className = 'status active';
+        
+        return true;
+        
+      } catch (error) {
+        log(`❌ Erreur Service Worker: ${error.message}`, 'error');
+        document.getElementById('swStatus').textContent = '❌ Erreur';
+        document.getElementById('swStatus').className = 'status inactive';
+        return false;
       }
     }
-
-    // Désactiver notification au chargement
-    window.addEventListener('load', () => {
-      console.log('✅ Page chargée - Prêt pour les tests!');
+    
+    // Tests
+    async function testEvalEndpoint() {
+      try {
+        const response = await fetch('/api/eval', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ code: 'return Math.sqrt(144);' })
+        });
+        
+        const result = await response.json();
+        log(`Test eval: ${JSON.stringify(result)}`, result.success ? 'success' : 'error');
+        alert(`Résultat: ${JSON.stringify(result, null, 2)}`);
+      } catch (error) {
+        log(`Erreur test eval: ${error.message}`, 'error');
+      }
+    }
+    
+    async function testPluginLoad() {
+      try {
+        const response = await fetch('/api/plugin/load', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name: 'MathPlugin',
+            code: '({ add: (a,b) => a+b, multiply: (a,b) => a*b })'
+          })
+        });
+        
+        const result = await response.json();
+        log(`Plugin chargé: ${JSON.stringify(result)}`, result.success ? 'success' : 'error');
+        alert(`Résultat: ${JSON.stringify(result, null, 2)}`);
+      } catch (error) {
+        log(`Erreur chargement plugin: ${error.message}`, 'error');
+      }
+    }
+    
+    async function testPluginCall() {
+      try {
+        // Charge d'abord le plugin
+        await fetch('/api/plugin/load', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name: 'MathPlugin',
+            code: '({ add: (a,b) => a+b, multiply: (a,b) => a*b })'
+          })
+        });
+        
+        // Appelle le plugin
+        const response = await fetch('/api/plugin/call', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            plugin: 'MathPlugin',
+            method: 'multiply',
+            args: [7, 6]
+          })
+        });
+        
+        const result = await response.json();
+        log(`Plugin appelé: ${JSON.stringify(result)}`, result.success ? 'success' : 'error');
+        alert(`Résultat: ${JSON.stringify(result, null, 2)}`);
+      } catch (error) {
+        log(`Erreur appel plugin: ${error.message}`, 'error');
+      }
+    }
+    
+    async function testHealth() {
+      try {
+        const response = await fetch('/api/health');
+        const result = await response.json();
+        log(`Health check: ${JSON.stringify(result)}`, 'success');
+        alert(`Résultat: ${JSON.stringify(result, null, 2)}`);
+      } catch (error) {
+        log(`Erreur health check: ${error.message}`, 'error');
+      }
+    }
+    
+    function copyPythonCode() {
+      const code = document.getElementById('pythonCode').textContent;
+      navigator.clipboard.writeText(code);
+      alert('✅ Code Python copié!\n\nCollez-le dans Google Colab et remplacez l\'URL.');
+    }
+    
+    // Initialisation
+    window.addEventListener('load', async () => {
+      log('🚀 Initialisation...', 'info');
+      const success = await registerServiceWorker();
+      
+      if (success) {
+        log('✅ Système prêt! Vous pouvez maintenant tester les endpoints.', 'success');
+        
+        // Mettre à jour le code Python avec l'URL actuelle
+        const currentUrl = window.location.origin;
+        const pythonCode = document.getElementById('pythonCode');
+        pythonCode.textContent = pythonCode.textContent.replace(
+          'https://VOTRE-APP.onrender.com',
+          currentUrl
+        );
+      } else {
+        log('❌ Impossible d\'initialiser le système', 'error');
+      }
     });
   </script>
 </body>

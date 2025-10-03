@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>eval() API - Service Worker Bridge</title>
-  
+  <title>Multi-Page App - Vanilla JS | Architecture Modulaire</title>
+  <script src="https://cdn.tailwindcss.com"></script>
   <style>
     * {
       margin: 0;
@@ -13,591 +13,714 @@
     }
     
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      min-height: 100vh;
-      padding: 20px;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+      overflow-x: hidden;
     }
     
-    .container {
-      max-width: 1200px;
-      margin: 0 auto;
-      background: white;
-      border-radius: 20px;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-      overflow: hidden;
+    .page {
+      display: none;
+      animation: fadeIn 0.3s ease-in;
     }
     
-    header {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-      padding: 40px;
-      text-align: center;
+    .page.active {
+      display: block;
     }
     
-    header h1 {
-      font-size: 2.5em;
-      margin-bottom: 10px;
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
     }
     
-    .status {
-      display: inline-block;
-      padding: 8px 16px;
-      border-radius: 20px;
-      font-weight: 600;
-      margin: 10px 5px;
+    .stat-card:hover {
+      transform: scale(1.05);
     }
     
-    .status.active {
-      background: #27ae60;
-      color: white;
-    }
-    
-    .status.inactive {
-      background: #e74c3c;
-      color: white;
-    }
-    
-    main {
-      padding: 40px;
-    }
-    
-    .section {
-      margin-bottom: 30px;
-      padding: 25px;
-      background: #f8f9fa;
-      border-radius: 15px;
-      border-left: 5px solid #667eea;
-    }
-    
-    .section h2 {
-      color: #667eea;
-      margin-bottom: 15px;
-    }
-    
-    .card {
-      background: white;
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-      margin-top: 15px;
-    }
-    
-    .endpoint {
-      background: #1e1e1e;
-      color: #d4d4d4;
-      padding: 15px;
-      border-radius: 8px;
-      font-family: 'Courier New', monospace;
-      font-size: 13px;
-      margin: 10px 0;
-      border-left: 4px solid #27ae60;
-    }
-    
-    button {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-      padding: 12px 25px;
-      border: none;
-      border-radius: 8px;
-      font-size: 16px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.3s;
-      margin: 5px;
-    }
-    
-    button:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
-    }
-    
-    button.success {
-      background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
-    }
-    
-    pre {
-      background: #1e1e1e;
-      color: #d4d4d4;
-      padding: 15px;
-      border-radius: 8px;
-      overflow-x: auto;
-      font-size: 13px;
-      margin: 10px 0;
-    }
-    
-    .output {
-      background: #1e1e1e;
-      color: #d4d4d4;
-      padding: 20px;
-      border-radius: 8px;
-      font-family: 'Courier New', monospace;
-      font-size: 13px;
-      min-height: 100px;
-      max-height: 400px;
-      overflow-y: auto;
-      margin-top: 15px;
-      white-space: pre-wrap;
-    }
-    
-    .badge {
-      display: inline-block;
-      padding: 5px 10px;
-      border-radius: 5px;
-      font-size: 0.85em;
-      font-weight: 600;
-      margin: 5px;
-    }
-    
-    .badge.success {
-      background: #d4edda;
-      color: #155724;
-    }
-    
-    .badge.warning {
-      background: #fff3cd;
-      color: #856404;
-    }
-    
-    code {
-      background: #f5f5f5;
-      padding: 2px 6px;
-      border-radius: 3px;
-      font-family: 'Courier New', monospace;
-      color: #e74c3c;
+    .nav-link.active {
+      background: rgba(255, 255, 255, 0.2);
     }
   </style>
 </head>
-<body>
-  <div class="container">
-    <header>
-      <h1>🚀 eval() API - Service Worker Bridge</h1>
-      <p>API HTTP réelle propulsée par eval() côté client</p>
-      <div>
-        <span class="status" id="swStatus">⏳ Initialisation...</span>
-        <span class="status" id="apiStatus">⏳ En attente...</span>
-      </div>
-    </header>
+<body class="bg-gray-900">
 
-    <main>
-      <!-- Section 1: Instructions -->
-      <div class="section">
-        <h2>📖 Comment ça marche ?</h2>
-        <div class="card">
-          <h3>Architecture Innovante</h3>
-          <p><strong>Service Worker</strong> agit comme un serveur HTTP local qui intercepte les requêtes et exécute eval() de manière sécurisée.</p>
-          
-          <ol style="margin: 15px 0 15px 25px; line-height: 1.8;">
-            <li><strong>Service Worker enregistré</strong> → Intercepte toutes les requêtes vers <code>/api/*</code></li>
-            <li><strong>Requête reçue</strong> → Parse JSON et extrait le code à exécuter</li>
-            <li><strong>eval() sécurisé</strong> → Exécution dans sandbox avec whitelist</li>
-            <li><strong>Réponse JSON</strong> → Résultat retourné comme une vraie API</li>
-          </ol>
-          
-          <div style="background: #fff3cd; padding: 15px; border-radius: 8px; margin-top: 15px;">
-            <strong>⚠️ Important :</strong> Cette page doit être servie en <strong>HTTPS</strong> pour que le Service Worker fonctionne (sauf sur localhost).
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- NAVIGATION (Partagée par toutes les pages) -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+
+<nav class="bg-gradient-to-r from-purple-900 via-indigo-900 to-blue-900 shadow-2xl sticky top-0 z-50">
+  <div class="max-w-7xl mx-auto px-4 py-4">
+    <div class="flex items-center justify-between">
+      <!-- Logo -->
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 bg-gradient-to-br from-pink-500 to-purple-600 rounded-lg flex items-center justify-center shadow-lg">
+          <span class="text-2xl">⚡</span>
+        </div>
+        <span class="text-white font-bold text-xl">Vanilla JS App</span>
+      </div>
+
+      <!-- Navigation Desktop -->
+      <div class="hidden md:flex space-x-1" id="nav-links">
+        <a href="#home" class="nav-link px-4 py-2 rounded-lg text-gray-300 hover:bg-white/10 hover:text-white transition-all duration-300">
+          <span class="mr-2">🏠</span>Home
+        </a>
+        <a href="#dashboard" class="nav-link px-4 py-2 rounded-lg text-gray-300 hover:bg-white/10 hover:text-white transition-all duration-300">
+          <span class="mr-2">📊</span>Dashboard
+        </a>
+        <a href="#projects" class="nav-link px-4 py-2 rounded-lg text-gray-300 hover:bg-white/10 hover:text-white transition-all duration-300">
+          <span class="mr-2">🚀</span>Projects
+        </a>
+        <a href="#contact" class="nav-link px-4 py-2 rounded-lg text-gray-300 hover:bg-white/10 hover:text-white transition-all duration-300">
+          <span class="mr-2">✉️</span>Contact
+        </a>
+        <a href="#about" class="nav-link px-4 py-2 rounded-lg text-gray-300 hover:bg-white/10 hover:text-white transition-all duration-300">
+          <span class="mr-2">ℹ️</span>About
+        </a>
+      </div>
+
+      <!-- User Profile -->
+      <div class="flex items-center space-x-3">
+        <div class="hidden sm:block text-right">
+          <p class="text-white text-sm font-semibold">Anzize Daouda</p>
+          <p class="text-gray-400 text-xs">Creator</p>
+        </div>
+        <div class="w-10 h-10 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full flex items-center justify-center shadow-lg">
+          <span class="text-xl">👤</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Navigation Mobile -->
+    <div class="md:hidden mt-4 grid grid-cols-5 gap-2">
+      <a href="#home" class="nav-link px-2 py-2 rounded-lg text-center text-gray-400 hover:bg-white/10 transition-all">
+        <div class="text-xl">🏠</div>
+        <div class="text-xs mt-1">Home</div>
+      </a>
+      <a href="#dashboard" class="nav-link px-2 py-2 rounded-lg text-center text-gray-400 hover:bg-white/10 transition-all">
+        <div class="text-xl">📊</div>
+        <div class="text-xs mt-1">Dashboard</div>
+      </a>
+      <a href="#projects" class="nav-link px-2 py-2 rounded-lg text-center text-gray-400 hover:bg-white/10 transition-all">
+        <div class="text-xl">🚀</div>
+        <div class="text-xs mt-1">Projects</div>
+      </a>
+      <a href="#contact" class="nav-link px-2 py-2 rounded-lg text-center text-gray-400 hover:bg-white/10 transition-all">
+        <div class="text-xl">✉️</div>
+        <div class="text-xs mt-1">Contact</div>
+      </a>
+      <a href="#about" class="nav-link px-2 py-2 rounded-lg text-center text-gray-400 hover:bg-white/10 transition-all">
+        <div class="text-xl">ℹ️</div>
+        <div class="text-xs mt-1">About</div>
+      </a>
+    </div>
+  </div>
+</nav>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- MAIN CONTAINER -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+
+<main id="app-container">
+
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <!-- MODULE 1: HOME PAGE -->
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  
+  <div id="home" class="page active">
+    <div class="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900">
+      <div class="max-w-7xl mx-auto px-4 py-16">
+        
+        <!-- Hero Section -->
+        <div class="text-center mb-16">
+          <h1 class="text-6xl font-bold text-white mb-4">
+            Welcome to <span class="bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500 bg-clip-text text-transparent">Vanilla JS</span>
+          </h1>
+          <p class="text-2xl text-gray-300 mb-8">
+            Un Seul Fichier HTML - ZÉRO Framework - Performance MAX
+          </p>
+          <div class="flex justify-center space-x-4">
+            <a href="#dashboard" class="px-8 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg shadow-lg hover:shadow-2xl transform hover:scale-105 transition-all duration-300">
+              Voir Dashboard
+            </a>
+            <a href="#projects" class="px-8 py-3 bg-white/10 text-white rounded-lg shadow-lg hover:bg-white/20 transition-all duration-300 backdrop-blur-sm">
+              Mes Projets
+            </a>
+          </div>
+        </div>
+
+        <!-- Stats Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
+          <div class="stat-card bg-white/10 backdrop-blur-md rounded-2xl p-6 shadow-xl transition-all duration-300 cursor-pointer">
+            <div class="w-16 h-16 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-xl flex items-center justify-center text-3xl mb-4 mx-auto shadow-lg">🚀</div>
+            <h3 class="text-3xl font-bold text-white text-center mb-2">12</h3>
+            <p class="text-gray-400 text-center">Projects</p>
+          </div>
+          <div class="stat-card bg-white/10 backdrop-blur-md rounded-2xl p-6 shadow-xl transition-all duration-300 cursor-pointer">
+            <div class="w-16 h-16 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl flex items-center justify-center text-3xl mb-4 mx-auto shadow-lg">💻</div>
+            <h3 class="text-3xl font-bold text-white text-center mb-2">1 File</h3>
+            <p class="text-gray-400 text-center">HTML Only</p>
+          </div>
+          <div class="stat-card bg-white/10 backdrop-blur-md rounded-2xl p-6 shadow-xl transition-all duration-300 cursor-pointer">
+            <div class="w-16 h-16 bg-gradient-to-br from-yellow-500 to-orange-500 rounded-xl flex items-center justify-center text-3xl mb-4 mx-auto shadow-lg">⚡</div>
+            <h3 class="text-3xl font-bold text-white text-center mb-2">0KB</h3>
+            <p class="text-gray-400 text-center">Framework</p>
+          </div>
+          <div class="stat-card bg-white/10 backdrop-blur-md rounded-2xl p-6 shadow-xl transition-all duration-300 cursor-pointer">
+            <div class="w-16 h-16 bg-gradient-to-br from-green-500 to-emerald-500 rounded-xl flex items-center justify-center text-3xl mb-4 mx-auto shadow-lg">🎯</div>
+            <h3 class="text-3xl font-bold text-white text-center mb-2">100%</h3>
+            <p class="text-gray-400 text-center">Native</p>
+          </div>
+        </div>
+
+        <!-- Features -->
+        <div class="bg-white/5 backdrop-blur-md rounded-2xl p-8 shadow-2xl">
+          <h2 class="text-3xl font-bold text-white mb-6">✨ Pourquoi Vanilla JS ?</h2>
+          <div class="grid md:grid-cols-3 gap-6">
+            <div class="space-y-2">
+              <div class="text-4xl">⚡</div>
+              <h3 class="text-xl font-semibold text-white">ZÉRO Framework</h3>
+              <p class="text-gray-400">Pas de React, pas de Preact, juste du JavaScript pur!</p>
+            </div>
+            <div class="space-y-2">
+              <div class="text-4xl">📦</div>
+              <h3 class="text-xl font-semibold text-white">Un Seul Fichier</h3>
+              <p class="text-gray-400">HTML + CSS + JS dans un fichier - déploiement instantané</p>
+            </div>
+            <div class="space-y-2">
+              <div class="text-4xl">🚀</div>
+              <h3 class="text-xl font-semibold text-white">Performance Native</h3>
+              <p class="text-gray-400">Manipulation DOM directe - vitesse maximale</p>
+            </div>
           </div>
         </div>
       </div>
-
-      <!-- Section 2: Endpoints disponibles -->
-      <div class="section">
-        <h2>⚡ Endpoints API Disponibles</h2>
-        <div class="card">
-          <h3>1. Exécuter du code eval()</h3>
-          <div class="endpoint">POST /api/eval</div>
-          <pre>{
-  "code": "return Math.sqrt(144);"
-}</pre>
-          <button class="success" onclick="testEvalEndpoint()">🧪 Tester</button>
-        </div>
-        
-        <div class="card">
-          <h3>2. Charger un plugin</h3>
-          <div class="endpoint">POST /api/plugin/load</div>
-          <pre>{
-  "name": "MathPlugin",
-  "code": "({ add: (a,b) => a+b })"
-}</pre>
-          <button class="success" onclick="testPluginLoad()">🧪 Tester</button>
-        </div>
-        
-        <div class="card">
-          <h3>3. Appeler un plugin</h3>
-          <div class="endpoint">POST /api/plugin/call</div>
-          <pre>{
-  "plugin": "MathPlugin",
-  "method": "add",
-  "args": [5, 3]
-}</pre>
-          <button class="success" onclick="testPluginCall()">🧪 Tester</button>
-        </div>
-        
-        <div class="card">
-          <h3>4. Health check</h3>
-          <div class="endpoint">GET /api/health</div>
-          <button class="success" onclick="testHealth()">🧪 Tester</button>
-        </div>
-      </div>
-
-      <!-- Section 3: Test depuis Colab -->
-      <div class="section">
-        <h2>🐍 Code Python pour Google Colab</h2>
-        <div class="card">
-          <h3>Copiez ce code dans Colab</h3>
-          <pre id="pythonCode">import requests
-import json
-
-# URL de votre app déployée
-BASE_URL = "https://VOTRE-APP.onrender.com"
-
-# Test 1: Health check
-response = requests.get(f"{BASE_URL}/api/health")
-print("Health:", response.json())
-
-# Test 2: Exécuter eval()
-response = requests.post(
-    f"{BASE_URL}/api/eval",
-    json={"code": "return Math.pow(2, 10);"}
-)
-print("Eval résultat:", response.json())
-
-# Test 3: Charger plugin
-response = requests.post(
-    f"{BASE_URL}/api/plugin/load",
-    json={
-        "name": "Calculator",
-        "code": "({add: (a,b) => a+b, multiply: (a,b) => a*b})"
-    }
-)
-print("Plugin chargé:", response.json())
-
-# Test 4: Appeler plugin
-response = requests.post(
-    f"{BASE_URL}/api/plugin/call",
-    json={
-        "plugin": "Calculator",
-        "method": "multiply",
-        "args": [7, 6]
-    }
-)
-print("Plugin résultat:", response.json())</pre>
-          <button onclick="copyPythonCode()">📋 Copier le code Python</button>
-        </div>
-      </div>
-
-      <!-- Section 4: Logs -->
-      <div class="section">
-        <h2>📊 Logs en Temps Réel</h2>
-        <div class="card">
-          <div id="logs" class="output">Initialisation...</div>
-          <button onclick="clearLogs()">🗑️ Effacer</button>
-        </div>
-      </div>
-    </main>
+    </div>
   </div>
 
-  <script>
-    const logs = [];
-    
-    function log(message, type = 'info') {
-      const timestamp = new Date().toISOString();
-      const symbols = { info: 'ℹ️', success: '✅', error: '❌', warning: '⚠️' };
-      const symbol = symbols[type] || 'ℹ️';
-      
-      const entry = `[${timestamp}] ${symbol} ${message}`;
-      logs.push(entry);
-      
-      const logsDiv = document.getElementById('logs');
-      logsDiv.textContent = logs.join('\n');
-      logsDiv.scrollTop = logsDiv.scrollHeight;
-      
-      console.log(entry);
-    }
-    
-    function clearLogs() {
-      logs.length = 0;
-      document.getElementById('logs').textContent = '';
-    }
-    
-    // Service Worker inline (pour éviter fichier séparé)
-    const swCode = `
-      const EVAL_API = {
-        plugins: new Map(),
-        
-        whitelist: {
-          console, Math, JSON, Date, Array, Object, String, Number, Boolean
-        },
-        
-        createSandbox() {
-          return new Proxy({}, {
-            get(target, key) {
-              if (key in EVAL_API.whitelist) {
-                return EVAL_API.whitelist[key];
-              }
-              throw new Error(\`Accès refusé: "\${key}"\`);
-            }
-          });
-        },
-        
-        executeCode(code) {
-          try {
-            const sandbox = this.createSandbox();
-            const fn = new Function(...Object.keys(this.whitelist), \`"use strict"; \${code}\`);
-            const result = fn.apply(sandbox, Object.values(this.whitelist));
-            
-            return { success: true, result };
-          } catch (error) {
-            return { success: false, error: error.message };
-          }
-        },
-        
-        loadPlugin(name, code) {
-          try {
-            const result = this.executeCode(code);
-            if (!result.success) throw new Error(result.error);
-            
-            this.plugins.set(name, result.result);
-            return { success: true, plugin: name };
-          } catch (error) {
-            return { success: false, error: error.message };
-          }
-        },
-        
-        callPlugin(name, method, args) {
-          try {
-            if (!this.plugins.has(name)) {
-              throw new Error(\`Plugin "\${name}" non trouvé\`);
-            }
-            
-            const plugin = this.plugins.get(name);
-            if (typeof plugin[method] !== 'function') {
-              throw new Error(\`Méthode "\${method}" non trouvée\`);
-            }
-            
-            const result = plugin[method](...args);
-            return { success: true, result };
-          } catch (error) {
-            return { success: false, error: error.message };
-          }
-        }
-      };
-      
-      self.addEventListener('install', (event) => {
-        console.log('Service Worker installé');
-        self.skipWaiting();
-      });
-      
-      self.addEventListener('activate', (event) => {
-        console.log('Service Worker activé');
-        event.waitUntil(clients.claim());
-      });
-      
-      self.addEventListener('fetch', (event) => {
-        const url = new URL(event.request.url);
-        
-        // Intercepte seulement /api/*
-        if (!url.pathname.startsWith('/api/')) {
-          return;
-        }
-        
-        event.respondWith(
-          (async () => {
-            try {
-              // Health check
-              if (url.pathname === '/api/health') {
-                return new Response(
-                  JSON.stringify({
-                    status: 'ok',
-                    timestamp: new Date().toISOString(),
-                    plugins: Array.from(EVAL_API.plugins.keys())
-                  }),
-                  { headers: { 'Content-Type': 'application/json' } }
-                );
-              }
-              
-              // Parse request body
-              const body = event.request.method === 'POST' 
-                ? await event.request.json() 
-                : {};
-              
-              let result;
-              
-              // Route: /api/eval
-              if (url.pathname === '/api/eval') {
-                result = EVAL_API.executeCode(body.code);
-              }
-              
-              // Route: /api/plugin/load
-              else if (url.pathname === '/api/plugin/load') {
-                result = EVAL_API.loadPlugin(body.name, body.code);
-              }
-              
-              // Route: /api/plugin/call
-              else if (url.pathname === '/api/plugin/call') {
-                result = EVAL_API.callPlugin(body.plugin, body.method, body.args || []);
-              }
-              
-              else {
-                result = { success: false, error: 'Endpoint non trouvé' };
-              }
-              
-              return new Response(
-                JSON.stringify(result),
-                { headers: { 'Content-Type': 'application/json' } }
-              );
-              
-            } catch (error) {
-              return new Response(
-                JSON.stringify({ success: false, error: error.message }),
-                { headers: { 'Content-Type': 'application/json' }, status: 500 }
-              );
-            }
-          })()
-        );
-      });
-    `;
-    
-    // Enregistrer Service Worker
-    async function registerServiceWorker() {
-      if (!('serviceWorker' in navigator)) {
-        log('❌ Service Worker non supporté', 'error');
-        document.getElementById('swStatus').textContent = '❌ Non supporté';
-        document.getElementById('swStatus').className = 'status inactive';
-        return false;
-      }
-      
-      try {
-        // Créer blob avec le code du Service Worker
-        const blob = new Blob([swCode], { type: 'application/javascript' });
-        const swUrl = URL.createObjectURL(blob);
-        
-        const registration = await navigator.serviceWorker.register(swUrl);
-        
-        log('✅ Service Worker enregistré', 'success');
-        document.getElementById('swStatus').textContent = '✅ Service Worker actif';
-        document.getElementById('swStatus').className = 'status active';
-        
-        // Attendre que le SW soit actif
-        await navigator.serviceWorker.ready;
-        
-        log('✅ Service Worker prêt', 'success');
-        document.getElementById('apiStatus').textContent = '✅ API prête';
-        document.getElementById('apiStatus').className = 'status active';
-        
-        return true;
-        
-      } catch (error) {
-        log(`❌ Erreur Service Worker: ${error.message}`, 'error');
-        document.getElementById('swStatus').textContent = '❌ Erreur';
-        document.getElementById('swStatus').className = 'status inactive';
-        return false;
-      }
-    }
-    
-    // Tests
-    async function testEvalEndpoint() {
-      try {
-        const response = await fetch('/api/eval', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ code: 'return Math.sqrt(144);' })
-        });
-        
-        const result = await response.json();
-        log(`Test eval: ${JSON.stringify(result)}`, result.success ? 'success' : 'error');
-        alert(`Résultat: ${JSON.stringify(result, null, 2)}`);
-      } catch (error) {
-        log(`Erreur test eval: ${error.message}`, 'error');
-      }
-    }
-    
-    async function testPluginLoad() {
-      try {
-        const response = await fetch('/api/plugin/load', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            name: 'MathPlugin',
-            code: '({ add: (a,b) => a+b, multiply: (a,b) => a*b })'
-          })
-        });
-        
-        const result = await response.json();
-        log(`Plugin chargé: ${JSON.stringify(result)}`, result.success ? 'success' : 'error');
-        alert(`Résultat: ${JSON.stringify(result, null, 2)}`);
-      } catch (error) {
-        log(`Erreur chargement plugin: ${error.message}`, 'error');
-      }
-    }
-    
-    async function testPluginCall() {
-      try {
-        // Charge d'abord le plugin
-        await fetch('/api/plugin/load', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            name: 'MathPlugin',
-            code: '({ add: (a,b) => a+b, multiply: (a,b) => a*b })'
-          })
-        });
-        
-        // Appelle le plugin
-        const response = await fetch('/api/plugin/call', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            plugin: 'MathPlugin',
-            method: 'multiply',
-            args: [7, 6]
-          })
-        });
-        
-        const result = await response.json();
-        log(`Plugin appelé: ${JSON.stringify(result)}`, result.success ? 'success' : 'error');
-        alert(`Résultat: ${JSON.stringify(result, null, 2)}`);
-      } catch (error) {
-        log(`Erreur appel plugin: ${error.message}`, 'error');
-      }
-    }
-    
-    async function testHealth() {
-      try {
-        const response = await fetch('/api/health');
-        const result = await response.json();
-        log(`Health check: ${JSON.stringify(result)}`, 'success');
-        alert(`Résultat: ${JSON.stringify(result, null, 2)}`);
-      } catch (error) {
-        log(`Erreur health check: ${error.message}`, 'error');
-      }
-    }
-    
-    function copyPythonCode() {
-      const code = document.getElementById('pythonCode').textContent;
-      navigator.clipboard.writeText(code);
-      alert('✅ Code Python copié!\n\nCollez-le dans Google Colab et remplacez l\'URL.');
-    }
-    
-    // Initialisation
-    window.addEventListener('load', async () => {
-      log('🚀 Initialisation...', 'info');
-      const success = await registerServiceWorker();
-      
-      if (success) {
-        log('✅ Système prêt! Vous pouvez maintenant tester les endpoints.', 'success');
-        
-        // Mettre à jour le code Python avec l'URL actuelle
-        const currentUrl = window.location.origin;
-        const pythonCode = document.getElementById('pythonCode');
-        pythonCode.textContent = pythonCode.textContent.replace(
-          'https://VOTRE-APP.onrender.com',
-          currentUrl
-        );
-      } else {
-        log('❌ Impossible d\'initialiser le système', 'error');
-      }
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <!-- MODULE 2: DASHBOARD PAGE -->
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  
+  <div id="dashboard" class="page">
+    <div class="min-h-screen bg-gradient-to-br from-gray-900 to-purple-900 py-8">
+      <div class="max-w-7xl mx-auto px-4">
+        <h1 class="text-4xl font-bold text-white mb-8">📊 Dashboard</h1>
+
+        <!-- Metrics Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <div class="bg-gradient-to-br from-blue-500 to-blue-700 rounded-xl p-6 shadow-xl">
+            <p class="text-blue-200 text-sm">Visiteurs</p>
+            <p class="text-4xl font-bold text-white mt-2">1,243</p>
+            <p class="text-blue-200 text-xs mt-2">↑ 12% ce mois</p>
+          </div>
+          <div class="bg-gradient-to-br from-green-500 to-green-700 rounded-xl p-6 shadow-xl">
+            <p class="text-green-200 text-sm">Revenue</p>
+            <p class="text-4xl font-bold text-white mt-2">$8,450</p>
+            <p class="text-green-200 text-xs mt-2">↑ 8% ce mois</p>
+          </div>
+          <div class="bg-gradient-to-br from-purple-500 to-purple-700 rounded-xl p-6 shadow-xl">
+            <p class="text-purple-200 text-sm">Conversion</p>
+            <p class="text-4xl font-bold text-white mt-2">3.2%</p>
+            <p class="text-purple-200 text-xs mt-2">↑ 0.3% ce mois</p>
+          </div>
+          <div class="bg-gradient-to-br from-orange-500 to-orange-700 rounded-xl p-6 shadow-xl">
+            <p class="text-orange-200 text-sm">Utilisateurs Actifs</p>
+            <p class="text-4xl font-bold text-white mt-2">89</p>
+            <p class="text-orange-200 text-xs mt-2">↑ 5% ce mois</p>
+          </div>
+        </div>
+
+        <!-- Activity Feed -->
+        <div class="bg-white/10 backdrop-blur-md rounded-2xl p-6 shadow-xl">
+          <h2 class="text-2xl font-bold text-white mb-4">🕐 Activité Récente</h2>
+          <div class="space-y-3">
+            <div class="bg-white/5 rounded-lg p-4 flex items-center justify-between hover:bg-white/10 transition-all cursor-pointer">
+              <div class="flex items-center space-x-4">
+                <span class="text-2xl">🎨</span>
+                <div>
+                  <p class="font-semibold text-blue-400">Nouveau projet créé</p>
+                  <p class="text-gray-500 text-sm">Il y a 2h</p>
+                </div>
+              </div>
+            </div>
+            <div class="bg-white/5 rounded-lg p-4 flex items-center justify-between hover:bg-white/10 transition-all cursor-pointer">
+              <div class="flex items-center space-x-4">
+                <span class="text-2xl">✅</span>
+                <div>
+                  <p class="font-semibold text-green-400">Code review complété</p>
+                  <p class="text-gray-500 text-sm">Il y a 4h</p>
+                </div>
+              </div>
+            </div>
+            <div class="bg-white/5 rounded-lg p-4 flex items-center justify-between hover:bg-white/10 transition-all cursor-pointer">
+              <div class="flex items-center space-x-4">
+                <span class="text-2xl">🚀</span>
+                <div>
+                  <p class="font-semibold text-purple-400">Déploiement réussi</p>
+                  <p class="text-gray-500 text-sm">Il y a 6h</p>
+                </div>
+              </div>
+            </div>
+            <div class="bg-white/5 rounded-lg p-4 flex items-center justify-between hover:bg-white/10 transition-all cursor-pointer">
+              <div class="flex items-center space-x-4">
+                <span class="text-2xl">🐛</span>
+                <div>
+                  <p class="font-semibold text-yellow-400">Bug résolu</p>
+                  <p class="text-gray-500 text-sm">Il y a 8h</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <!-- MODULE 3: PROJECTS PAGE -->
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  
+  <div id="projects" class="page">
+    <div class="min-h-screen bg-gradient-to-br from-gray-900 via-blue-900 to-gray-900 py-8">
+      <div class="max-w-7xl mx-auto px-4">
+        <div class="flex items-center justify-between mb-8">
+          <h1 class="text-4xl font-bold text-white">🚀 Mes Projets</h1>
+          <button onclick="alert('Nouveau projet!')" class="px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg shadow-lg hover:shadow-2xl transform hover:scale-105 transition-all">
+            + Nouveau Projet
+          </button>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <!-- Project 1 -->
+          <div class="bg-white/10 backdrop-blur-md rounded-2xl p-6 shadow-xl hover:shadow-2xl transform hover:scale-[1.02] transition-all cursor-pointer">
+            <div class="flex items-start justify-between mb-4">
+              <div class="flex items-center space-x-3">
+                <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-xl flex items-center justify-center text-2xl shadow-lg">🏗️</div>
+                <div>
+                  <h3 class="text-xl font-bold text-white">ILN Framework</h3>
+                  <span class="text-xs px-2 py-1 rounded-full bg-blue-500/20 text-blue-400">Active</span>
+                </div>
+              </div>
+            </div>
+            <div class="mb-4">
+              <div class="flex justify-between text-sm text-gray-400 mb-2">
+                <span>Progression</span>
+                <span>85%</span>
+              </div>
+              <div class="w-full bg-gray-700 rounded-full h-2">
+                <div class="bg-gradient-to-r from-blue-500 to-cyan-500 h-2 rounded-full" style="width: 85%"></div>
+              </div>
+            </div>
+            <div class="flex flex-wrap gap-2">
+              <span class="px-3 py-1 bg-white/10 text-gray-300 rounded-lg text-sm">Python</span>
+              <span class="px-3 py-1 bg-white/10 text-gray-300 rounded-lg text-sm">JavaScript</span>
+            </div>
+          </div>
+
+          <!-- Project 2 -->
+          <div class="bg-white/10 backdrop-blur-md rounded-2xl p-6 shadow-xl hover:shadow-2xl transform hover:scale-[1.02] transition-all cursor-pointer">
+            <div class="flex items-start justify-between mb-4">
+              <div class="flex items-center space-x-3">
+                <div class="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-500 rounded-xl flex items-center justify-center text-2xl shadow-lg">🧪</div>
+                <div>
+                  <h3 class="text-xl font-bold text-white">Script Tester</h3>
+                  <span class="text-xs px-2 py-1 rounded-full bg-green-500/20 text-green-400">Production</span>
+                </div>
+              </div>
+            </div>
+            <div class="mb-4">
+              <div class="flex justify-between text-sm text-gray-400 mb-2">
+                <span>Progression</span>
+                <span>100%</span>
+              </div>
+              <div class="w-full bg-gray-700 rounded-full h-2">
+                <div class="bg-gradient-to-r from-green-500 to-emerald-500 h-2 rounded-full" style="width: 100%"></div>
+              </div>
+            </div>
+            <div class="flex flex-wrap gap-2">
+              <span class="px-3 py-1 bg-white/10 text-gray-300 rounded-lg text-sm">Node.js</span>
+              <span class="px-3 py-1 bg-white/10 text-gray-300 rounded-lg text-sm">Security</span>
+            </div>
+          </div>
+
+          <!-- Project 3 -->
+          <div class="bg-white/10 backdrop-blur-md rounded-2xl p-6 shadow-xl hover:shadow-2xl transform hover:scale-[1.02] transition-all cursor-pointer">
+            <div class="flex items-start justify-between mb-4">
+              <div class="flex items-center space-x-3">
+                <div class="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl flex items-center justify-center text-2xl shadow-lg">⚡</div>
+                <div>
+                  <h3 class="text-xl font-bold text-white">Roadmapex</h3>
+                  <span class="text-xs px-2 py-1 rounded-full bg-yellow-500/20 text-yellow-400">Beta</span>
+                </div>
+              </div>
+            </div>
+            <div class="mb-4">
+              <div class="flex justify-between text-sm text-gray-400 mb-2">
+                <span>Progression</span>
+                <span>65%</span>
+              </div>
+              <div class="w-full bg-gray-700 rounded-full h-2">
+                <div class="bg-gradient-to-r from-purple-500 to-pink-500 h-2 rounded-full" style="width: 65%"></div>
+              </div>
+            </div>
+            <div class="flex flex-wrap gap-2">
+              <span class="px-3 py-1 bg-white/10 text-gray-300 rounded-lg text-sm">Python</span>
+              <span class="px-3 py-1 bg-white/10 text-gray-300 rounded-lg text-sm">ML</span>
+            </div>
+          </div>
+
+          <!-- Project 4 -->
+          <div class="bg-white/10 backdrop-blur-md rounded-2xl p-6 shadow-xl hover:shadow-2xl transform hover:scale-[1.02] transition-all cursor-pointer">
+            <div class="flex items-start justify-between mb-4">
+              <div class="flex items-center space-x-3">
+                <div class="w-12 h-12 bg-gradient-to-br from-yellow-500 to-orange-500 rounded-xl flex items-center justify-center text-2xl shadow-lg">🎨</div>
+                <div>
+                  <h3 class="text-xl font-bold text-white">Vanilla JS App</h3>
+                  <span class="text-xs px-2 py-1 rounded-full bg-blue-500/20 text-blue-400">Active</span>
+                </div>
+              </div>
+            </div>
+            <div class="mb-4">
+              <div class="flex justify-between text-sm text-gray-400 mb-2">
+                <span>Progression</span>
+                <span>90%</span>
+              </div>
+              <div class="w-full bg-gray-700 rounded-full h-2">
+                <div class="bg-gradient-to-r from-yellow-500 to-orange-500 h-2 rounded-full" style="width: 90%"></div>
+              </div>
+            </div>
+            <div class="flex flex-wrap gap-2">
+              <span class="px-3 py-1 bg-white/10 text-gray-300 rounded-lg text-sm">HTML</span>
+              <span class="px-3 py-1 bg-white/10 text-gray-300 rounded-lg text-sm">Vanilla JS</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <!-- MODULE 4: CONTACT PAGE -->
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  
+  <div id="contact" class="page">
+    <div class="min-h-screen bg-gradient-to-br from-gray-900 via-pink-900 to-gray-900 py-8">
+      <div class="max-w-4xl mx-auto px-4">
+        <h1 class="text-4xl font-bold text-white mb-8 text-center">✉️ Contact</h1>
+
+        <div class="grid md:grid-cols-2 gap-8">
+          <!-- Contact Info -->
+          <div class="space-y-6">
+            <div class="bg-white/10 backdrop-blur-md rounded-2xl p-6 shadow-xl">
+              <h3 class="text-xl font-bold text-white mb-4">Informations</h3>
+              <div class="space-y-4">
+                <div class="flex items-center space-x-3">
+                  <div class="w-10 h-10 bg-blue-500 rounded-lg flex items-center justify-center">📧</div>
+                  <div>
+                    <p class="text-gray-400 text-sm">Email</p>
+                    <p class="text-white">anzize@example.com</p>
+                  </div>
+                </div>
+                <div class="flex items-center space-x-3">
+                  <div class="w-10 h-10 bg-green-500 rounded-lg flex items-center justify-center">💬</div>
+                  <div>
+                    <p class="text-gray-400 text-sm">Discord</p>
+                    <p class="text-white">Anzize#1234</p>
+                  </div>
+                </div>
+                <div class="flex items-center space-x-3">
+                  <div class="w-10 h-10 bg-purple-500 rounded-lg flex items-center justify-center">🐙</div>
+                  <div>
+                    <p class="text-gray-400 text-sm">GitHub</p>
+                    <p class="text-white">github.com/anzize</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="bg-gradient-to-br from-purple-500 to-pink-500 rounded-2xl p-6 shadow-xl">
+              <h3 class="text-xl font-bold text-white mb-2">Temps de Réponse</h3>
+              <p class="text-white/80">Je réponds sous 24h pendant la semaine</p>
+            </div>
+          </div>
+
+          <!-- Contact Form -->
+          <div class="bg-white/10 backdrop-blur-md rounded-2xl p-6 shadow-xl">
+            <h3 class="text-xl font-bold text-white mb-4">Envoyer un Message</h3>
+            <div class="space-y-4" id="contact-form">
+              <div>
+                <label class="block text-gray-400 text-sm mb-2">Nom</label>
+                <input
+                  type="text"
+                  id="name-input"
+                  class="w-full px-4 py-3 bg-white/10 text-white rounded-lg border border-white/20 focus:border-purple-500 focus:outline-none transition-all"
+                  placeholder="Votre nom"
+                />
+              </div>
+              <div>
+                <label class="block text-gray-400 text-sm mb-2">Email</label>
+                <input
+                  type="email"
+                  id="email-input"
+                  class="w-full px-4 py-3 bg-white/10 text-white rounded-lg border border-white/20 focus:border-purple-500 focus:outline-none transition-all"
+                  placeholder="votre@email.com"
+                />
+              </div>
+              <div>
+                <label class="block text-gray-400 text-sm mb-2">Message</label>
+                <textarea
+                  id="message-input"
+                  rows="4"
+                  class="w-full px-4 py-3 bg-white/10 text-white rounded-lg border border-white/20 focus:border-purple-500 focus:outline-none transition-all resize-none"
+                  placeholder="Votre message..."
+                ></textarea>
+              </div>
+              <button
+                onclick="handleContactSubmit()"
+                class="w-full px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg shadow-lg hover:shadow-2xl transform hover:scale-105 transition-all font-semibold"
+              >
+                Envoyer le Message
+              </button>
+            </div>
+            <div id="contact-success" class="hidden mt-4 p-4 bg-green-500/20 border border-green-500 rounded-lg">
+              <p class="text-green-400 text-center">✅ Message envoyé avec succès!</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <!-- MODULE 5: ABOUT PAGE -->
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  
+  <div id="about" class="page">
+    <div class="min-h-screen bg-gradient-to-br from-gray-900 via-indigo-900 to-gray-900 py-8">
+      <div class="max-w-5xl mx-auto px-4">
+        <h1 class="text-4xl font-bold text-white mb-8 text-center">ℹ️ À Propos</h1>
+
+        <div class="grid md:grid-cols-3 gap-6 mb-8">
+          <div class="md:col-span-1">
+            <div class="bg-white/10 backdrop-blur-md rounded-2xl p-6 shadow-xl text-center">
+              <div class="w-32 h-32 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full mx-auto mb-4 flex items-center justify-center text-6xl shadow-2xl">
+                👨‍💻
+              </div>
+              <h2 class="text-2xl font-bold text-white mb-2">Anzize Daouda</h2>
+              <p class="text-gray-400 mb-4">Créateur & Architecte</p>
+              <div class="flex justify-center space-x-2">
+                <span class="px-3 py-1 bg-purple-500/20 text-purple-400 rounded-full text-sm">INTJ</span>
+                <span class="px-3 py-1 bg-blue-500/20 text-blue-400 rounded-full text-sm">24 ans</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="md:col-span-2 space-y-6">
+            <div class="bg-white/10 backdrop-blur-md rounded-2xl p-6 shadow-xl">
+              <h3 class="text-2xl font-bold text-white mb-4">🎯 Vision</h3>
+              <p class="text-gray-300 leading-relaxed mb-4">
+                Créer des outils technologiques puissants mais accessibles. Simplifier la complexité 
+                sans sacrifier la sophistication. Architecture ILN, Roadmapex, et maintenant Vanilla JS - 
+                chaque projet vise à donner du pouvoir aux créateurs.
+              </p>
+              <p class="text-gray-300 leading-relaxed">
+                Philosophie : <span class="text-purple-400 font-semibold">Qualité &gt; Vitesse</span>. 
+                Impact humain &gt; métriques techniques.
+              </p>
+            </div>
+
+            <div class="bg-white/10 backdrop-blur-md rounded-2xl p-6 shadow-xl">
+              <h3 class="text-2xl font-bold text-white mb-4">🛠️ Compétences</h3>
+              <div class="space-y-4">
+                <div>
+                  <div class="flex justify-between text-sm text-gray-400 mb-2">
+                    <span>Vanilla JS</span>
+                    <span>95%</span>
+                  </div>
+                  <div class="w-full bg-gray-700 rounded-full h-3">
+                    <div class="bg-gradient-to-r from-blue-500 to-cyan-500 h-3 rounded-full transition-all duration-1000" style="width: 95%"></div>
+                  </div>
+                </div>
+                <div>
+                  <div class="flex justify-between text-sm text-gray-400 mb-2">
+                    <span>Python</span>
+                    <span>90%</span>
+                  </div>
+                  <div class="w-full bg-gray-700 rounded-full h-3">
+                    <div class="bg-gradient-to-r from-green-500 to-emerald-500 h-3 rounded-full transition-all duration-1000" style="width: 90%"></div>
+                  </div>
+                </div>
+                <div>
+                  <div class="flex justify-between text-sm text-gray-400 mb-2">
+                    <span>Architecture</span>
+                    <span>88%</span>
+                  </div>
+                  <div class="w-full bg-gray-700 rounded-full h-3">
+                    <div class="bg-gradient-to-r from-purple-500 to-pink-500 h-3 rounded-full transition-all duration-1000" style="width: 88%"></div>
+                  </div>
+                </div>
+                <div>
+                  <div class="flex justify-between text-sm text-gray-400 mb-2">
+                    <span>UI/UX Design</span>
+                    <span>85%</span>
+                  </div>
+                  <div class="w-full bg-gray-700 rounded-full h-3">
+                    <div class="bg-gradient-to-r from-yellow-500 to-orange-500 h-3 rounded-full transition-all duration-1000" style="width: 85%"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-gradient-to-r from-purple-900 to-pink-900 rounded-2xl p-8 shadow-2xl text-center">
+          <h3 class="text-3xl font-bold text-white mb-4">🚀 Ce Projet Démontre</h3>
+          <div class="grid md:grid-cols-3 gap-4 text-white">
+            <div>
+              <div class="text-4xl mb-2">📦</div>
+              <p class="font-semibold">1 Fichier HTML</p>
+              <p class="text-sm text-gray-300">Tout dans un seul fichier</p>
+            </div>
+            <div>
+              <div class="text-4xl mb-2">⚡</div>
+              <p class="font-semibold">ZÉRO Framework</p>
+              <p class="text-sm text-gray-300">Vanilla JS uniquement</p>
+            </div>
+            <div>
+              <div class="text-4xl mb-2">🎨</div>
+              <p class="font-semibold">~800 lignes</p>
+              <p class="text-sm text-gray-300">5 pages complètes</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- FOOTER -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+
+<footer class="bg-gray-900 text-gray-400 py-8 mt-auto">
+  <div class="max-w-7xl mx-auto px-4 text-center">
+    <p class="mb-2">Built with Vanilla JS - Architecture Modulaire Mono-Fichier</p>
+    <p class="text-sm">1 Fichier HTML | ZÉRO Framework | Performance Native 🚀</p>
+    <p class="text-xs mt-4 text-gray-600">© 2025 - Anzize Daouda</p>
+  </div>
+</footer>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- JAVASCRIPT - ROUTING & INTERACTIVITY -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+
+<script>
+  // ═══════════════════════════════════════════════════════════════
+  // ROUTER (Gestion navigation entre pages)
+  // ═══════════════════════════════════════════════════════════════
+  
+  function navigateToPage(pageId) {
+    // Cacher toutes les pages
+    document.querySelectorAll('.page').forEach(page => {
+      page.classList.remove('active');
     });
-  </script>
+    
+    // Afficher la page demandée
+    const targetPage = document.getElementById(pageId);
+    if (targetPage) {
+      targetPage.classList.add('active');
+    }
+    
+    // Mettre à jour les liens de navigation (active state)
+    document.querySelectorAll('.nav-link').forEach(link => {
+      link.classList.remove('active', 'bg-white/20', 'text-white', 'shadow-lg');
+      link.classList.add('text-gray-300');
+    });
+    
+    document.querySelectorAll(`a[href="#${pageId}"]`).forEach(link => {
+      link.classList.add('active', 'bg-white/20', 'text-white', 'shadow-lg');
+      link.classList.remove('text-gray-300');
+    });
+    
+    // Scroll to top
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+  
+  // Gérer les clics sur les liens de navigation
+  document.querySelectorAll('a[href^="#"]').forEach(link => {
+    link.addEventListener('click', (e) => {
+      e.preventDefault();
+      const pageId = link.getAttribute('href').substring(1);
+      navigateToPage(pageId);
+      
+      // Mettre à jour l'URL sans recharger la page
+      history.pushState(null, '', `#${pageId}`);
+    });
+  });
+  
+  // Gérer le bouton retour du navigateur
+  window.addEventListener('popstate', () => {
+    const pageId = location.hash.substring(1) || 'home';
+    navigateToPage(pageId);
+  });
+  
+  // Navigation initiale (au chargement de la page)
+  window.addEventListener('DOMContentLoaded', () => {
+    const initialPage = location.hash.substring(1) || 'home';
+    navigateToPage(initialPage);
+  });
+  
+  // ═══════════════════════════════════════════════════════════════
+  // CONTACT FORM HANDLER
+  // ═══════════════════════════════════════════════════════════════
+  
+  function handleContactSubmit() {
+    const name = document.getElementById('name-input').value;
+    const email = document.getElementById('email-input').value;
+    const message = document.getElementById('message-input').value;
+    
+    if (!name || !email || !message) {
+      alert('Veuillez remplir tous les champs');
+      return;
+    }
+    
+    // Simuler l'envoi du message
+    console.log('Message envoyé:', { name, email, message });
+    
+    // Afficher le message de succès
+    document.getElementById('contact-success').classList.remove('hidden');
+    
+    // Réinitialiser le formulaire
+    document.getElementById('name-input').value = '';
+    document.getElementById('email-input').value = '';
+    document.getElementById('message-input').value = '';
+    
+    // Cacher le message de succès après 3 secondes
+    setTimeout(() => {
+      document.getElementById('contact-success').classList.add('hidden');
+    }, 3000);
+  }
+  
+  // ═══════════════════════════════════════════════════════════════
+  // INTERACTIVITÉ SUPPLÉMENTAIRE
+  // ═══════════════════════════════════════════════════════════════
+  
+  // Animation au scroll (optionnel)
+  window.addEventListener('scroll', () => {
+    const scrolled = window.pageYOffset;
+    // Ajouter des effets de parallaxe ou autres animations ici si besoin
+  });
+  
+  // Stats animation on hover (optionnel)
+  document.querySelectorAll('.stat-card').forEach(card => {
+    card.addEventListener('mouseenter', () => {
+      card.style.transform = 'scale(1.05) translateY(-5px)';
+    });
+    
+    card.addEventListener('mouseleave', () => {
+      card.style.transform = 'scale(1) translateY(0)';
+    });
+  });
+</script>
+
 </body>
 </html>

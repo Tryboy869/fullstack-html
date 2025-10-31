@@ -3,9 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Multi-Page App - Vanilla JS | Architecture Modulaire</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+  <title>CodeEnhancer Studio - Beta</title>
   <style>
+    /* ═══════════════════════════════════════════════════════════════
+       🎨 MODULE FRONTEND - STYLES
+       ═══════════════════════════════════════════════════════════════ */
+    
     * {
       margin: 0;
       padding: 0;
@@ -13,714 +16,793 @@
     }
     
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
-      overflow-x: hidden;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      line-height: 1.6;
+      color: #1f2937;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+    }
+    
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    
+    header {
+      background: white;
+      padding: 20px 40px;
+      border-radius: 15px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      margin-bottom: 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    h1 {
+      font-size: 2em;
+      color: #667eea;
+    }
+    
+    .user-info {
+      display: flex;
+      gap: 20px;
+      align-items: center;
+    }
+    
+    .hero {
+      background: white;
+      padding: 60px;
+      border-radius: 20px;
+      text-align: center;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+      margin-bottom: 40px;
+    }
+    
+    .hero h2 {
+      font-size: 2.5em;
+      margin-bottom: 20px;
+      color: #1f2937;
+    }
+    
+    .hero p {
+      font-size: 1.2em;
+      color: #6b7280;
+      margin-bottom: 30px;
+    }
+    
+    button {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      padding: 15px 40px;
+      font-size: 1.1em;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: transform 0.2s;
+      font-weight: bold;
+    }
+    
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+    }
+    
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    
+    .features {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+      margin-bottom: 40px;
+    }
+    
+    .feature-card {
+      background: white;
+      padding: 30px;
+      border-radius: 15px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    
+    .feature-card h3 {
+      color: #667eea;
+      margin-bottom: 10px;
+    }
+    
+    .dashboard {
+      background: white;
+      padding: 40px;
+      border-radius: 20px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    }
+    
+    .actions {
+      display: flex;
+      gap: 15px;
+      margin-bottom: 30px;
+      flex-wrap: wrap;
+    }
+    
+    .projects-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 20px;
+    }
+    
+    .project-card {
+      background: #f9fafb;
+      padding: 20px;
+      border-radius: 10px;
+      border: 2px solid #e5e7eb;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    
+    .project-card:hover {
+      border-color: #667eea;
+      transform: translateY(-5px);
+      box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+    }
+    
+    footer {
+      background: white;
+      padding: 30px;
+      border-radius: 15px;
+      text-align: center;
+      margin-top: 40px;
+      color: #6b7280;
+    }
+    
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.7);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .modal.active {
+      display: flex;
+    }
+    
+    .modal-content {
+      background: white;
+      padding: 40px;
+      border-radius: 20px;
+      max-width: 600px;
+      width: 90%;
+      max-height: 80vh;
+      overflow-y: auto;
+    }
+    
+    input, textarea, select {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid #e5e7eb;
+      border-radius: 8px;
+      font-size: 1em;
+      margin-bottom: 15px;
+      font-family: inherit;
+    }
+    
+    input:focus, textarea:focus, select:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+    
+    textarea {
+      min-height: 150px;
+      resize: vertical;
+    }
+    
+    label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: 600;
+      color: #374151;
+    }
+    
+    .warning {
+      background: #fef2f2;
+      border: 2px solid #fca5a5;
+      padding: 20px;
+      border-radius: 10px;
+      margin: 20px 0;
+      color: #7f1d1d;
     }
     
     .page {
       display: none;
-      animation: fadeIn 0.3s ease-in;
     }
     
     .page.active {
       display: block;
     }
     
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
+    .loading {
+      text-align: center;
+      padding: 40px;
     }
     
-    .stat-card:hover {
-      transform: scale(1.05);
+    .spinner {
+      border: 4px solid #f3f4f6;
+      border-top: 4px solid #667eea;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+      margin: 0 auto;
     }
     
-    .nav-link.active {
-      background: rgba(255, 255, 255, 0.2);
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    
+    pre {
+      background: #1f2937;
+      color: #f9fafb;
+      padding: 20px;
+      border-radius: 10px;
+      overflow-x: auto;
+      font-family: 'Courier New', monospace;
+      white-space: pre-wrap;
     }
   </style>
 </head>
-<body class="bg-gray-900">
+<body>
+  <div id="app"></div>
 
-<!-- ═══════════════════════════════════════════════════════════════ -->
-<!-- NAVIGATION (Partagée par toutes les pages) -->
-<!-- ═══════════════════════════════════════════════════════════════ -->
+  <script>
+    /**
+     * ═══════════════════════════════════════════════════════════════
+     * 🌌 NEXUS AXION 2.0 - CodeEnhancer Studio
+     * ═══════════════════════════════════════════════════════════════
+     * 
+     * Architecture Tri-Modulaire dans UN SEUL FICHIER
+     * - Module 1: Frontend (UI + Routing)
+     * - Module 2: Backend (Logic + IR)
+     * - Module 3: Connecteur (Cache + Storage)
+     */
 
-<nav class="bg-gradient-to-r from-purple-900 via-indigo-900 to-blue-900 shadow-2xl sticky top-0 z-50">
-  <div class="max-w-7xl mx-auto px-4 py-4">
-    <div class="flex items-center justify-between">
-      <!-- Logo -->
-      <div class="flex items-center space-x-3">
-        <div class="w-10 h-10 bg-gradient-to-br from-pink-500 to-purple-600 rounded-lg flex items-center justify-center shadow-lg">
-          <span class="text-2xl">⚡</span>
-        </div>
-        <span class="text-white font-bold text-xl">Vanilla JS App</span>
-      </div>
+    // ═══════════════════════════════════════════════════════════════
+    // 🔌 MODULE 3: CONNECTEUR (Storage + Cache + Sessions)
+    // ═══════════════════════════════════════════════════════════════
 
-      <!-- Navigation Desktop -->
-      <div class="hidden md:flex space-x-1" id="nav-links">
-        <a href="#home" class="nav-link px-4 py-2 rounded-lg text-gray-300 hover:bg-white/10 hover:text-white transition-all duration-300">
-          <span class="mr-2">🏠</span>Home
-        </a>
-        <a href="#dashboard" class="nav-link px-4 py-2 rounded-lg text-gray-300 hover:bg-white/10 hover:text-white transition-all duration-300">
-          <span class="mr-2">📊</span>Dashboard
-        </a>
-        <a href="#projects" class="nav-link px-4 py-2 rounded-lg text-gray-300 hover:bg-white/10 hover:text-white transition-all duration-300">
-          <span class="mr-2">🚀</span>Projects
-        </a>
-        <a href="#contact" class="nav-link px-4 py-2 rounded-lg text-gray-300 hover:bg-white/10 hover:text-white transition-all duration-300">
-          <span class="mr-2">✉️</span>Contact
-        </a>
-        <a href="#about" class="nav-link px-4 py-2 rounded-lg text-gray-300 hover:bg-white/10 hover:text-white transition-all duration-300">
-          <span class="mr-2">ℹ️</span>About
-        </a>
-      </div>
-
-      <!-- User Profile -->
-      <div class="flex items-center space-x-3">
-        <div class="hidden sm:block text-right">
-          <p class="text-white text-sm font-semibold">Anzize Daouda</p>
-          <p class="text-gray-400 text-xs">Creator</p>
-        </div>
-        <div class="w-10 h-10 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full flex items-center justify-center shadow-lg">
-          <span class="text-xl">👤</span>
-        </div>
-      </div>
-    </div>
-
-    <!-- Navigation Mobile -->
-    <div class="md:hidden mt-4 grid grid-cols-5 gap-2">
-      <a href="#home" class="nav-link px-2 py-2 rounded-lg text-center text-gray-400 hover:bg-white/10 transition-all">
-        <div class="text-xl">🏠</div>
-        <div class="text-xs mt-1">Home</div>
-      </a>
-      <a href="#dashboard" class="nav-link px-2 py-2 rounded-lg text-center text-gray-400 hover:bg-white/10 transition-all">
-        <div class="text-xl">📊</div>
-        <div class="text-xs mt-1">Dashboard</div>
-      </a>
-      <a href="#projects" class="nav-link px-2 py-2 rounded-lg text-center text-gray-400 hover:bg-white/10 transition-all">
-        <div class="text-xl">🚀</div>
-        <div class="text-xs mt-1">Projects</div>
-      </a>
-      <a href="#contact" class="nav-link px-2 py-2 rounded-lg text-center text-gray-400 hover:bg-white/10 transition-all">
-        <div class="text-xl">✉️</div>
-        <div class="text-xs mt-1">Contact</div>
-      </a>
-      <a href="#about" class="nav-link px-2 py-2 rounded-lg text-center text-gray-400 hover:bg-white/10 transition-all">
-        <div class="text-xl">ℹ️</div>
-        <div class="text-xs mt-1">About</div>
-      </a>
-    </div>
-  </div>
-</nav>
-
-<!-- ═══════════════════════════════════════════════════════════════ -->
-<!-- MAIN CONTAINER -->
-<!-- ═══════════════════════════════════════════════════════════════ -->
-
-<main id="app-container">
-
-  <!-- ═══════════════════════════════════════════════════════════════ -->
-  <!-- MODULE 1: HOME PAGE -->
-  <!-- ═══════════════════════════════════════════════════════════════ -->
-  
-  <div id="home" class="page active">
-    <div class="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900">
-      <div class="max-w-7xl mx-auto px-4 py-16">
-        
-        <!-- Hero Section -->
-        <div class="text-center mb-16">
-          <h1 class="text-6xl font-bold text-white mb-4">
-            Welcome to <span class="bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500 bg-clip-text text-transparent">Vanilla JS</span>
-          </h1>
-          <p class="text-2xl text-gray-300 mb-8">
-            Un Seul Fichier HTML - ZÉRO Framework - Performance MAX
-          </p>
-          <div class="flex justify-center space-x-4">
-            <a href="#dashboard" class="px-8 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg shadow-lg hover:shadow-2xl transform hover:scale-105 transition-all duration-300">
-              Voir Dashboard
-            </a>
-            <a href="#projects" class="px-8 py-3 bg-white/10 text-white rounded-lg shadow-lg hover:bg-white/20 transition-all duration-300 backdrop-blur-sm">
-              Mes Projets
-            </a>
-          </div>
-        </div>
-
-        <!-- Stats Grid -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
-          <div class="stat-card bg-white/10 backdrop-blur-md rounded-2xl p-6 shadow-xl transition-all duration-300 cursor-pointer">
-            <div class="w-16 h-16 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-xl flex items-center justify-center text-3xl mb-4 mx-auto shadow-lg">🚀</div>
-            <h3 class="text-3xl font-bold text-white text-center mb-2">12</h3>
-            <p class="text-gray-400 text-center">Projects</p>
-          </div>
-          <div class="stat-card bg-white/10 backdrop-blur-md rounded-2xl p-6 shadow-xl transition-all duration-300 cursor-pointer">
-            <div class="w-16 h-16 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl flex items-center justify-center text-3xl mb-4 mx-auto shadow-lg">💻</div>
-            <h3 class="text-3xl font-bold text-white text-center mb-2">1 File</h3>
-            <p class="text-gray-400 text-center">HTML Only</p>
-          </div>
-          <div class="stat-card bg-white/10 backdrop-blur-md rounded-2xl p-6 shadow-xl transition-all duration-300 cursor-pointer">
-            <div class="w-16 h-16 bg-gradient-to-br from-yellow-500 to-orange-500 rounded-xl flex items-center justify-center text-3xl mb-4 mx-auto shadow-lg">⚡</div>
-            <h3 class="text-3xl font-bold text-white text-center mb-2">0KB</h3>
-            <p class="text-gray-400 text-center">Framework</p>
-          </div>
-          <div class="stat-card bg-white/10 backdrop-blur-md rounded-2xl p-6 shadow-xl transition-all duration-300 cursor-pointer">
-            <div class="w-16 h-16 bg-gradient-to-br from-green-500 to-emerald-500 rounded-xl flex items-center justify-center text-3xl mb-4 mx-auto shadow-lg">🎯</div>
-            <h3 class="text-3xl font-bold text-white text-center mb-2">100%</h3>
-            <p class="text-gray-400 text-center">Native</p>
-          </div>
-        </div>
-
-        <!-- Features -->
-        <div class="bg-white/5 backdrop-blur-md rounded-2xl p-8 shadow-2xl">
-          <h2 class="text-3xl font-bold text-white mb-6">✨ Pourquoi Vanilla JS ?</h2>
-          <div class="grid md:grid-cols-3 gap-6">
-            <div class="space-y-2">
-              <div class="text-4xl">⚡</div>
-              <h3 class="text-xl font-semibold text-white">ZÉRO Framework</h3>
-              <p class="text-gray-400">Pas de React, pas de Preact, juste du JavaScript pur!</p>
-            </div>
-            <div class="space-y-2">
-              <div class="text-4xl">📦</div>
-              <h3 class="text-xl font-semibold text-white">Un Seul Fichier</h3>
-              <p class="text-gray-400">HTML + CSS + JS dans un fichier - déploiement instantané</p>
-            </div>
-            <div class="space-y-2">
-              <div class="text-4xl">🚀</div>
-              <h3 class="text-xl font-semibold text-white">Performance Native</h3>
-              <p class="text-gray-400">Manipulation DOM directe - vitesse maximale</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ═══════════════════════════════════════════════════════════════ -->
-  <!-- MODULE 2: DASHBOARD PAGE -->
-  <!-- ═══════════════════════════════════════════════════════════════ -->
-  
-  <div id="dashboard" class="page">
-    <div class="min-h-screen bg-gradient-to-br from-gray-900 to-purple-900 py-8">
-      <div class="max-w-7xl mx-auto px-4">
-        <h1 class="text-4xl font-bold text-white mb-8">📊 Dashboard</h1>
-
-        <!-- Metrics Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <div class="bg-gradient-to-br from-blue-500 to-blue-700 rounded-xl p-6 shadow-xl">
-            <p class="text-blue-200 text-sm">Visiteurs</p>
-            <p class="text-4xl font-bold text-white mt-2">1,243</p>
-            <p class="text-blue-200 text-xs mt-2">↑ 12% ce mois</p>
-          </div>
-          <div class="bg-gradient-to-br from-green-500 to-green-700 rounded-xl p-6 shadow-xl">
-            <p class="text-green-200 text-sm">Revenue</p>
-            <p class="text-4xl font-bold text-white mt-2">$8,450</p>
-            <p class="text-green-200 text-xs mt-2">↑ 8% ce mois</p>
-          </div>
-          <div class="bg-gradient-to-br from-purple-500 to-purple-700 rounded-xl p-6 shadow-xl">
-            <p class="text-purple-200 text-sm">Conversion</p>
-            <p class="text-4xl font-bold text-white mt-2">3.2%</p>
-            <p class="text-purple-200 text-xs mt-2">↑ 0.3% ce mois</p>
-          </div>
-          <div class="bg-gradient-to-br from-orange-500 to-orange-700 rounded-xl p-6 shadow-xl">
-            <p class="text-orange-200 text-sm">Utilisateurs Actifs</p>
-            <p class="text-4xl font-bold text-white mt-2">89</p>
-            <p class="text-orange-200 text-xs mt-2">↑ 5% ce mois</p>
-          </div>
-        </div>
-
-        <!-- Activity Feed -->
-        <div class="bg-white/10 backdrop-blur-md rounded-2xl p-6 shadow-xl">
-          <h2 class="text-2xl font-bold text-white mb-4">🕐 Activité Récente</h2>
-          <div class="space-y-3">
-            <div class="bg-white/5 rounded-lg p-4 flex items-center justify-between hover:bg-white/10 transition-all cursor-pointer">
-              <div class="flex items-center space-x-4">
-                <span class="text-2xl">🎨</span>
-                <div>
-                  <p class="font-semibold text-blue-400">Nouveau projet créé</p>
-                  <p class="text-gray-500 text-sm">Il y a 2h</p>
-                </div>
-              </div>
-            </div>
-            <div class="bg-white/5 rounded-lg p-4 flex items-center justify-between hover:bg-white/10 transition-all cursor-pointer">
-              <div class="flex items-center space-x-4">
-                <span class="text-2xl">✅</span>
-                <div>
-                  <p class="font-semibold text-green-400">Code review complété</p>
-                  <p class="text-gray-500 text-sm">Il y a 4h</p>
-                </div>
-              </div>
-            </div>
-            <div class="bg-white/5 rounded-lg p-4 flex items-center justify-between hover:bg-white/10 transition-all cursor-pointer">
-              <div class="flex items-center space-x-4">
-                <span class="text-2xl">🚀</span>
-                <div>
-                  <p class="font-semibold text-purple-400">Déploiement réussi</p>
-                  <p class="text-gray-500 text-sm">Il y a 6h</p>
-                </div>
-              </div>
-            </div>
-            <div class="bg-white/5 rounded-lg p-4 flex items-center justify-between hover:bg-white/10 transition-all cursor-pointer">
-              <div class="flex items-center space-x-4">
-                <span class="text-2xl">🐛</span>
-                <div>
-                  <p class="font-semibold text-yellow-400">Bug résolu</p>
-                  <p class="text-gray-500 text-sm">Il y a 8h</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ═══════════════════════════════════════════════════════════════ -->
-  <!-- MODULE 3: PROJECTS PAGE -->
-  <!-- ═══════════════════════════════════════════════════════════════ -->
-  
-  <div id="projects" class="page">
-    <div class="min-h-screen bg-gradient-to-br from-gray-900 via-blue-900 to-gray-900 py-8">
-      <div class="max-w-7xl mx-auto px-4">
-        <div class="flex items-center justify-between mb-8">
-          <h1 class="text-4xl font-bold text-white">🚀 Mes Projets</h1>
-          <button onclick="alert('Nouveau projet!')" class="px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg shadow-lg hover:shadow-2xl transform hover:scale-105 transition-all">
-            + Nouveau Projet
-          </button>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <!-- Project 1 -->
-          <div class="bg-white/10 backdrop-blur-md rounded-2xl p-6 shadow-xl hover:shadow-2xl transform hover:scale-[1.02] transition-all cursor-pointer">
-            <div class="flex items-start justify-between mb-4">
-              <div class="flex items-center space-x-3">
-                <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-xl flex items-center justify-center text-2xl shadow-lg">🏗️</div>
-                <div>
-                  <h3 class="text-xl font-bold text-white">ILN Framework</h3>
-                  <span class="text-xs px-2 py-1 rounded-full bg-blue-500/20 text-blue-400">Active</span>
-                </div>
-              </div>
-            </div>
-            <div class="mb-4">
-              <div class="flex justify-between text-sm text-gray-400 mb-2">
-                <span>Progression</span>
-                <span>85%</span>
-              </div>
-              <div class="w-full bg-gray-700 rounded-full h-2">
-                <div class="bg-gradient-to-r from-blue-500 to-cyan-500 h-2 rounded-full" style="width: 85%"></div>
-              </div>
-            </div>
-            <div class="flex flex-wrap gap-2">
-              <span class="px-3 py-1 bg-white/10 text-gray-300 rounded-lg text-sm">Python</span>
-              <span class="px-3 py-1 bg-white/10 text-gray-300 rounded-lg text-sm">JavaScript</span>
-            </div>
-          </div>
-
-          <!-- Project 2 -->
-          <div class="bg-white/10 backdrop-blur-md rounded-2xl p-6 shadow-xl hover:shadow-2xl transform hover:scale-[1.02] transition-all cursor-pointer">
-            <div class="flex items-start justify-between mb-4">
-              <div class="flex items-center space-x-3">
-                <div class="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-500 rounded-xl flex items-center justify-center text-2xl shadow-lg">🧪</div>
-                <div>
-                  <h3 class="text-xl font-bold text-white">Script Tester</h3>
-                  <span class="text-xs px-2 py-1 rounded-full bg-green-500/20 text-green-400">Production</span>
-                </div>
-              </div>
-            </div>
-            <div class="mb-4">
-              <div class="flex justify-between text-sm text-gray-400 mb-2">
-                <span>Progression</span>
-                <span>100%</span>
-              </div>
-              <div class="w-full bg-gray-700 rounded-full h-2">
-                <div class="bg-gradient-to-r from-green-500 to-emerald-500 h-2 rounded-full" style="width: 100%"></div>
-              </div>
-            </div>
-            <div class="flex flex-wrap gap-2">
-              <span class="px-3 py-1 bg-white/10 text-gray-300 rounded-lg text-sm">Node.js</span>
-              <span class="px-3 py-1 bg-white/10 text-gray-300 rounded-lg text-sm">Security</span>
-            </div>
-          </div>
-
-          <!-- Project 3 -->
-          <div class="bg-white/10 backdrop-blur-md rounded-2xl p-6 shadow-xl hover:shadow-2xl transform hover:scale-[1.02] transition-all cursor-pointer">
-            <div class="flex items-start justify-between mb-4">
-              <div class="flex items-center space-x-3">
-                <div class="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl flex items-center justify-center text-2xl shadow-lg">⚡</div>
-                <div>
-                  <h3 class="text-xl font-bold text-white">Roadmapex</h3>
-                  <span class="text-xs px-2 py-1 rounded-full bg-yellow-500/20 text-yellow-400">Beta</span>
-                </div>
-              </div>
-            </div>
-            <div class="mb-4">
-              <div class="flex justify-between text-sm text-gray-400 mb-2">
-                <span>Progression</span>
-                <span>65%</span>
-              </div>
-              <div class="w-full bg-gray-700 rounded-full h-2">
-                <div class="bg-gradient-to-r from-purple-500 to-pink-500 h-2 rounded-full" style="width: 65%"></div>
-              </div>
-            </div>
-            <div class="flex flex-wrap gap-2">
-              <span class="px-3 py-1 bg-white/10 text-gray-300 rounded-lg text-sm">Python</span>
-              <span class="px-3 py-1 bg-white/10 text-gray-300 rounded-lg text-sm">ML</span>
-            </div>
-          </div>
-
-          <!-- Project 4 -->
-          <div class="bg-white/10 backdrop-blur-md rounded-2xl p-6 shadow-xl hover:shadow-2xl transform hover:scale-[1.02] transition-all cursor-pointer">
-            <div class="flex items-start justify-between mb-4">
-              <div class="flex items-center space-x-3">
-                <div class="w-12 h-12 bg-gradient-to-br from-yellow-500 to-orange-500 rounded-xl flex items-center justify-center text-2xl shadow-lg">🎨</div>
-                <div>
-                  <h3 class="text-xl font-bold text-white">Vanilla JS App</h3>
-                  <span class="text-xs px-2 py-1 rounded-full bg-blue-500/20 text-blue-400">Active</span>
-                </div>
-              </div>
-            </div>
-            <div class="mb-4">
-              <div class="flex justify-between text-sm text-gray-400 mb-2">
-                <span>Progression</span>
-                <span>90%</span>
-              </div>
-              <div class="w-full bg-gray-700 rounded-full h-2">
-                <div class="bg-gradient-to-r from-yellow-500 to-orange-500 h-2 rounded-full" style="width: 90%"></div>
-              </div>
-            </div>
-            <div class="flex flex-wrap gap-2">
-              <span class="px-3 py-1 bg-white/10 text-gray-300 rounded-lg text-sm">HTML</span>
-              <span class="px-3 py-1 bg-white/10 text-gray-300 rounded-lg text-sm">Vanilla JS</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ═══════════════════════════════════════════════════════════════ -->
-  <!-- MODULE 4: CONTACT PAGE -->
-  <!-- ═══════════════════════════════════════════════════════════════ -->
-  
-  <div id="contact" class="page">
-    <div class="min-h-screen bg-gradient-to-br from-gray-900 via-pink-900 to-gray-900 py-8">
-      <div class="max-w-4xl mx-auto px-4">
-        <h1 class="text-4xl font-bold text-white mb-8 text-center">✉️ Contact</h1>
-
-        <div class="grid md:grid-cols-2 gap-8">
-          <!-- Contact Info -->
-          <div class="space-y-6">
-            <div class="bg-white/10 backdrop-blur-md rounded-2xl p-6 shadow-xl">
-              <h3 class="text-xl font-bold text-white mb-4">Informations</h3>
-              <div class="space-y-4">
-                <div class="flex items-center space-x-3">
-                  <div class="w-10 h-10 bg-blue-500 rounded-lg flex items-center justify-center">📧</div>
-                  <div>
-                    <p class="text-gray-400 text-sm">Email</p>
-                    <p class="text-white">anzize@example.com</p>
-                  </div>
-                </div>
-                <div class="flex items-center space-x-3">
-                  <div class="w-10 h-10 bg-green-500 rounded-lg flex items-center justify-center">💬</div>
-                  <div>
-                    <p class="text-gray-400 text-sm">Discord</p>
-                    <p class="text-white">Anzize#1234</p>
-                  </div>
-                </div>
-                <div class="flex items-center space-x-3">
-                  <div class="w-10 h-10 bg-purple-500 rounded-lg flex items-center justify-center">🐙</div>
-                  <div>
-                    <p class="text-gray-400 text-sm">GitHub</p>
-                    <p class="text-white">github.com/anzize</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div class="bg-gradient-to-br from-purple-500 to-pink-500 rounded-2xl p-6 shadow-xl">
-              <h3 class="text-xl font-bold text-white mb-2">Temps de Réponse</h3>
-              <p class="text-white/80">Je réponds sous 24h pendant la semaine</p>
-            </div>
-          </div>
-
-          <!-- Contact Form -->
-          <div class="bg-white/10 backdrop-blur-md rounded-2xl p-6 shadow-xl">
-            <h3 class="text-xl font-bold text-white mb-4">Envoyer un Message</h3>
-            <div class="space-y-4" id="contact-form">
-              <div>
-                <label class="block text-gray-400 text-sm mb-2">Nom</label>
-                <input
-                  type="text"
-                  id="name-input"
-                  class="w-full px-4 py-3 bg-white/10 text-white rounded-lg border border-white/20 focus:border-purple-500 focus:outline-none transition-all"
-                  placeholder="Votre nom"
-                />
-              </div>
-              <div>
-                <label class="block text-gray-400 text-sm mb-2">Email</label>
-                <input
-                  type="email"
-                  id="email-input"
-                  class="w-full px-4 py-3 bg-white/10 text-white rounded-lg border border-white/20 focus:border-purple-500 focus:outline-none transition-all"
-                  placeholder="votre@email.com"
-                />
-              </div>
-              <div>
-                <label class="block text-gray-400 text-sm mb-2">Message</label>
-                <textarea
-                  id="message-input"
-                  rows="4"
-                  class="w-full px-4 py-3 bg-white/10 text-white rounded-lg border border-white/20 focus:border-purple-500 focus:outline-none transition-all resize-none"
-                  placeholder="Votre message..."
-                ></textarea>
-              </div>
-              <button
-                onclick="handleContactSubmit()"
-                class="w-full px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg shadow-lg hover:shadow-2xl transform hover:scale-105 transition-all font-semibold"
-              >
-                Envoyer le Message
-              </button>
-            </div>
-            <div id="contact-success" class="hidden mt-4 p-4 bg-green-500/20 border border-green-500 rounded-lg">
-              <p class="text-green-400 text-center">✅ Message envoyé avec succès!</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ═══════════════════════════════════════════════════════════════ -->
-  <!-- MODULE 5: ABOUT PAGE -->
-  <!-- ═══════════════════════════════════════════════════════════════ -->
-  
-  <div id="about" class="page">
-    <div class="min-h-screen bg-gradient-to-br from-gray-900 via-indigo-900 to-gray-900 py-8">
-      <div class="max-w-5xl mx-auto px-4">
-        <h1 class="text-4xl font-bold text-white mb-8 text-center">ℹ️ À Propos</h1>
-
-        <div class="grid md:grid-cols-3 gap-6 mb-8">
-          <div class="md:col-span-1">
-            <div class="bg-white/10 backdrop-blur-md rounded-2xl p-6 shadow-xl text-center">
-              <div class="w-32 h-32 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full mx-auto mb-4 flex items-center justify-center text-6xl shadow-2xl">
-                👨‍💻
-              </div>
-              <h2 class="text-2xl font-bold text-white mb-2">Anzize Daouda</h2>
-              <p class="text-gray-400 mb-4">Créateur & Architecte</p>
-              <div class="flex justify-center space-x-2">
-                <span class="px-3 py-1 bg-purple-500/20 text-purple-400 rounded-full text-sm">INTJ</span>
-                <span class="px-3 py-1 bg-blue-500/20 text-blue-400 rounded-full text-sm">24 ans</span>
-              </div>
-            </div>
-          </div>
-
-          <div class="md:col-span-2 space-y-6">
-            <div class="bg-white/10 backdrop-blur-md rounded-2xl p-6 shadow-xl">
-              <h3 class="text-2xl font-bold text-white mb-4">🎯 Vision</h3>
-              <p class="text-gray-300 leading-relaxed mb-4">
-                Créer des outils technologiques puissants mais accessibles. Simplifier la complexité 
-                sans sacrifier la sophistication. Architecture ILN, Roadmapex, et maintenant Vanilla JS - 
-                chaque projet vise à donner du pouvoir aux créateurs.
-              </p>
-              <p class="text-gray-300 leading-relaxed">
-                Philosophie : <span class="text-purple-400 font-semibold">Qualité &gt; Vitesse</span>. 
-                Impact humain &gt; métriques techniques.
-              </p>
-            </div>
-
-            <div class="bg-white/10 backdrop-blur-md rounded-2xl p-6 shadow-xl">
-              <h3 class="text-2xl font-bold text-white mb-4">🛠️ Compétences</h3>
-              <div class="space-y-4">
-                <div>
-                  <div class="flex justify-between text-sm text-gray-400 mb-2">
-                    <span>Vanilla JS</span>
-                    <span>95%</span>
-                  </div>
-                  <div class="w-full bg-gray-700 rounded-full h-3">
-                    <div class="bg-gradient-to-r from-blue-500 to-cyan-500 h-3 rounded-full transition-all duration-1000" style="width: 95%"></div>
-                  </div>
-                </div>
-                <div>
-                  <div class="flex justify-between text-sm text-gray-400 mb-2">
-                    <span>Python</span>
-                    <span>90%</span>
-                  </div>
-                  <div class="w-full bg-gray-700 rounded-full h-3">
-                    <div class="bg-gradient-to-r from-green-500 to-emerald-500 h-3 rounded-full transition-all duration-1000" style="width: 90%"></div>
-                  </div>
-                </div>
-                <div>
-                  <div class="flex justify-between text-sm text-gray-400 mb-2">
-                    <span>Architecture</span>
-                    <span>88%</span>
-                  </div>
-                  <div class="w-full bg-gray-700 rounded-full h-3">
-                    <div class="bg-gradient-to-r from-purple-500 to-pink-500 h-3 rounded-full transition-all duration-1000" style="width: 88%"></div>
-                  </div>
-                </div>
-                <div>
-                  <div class="flex justify-between text-sm text-gray-400 mb-2">
-                    <span>UI/UX Design</span>
-                    <span>85%</span>
-                  </div>
-                  <div class="w-full bg-gray-700 rounded-full h-3">
-                    <div class="bg-gradient-to-r from-yellow-500 to-orange-500 h-3 rounded-full transition-all duration-1000" style="width: 85%"></div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="bg-gradient-to-r from-purple-900 to-pink-900 rounded-2xl p-8 shadow-2xl text-center">
-          <h3 class="text-3xl font-bold text-white mb-4">🚀 Ce Projet Démontre</h3>
-          <div class="grid md:grid-cols-3 gap-4 text-white">
-            <div>
-              <div class="text-4xl mb-2">📦</div>
-              <p class="font-semibold">1 Fichier HTML</p>
-              <p class="text-sm text-gray-300">Tout dans un seul fichier</p>
-            </div>
-            <div>
-              <div class="text-4xl mb-2">⚡</div>
-              <p class="font-semibold">ZÉRO Framework</p>
-              <p class="text-sm text-gray-300">Vanilla JS uniquement</p>
-            </div>
-            <div>
-              <div class="text-4xl mb-2">🎨</div>
-              <p class="font-semibold">~800 lignes</p>
-              <p class="text-sm text-gray-300">5 pages complètes</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-</main>
-
-<!-- ═══════════════════════════════════════════════════════════════ -->
-<!-- FOOTER -->
-<!-- ═══════════════════════════════════════════════════════════════ -->
-
-<footer class="bg-gray-900 text-gray-400 py-8 mt-auto">
-  <div class="max-w-7xl mx-auto px-4 text-center">
-    <p class="mb-2">Built with Vanilla JS - Architecture Modulaire Mono-Fichier</p>
-    <p class="text-sm">1 Fichier HTML | ZÉRO Framework | Performance Native 🚀</p>
-    <p class="text-xs mt-4 text-gray-600">© 2025 - Anzize Daouda</p>
-  </div>
-</footer>
-
-<!-- ═══════════════════════════════════════════════════════════════ -->
-<!-- JAVASCRIPT - ROUTING & INTERACTIVITY -->
-<!-- ═══════════════════════════════════════════════════════════════ -->
-
-<script>
-  // ═══════════════════════════════════════════════════════════════
-  // ROUTER (Gestion navigation entre pages)
-  // ═══════════════════════════════════════════════════════════════
-  
-  function navigateToPage(pageId) {
-    // Cacher toutes les pages
-    document.querySelectorAll('.page').forEach(page => {
-      page.classList.remove('active');
-    });
-    
-    // Afficher la page demandée
-    const targetPage = document.getElementById(pageId);
-    if (targetPage) {
-      targetPage.classList.add('active');
-    }
-    
-    // Mettre à jour les liens de navigation (active state)
-    document.querySelectorAll('.nav-link').forEach(link => {
-      link.classList.remove('active', 'bg-white/20', 'text-white', 'shadow-lg');
-      link.classList.add('text-gray-300');
-    });
-    
-    document.querySelectorAll(`a[href="#${pageId}"]`).forEach(link => {
-      link.classList.add('active', 'bg-white/20', 'text-white', 'shadow-lg');
-      link.classList.remove('text-gray-300');
-    });
-    
-    // Scroll to top
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }
-  
-  // Gérer les clics sur les liens de navigation
-  document.querySelectorAll('a[href^="#"]').forEach(link => {
-    link.addEventListener('click', (e) => {
-      e.preventDefault();
-      const pageId = link.getAttribute('href').substring(1);
-      navigateToPage(pageId);
+    const ConnectorModule = {
+      name: 'ConnectorModule',
       
-      // Mettre à jour l'URL sans recharger la page
-      history.pushState(null, '', `#${pageId}`);
-    });
-  });
-  
-  // Gérer le bouton retour du navigateur
-  window.addEventListener('popstate', () => {
-    const pageId = location.hash.substring(1) || 'home';
-    navigateToPage(pageId);
-  });
-  
-  // Navigation initiale (au chargement de la page)
-  window.addEventListener('DOMContentLoaded', () => {
-    const initialPage = location.hash.substring(1) || 'home';
-    navigateToPage(initialPage);
-  });
-  
-  // ═══════════════════════════════════════════════════════════════
-  // CONTACT FORM HANDLER
-  // ═══════════════════════════════════════════════════════════════
-  
-  function handleContactSubmit() {
-    const name = document.getElementById('name-input').value;
-    const email = document.getElementById('email-input').value;
-    const message = document.getElementById('message-input').value;
-    
-    if (!name || !email || !message) {
-      alert('Veuillez remplir tous les champs');
-      return;
-    }
-    
-    // Simuler l'envoi du message
-    console.log('Message envoyé:', { name, email, message });
-    
-    // Afficher le message de succès
-    document.getElementById('contact-success').classList.remove('hidden');
-    
-    // Réinitialiser le formulaire
-    document.getElementById('name-input').value = '';
-    document.getElementById('email-input').value = '';
-    document.getElementById('message-input').value = '';
-    
-    // Cacher le message de succès après 3 secondes
-    setTimeout(() => {
-      document.getElementById('contact-success').classList.add('hidden');
-    }, 3000);
-  }
-  
-  // ═══════════════════════════════════════════════════════════════
-  // INTERACTIVITÉ SUPPLÉMENTAIRE
-  // ═══════════════════════════════════════════════════════════════
-  
-  // Animation au scroll (optionnel)
-  window.addEventListener('scroll', () => {
-    const scrolled = window.pageYOffset;
-    // Ajouter des effets de parallaxe ou autres animations ici si besoin
-  });
-  
-  // Stats animation on hover (optionnel)
-  document.querySelectorAll('.stat-card').forEach(card => {
-    card.addEventListener('mouseenter', () => {
-      card.style.transform = 'scale(1.05) translateY(-5px)';
-    });
-    
-    card.addEventListener('mouseleave', () => {
-      card.style.transform = 'scale(1) translateY(0)';
-    });
-  });
-</script>
+      // In-Memory Storage (LocalStorage backup)
+      storage: {
+        sessions: new Map(),
+        projects: new Map(),
+        userStats: new Map(),
+        
+        init() {
+          // Load from localStorage
+          const saved = localStorage.getItem('codeenhancer_data');
+          if (saved) {
+            try {
+              const data = JSON.parse(saved);
+              if (data.projects) {
+                data.projects.forEach(p => this.projects.set(p.id, p));
+              }
+            } catch (e) {
+              console.error('Failed to load saved data');
+            }
+          }
+        },
+        
+        save() {
+          // Save to localStorage
+          const data = {
+            projects: Array.from(this.projects.values())
+          };
+          localStorage.setItem('codeenhancer_data', JSON.stringify(data));
+        }
+      },
+      
+      // Cache
+      cache: {
+        L1: new Map(),
+        
+        get(key) {
+          const entry = this.L1.get(key);
+          if (!entry) return null;
+          if (Date.now() - entry.createdAt > 60000) {
+            this.L1.delete(key);
+            return null;
+          }
+          return entry.value;
+        },
+        
+        set(key, value) {
+          this.L1.set(key, { value, createdAt: Date.now() });
+        }
+      },
+      
+      init() {
+        this.storage.init();
+        console.log('✅ Connecteur initialisé');
+      }
+    };
 
+    // ═══════════════════════════════════════════════════════════════
+    // ⚙️ MODULE 2: BACKEND (Logic + Security + IR)
+    // ═══════════════════════════════════════════════════════════════
+
+    const BackendModule = {
+      name: 'BackendModule',
+      
+      // Modules métier
+      modules: {
+        ids: {
+          generateFreeID() {
+            const timestamp = Date.now().toString(36);
+            const random = Math.random().toString(36).substring(2, 8);
+            return `FREE-${timestamp}-${random}`;
+          },
+          
+          validate(id) {
+            if (!id) return { valid: false, tier: 'none' };
+            if (id.startsWith('FREE-')) {
+              return {
+                valid: true,
+                tier: 'beta',
+                limits: { projects_per_month: 5 }
+              };
+            }
+            return { valid: false, tier: 'none' };
+          }
+        },
+        
+        projects: {
+          create(userId, name, description) {
+            const projectId = `proj_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`;
+            
+            const project = {
+              id: projectId,
+              userId,
+              name,
+              description,
+              files: {},
+              createdAt: Date.now(),
+              status: 'active'
+            };
+            
+            ConnectorModule.storage.projects.set(projectId, project);
+            ConnectorModule.storage.save();
+            
+            return project;
+          },
+          
+          list(userId) {
+            const projects = [];
+            for (const [id, project] of ConnectorModule.storage.projects) {
+              if (project.userId === userId) {
+                projects.push(project);
+              }
+            }
+            return projects.sort((a, b) => b.createdAt - a.createdAt);
+          },
+          
+          get(projectId) {
+            return ConnectorModule.storage.projects.get(projectId);
+          },
+          
+          update(projectId, files) {
+            const project = ConnectorModule.storage.projects.get(projectId);
+            if (project) {
+              project.files = files;
+              ConnectorModule.storage.projects.set(projectId, project);
+              ConnectorModule.storage.save();
+            }
+          },
+          
+          countUserProjects(userId) {
+            const startOfMonth = new Date();
+            startOfMonth.setDate(1);
+            startOfMonth.setHours(0, 0, 0, 0);
+            
+            let count = 0;
+            for (const [id, project] of ConnectorModule.storage.projects) {
+              if (project.userId === userId && project.createdAt >= startOfMonth.getTime()) {
+                count++;
+              }
+            }
+            return count;
+          }
+        },
+        
+        ai: {
+          async generateWithIR(projectDesc, aiProvider, apiKey) {
+            // Simulate AI generation for demo
+            // In production, call real AI API
+            
+            return new Promise((resolve) => {
+              setTimeout(() => {
+                const files = {
+                  'src/main.py': `# ${projectDesc}\n\ndef main():\n    print("Hello World")\n\nif __name__ == "__main__":\n    main()`,
+                  'README.md': `# Project\n\n${projectDesc}`,
+                  'requirements.txt': 'flask==3.0.0'
+                };
+                
+                resolve({
+                  success: true,
+                  files,
+                  irState: { score: 85 }
+                });
+              }, 2000);
+            });
+          }
+        }
+      }
+    };
+
+    // ═══════════════════════════════════════════════════════════════
+    // 📦 MODULE 1: FRONTEND (UI + Routing + Pages)
+    // ═══════════════════════════════════════════════════════════════
+
+    const FrontendModule = {
+      name: 'FrontendModule',
+      
+      // Router
+      router: {
+        currentPage: 'landing',
+        
+        navigate(page) {
+          this.currentPage = page;
+          FrontendModule.render();
+        }
+      },
+      
+      // State
+      store: {
+        userId: null,
+        userTier: null,
+        aiConfig: null,
+        currentProject: null
+      },
+      
+      // Pages
+      pages: {
+        landing() {
+          return `
+            <div class="container">
+              <div class="hero">
+                <h2>⚡ CodeEnhancer Studio</h2>
+                <p>L'IA qui code comme un développeur professionnel sous tes yeux</p>
+                <p style="color: #10b981; font-weight: bold;">🎉 Accès Beta Gratuit - 5 projets/mois</p>
+                <button onclick="NexusAxion.handleStartBeta()">🚀 Commencer Maintenant</button>
+              </div>
+              
+              <div class="warning">
+                <h3>⚠️ Version Beta</h3>
+                <p><strong>Important:</strong> Les projets sont sauvegardés localement (LocalStorage). 
+                Pensez à <strong>télécharger en ZIP</strong> pour backup permanent !</p>
+              </div>
+              
+              <div class="features">
+                <div class="feature-card">
+                  <h3>✨ Live Coding Immersif</h3>
+                  <p>Voir l'IA coder en temps réel avec la technologie IR brevetée</p>
+                </div>
+                <div class="feature-card">
+                  <h3>📁 Organisation Pro</h3>
+                  <p>Structure multi-fichiers professionnelle automatique</p>
+                </div>
+                <div class="feature-card">
+                  <h3>🔱 GitHub Push</h3>
+                  <p>Push automatique vers ton repo (bientôt)</p>
+                </div>
+                <div class="feature-card">
+                  <h3>✏️ Édition Visuelle</h3>
+                  <p>Modifier le code généré directement</p>
+                </div>
+              </div>
+              
+              <footer>
+                <p><strong>Powered by Nexus Studio</strong></p>
+                <p>📧 Contact: nexusstudio100@gmail.com</p>
+                <p style="margin-top: 15px; color: #10b981;">
+                  🎁 <strong>Inscription anticipée = 3 mois Pro gratuits</strong><br>
+                  Contactez-nous pour réserver votre place !
+                </p>
+              </footer>
+            </div>
+          `;
+        },
+        
+        dashboard() {
+          const userId = FrontendModule.store.userId;
+          const projects = BackendModule.modules.projects.list(userId);
+          const projectsUsed = BackendModule.modules.projects.countUserProjects(userId);
+          
+          return `
+            <div class="container">
+              <header>
+                <h1>⚡ CodeEnhancer Studio</h1>
+                <div class="user-info">
+                  <span>ID: <strong>${userId.substring(0, 15)}...</strong></span>
+                  <span>Projets: <strong>${projectsUsed}/5</strong></span>
+                  <span style="color: #10b981;">✅ Beta</span>
+                </div>
+              </header>
+              
+              <div class="dashboard">
+                <div class="actions">
+                  <button onclick="NexusAxion.showModal('newProject')">➕ Nouveau Projet</button>
+                  <button onclick="NexusAxion.showModal('configAI')">🔧 Configurer IA</button>
+                </div>
+                
+                <h2>Mes Projets</h2>
+                <div class="projects-grid">
+                  ${projects.length > 0 ? projects.map(p => `
+                    <div class="project-card" onclick="NexusAxion.openProject('${p.id}')">
+                      <h3>📁 ${p.name}</h3>
+                      <p>${new Date(p.createdAt).toLocaleDateString()}</p>
+                      <p style="color: #10b981;">✅ ${p.status}</p>
+                    </div>
+                  `).join('') : '<p style="color: #6b7280;">Aucun projet. Créez-en un !</p>'}
+                </div>
+              </div>
+            </div>
+            
+            ${FrontendModule.components.modal('newProject', `
+              <h2>➕ Nouveau Projet</h2>
+              <form onsubmit="NexusAxion.handleCreateProject(event)">
+                <label>Nom du projet</label>
+                <input type="text" id="projectName" required placeholder="Ex: API Todo">
+                
+                <label>Description complète</label>
+                <textarea id="projectDesc" required placeholder="Décris ton projet..."></textarea>
+                
+                <button type="submit">🚀 Générer</button>
+                <button type="button" onclick="NexusAxion.closeModal('newProject')" style="background: #6b7280; margin-left: 10px;">Annuler</button>
+              </form>
+            `)}
+            
+            ${FrontendModule.components.modal('configAI', `
+              <h2>🔧 Configurer IA</h2>
+              <form onsubmit="NexusAxion.handleSaveAIConfig(event)">
+                <label>Provider IA</label>
+                <select id="aiProvider">
+                  <option value="groq">Groq (Llama 4 - Gratuit)</option>
+                  <option value="demo">Demo (Simulation)</option>
+                </select>
+                
+                <label>API Key (optionnel pour demo)</label>
+                <input type="password" id="aiApiKey" placeholder="Votre clé API">
+                
+                <button type="submit">💾 Sauvegarder</button>
+                <button type="button" onclick="NexusAxion.closeModal('configAI')" style="background: #6b7280; margin-left: 10px;">Annuler</button>
+              </form>
+            `)}
+          `;
+        },
+        
+        liveCoding() {
+          const project = FrontendModule.store.currentProject;
+          
+          return `
+            <div class="container">
+              <header>
+                <h1>⚡ ${project ? project.name : 'Projet'}</h1>
+                <button onclick="NexusAxion.backToDashboard()">🏠 Dashboard</button>
+              </header>
+              
+              <div class="dashboard">
+                <div id="generationStatus" class="loading">
+                  <div class="spinner"></div>
+                  <p>L'IA code votre projet...</p>
+                </div>
+                
+                <div id="projectResult" style="display: none;">
+                  <h3>✅ Projet généré !</h3>
+                  <div id="filesList"></div>
+                  <div class="actions">
+                    <button onclick="NexusAxion.downloadProject()">⬇️ Télécharger ZIP</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          `;
+        }
+      },
+      
+      // Components
+      components: {
+        modal(id, content) {
+          return `
+            <div id="modal-${id}" class="modal">
+              <div class="modal-content">
+                ${content}
+              </div>
+            </div>
+          `;
+        }
+      },
+      
+      // Render
+      render() {
+        const page = this.pages[this.router.currentPage];
+        if (page) {
+          document.getElementById('app').innerHTML = page();
+        }
+      }
+    };
+
+    // ═══════════════════════════════════════════════════════════════
+    // 🌟 NEXUS AXION - Système Unifié
+    // ═══════════════════════════════════════════════════════════════
+
+    const NexusAxion = {
+      frontend: FrontendModule,
+      backend: BackendModule,
+      connector: ConnectorModule,
+      
+      async init() {
+        // Init connector
+        this.connector.init();
+        
+        // Check if user already has ID
+        const savedUserId = localStorage.getItem('userId');
+        if (savedUserId) {
+          this.frontend.store.userId = savedUserId;
+          this.frontend.router.navigate('dashboard');
+        } else {
+          this.frontend.router.navigate('landing');
+        }
+      },
+      
+      // Handlers
+      handleStartBeta() {
+        const userId = this.backend.modules.ids.generateFreeID();
+        localStorage.setItem('userId', userId);
+        this.frontend.store.userId = userId;
+        this.frontend.router.navigate('dashboard');
+      },
+      
+      showModal(modalId) {
+        const modal = document.getElementById(`modal-${modalId}`);
+        if (modal) modal.classList.add('active');
+      },
+      
+      closeModal(modalId) {
+        const modal = document.getElementById(`modal-${modalId}`);
+        if (modal) modal.classList.remove('active');
+      },
+      
+      async handleCreateProject(e) {
+        e.preventDefault();
+        
+        const name = document.getElementById('projectName').value;
+        const desc = document.getElementById('projectDesc').value;
+        
+        // Check AI config
+        const aiConfig = localStorage.getItem('aiConfig');
+        if (!aiConfig) {
+          alert('Veuillez configurer votre IA d\'abord');
+          this.closeModal('newProject');
+          this.showModal('configAI');
+          return;
+        }
+        
+        // Check project limit
+        const projectsUsed = this.backend.modules.projects.countUserProjects(this.frontend.store.userId);
+        if (projectsUsed >= 5) {
+          alert('Limite de 5 projets/mois atteinte !');
+          return;
+        }
+        
+        this.closeModal('newProject');
+        
+        // Create project
+        const project = this.backend.modules.projects.create(
+          this.frontend.store.userId,
+          name,
+          desc
+        );
+        
+        this.frontend.store.currentProject = project;
+        this.frontend.router.navigate('liveCoding');
+        
+        // Generate code
+        const config = JSON.parse(aiConfig);
+        const result = await this.backend.modules.ai.generateWithIR(
+          desc,
+          config.provider,
+          config.apiKey
+        );
+        
+        if (result.success) {
+          // Update project
+          this.backend.modules.projects.update(project.id, result.files);
+          project.files = result.files;
+          
+          // Display result
+          document.getElementById('generationStatus').style.display = 'none';
+          const resultDiv = document.getElementById('projectResult');
+          resultDiv.style.display = 'block';
+          
+          const filesHtml = Object.entries(result.files).map(([name, content]) => `
+            <details style="margin: 15px 0;">
+              <summary style="cursor: pointer; font-weight: bold; padding: 10px; background: #f9fafb; border-radius: 5px;">
+                📄 ${name}
+              </summary>
+              <pre>${content}</pre>
+            </details>
+          `).join('');
+          
+          document.getElementById('filesList').innerHTML = filesHtml;
+        }
+      },
+      
+      handleSaveAIConfig(e) {
+        e.preventDefault();
+        
+        const provider = document.getElementById('aiProvider').value;
+        const apiKey = document.getElementById('aiApiKey').value;
+        
+        const config = { provider, apiKey };
+        localStorage.setItem('aiConfig', JSON.stringify(config));
+        
+        this.closeModal('configAI');
+        alert('✅ Configuration IA sauvegardée !');
+      },
+      
+      openProject(projectId) {
+        const project = this.backend.modules.projects.get(projectId);
+        if (project) {
+          this.frontend.store.currentProject = project;
+          this.frontend.router.navigate('liveCoding');
+          
+          // Display files
+          setTimeout(() => {
+            document.getElementById('generationStatus').style.display = 'none';
+            const resultDiv = document.getElementById('projectResult');
+            resultDiv.style.display = 'block';
+            
+            const filesHtml = Object.entries(project.files).map(([name, content]) => `
+              <details style="margin: 15px 0;">
+                <summary style="cursor: pointer; font-weight: bold; padding: 10px; background: #f9fafb; border-radius: 5px;">
+                  📄 ${name}
+                </summary>
+                <pre>${content}</pre>
+              </details>
+            `).join('');
+            
+            document.getElementById('filesList').innerHTML = filesHtml;
+          }, 100);
+        }
+      },
+      
+      backToDashboard() {
+        this.frontend.router.navigate('dashboard');
+      },
+      
+      downloadProject() {
+        alert('Téléchargement ZIP en développement. Pour l\'instant, copiez/collez le code manuellement.');
+      }
+    };
+
+    // ═══════════════════════════════════════════════════════════════
+    // 🚀 STARTUP
+    // ═══════════════════════════════════════════════════════════════
+
+    window.addEventListener('DOMContentLoaded', () => {
+      console.log('🚀 CodeEnhancer Studio - Nexus Axion 2.0');
+      NexusAxion.init();
+    });
+  </script>
 </body>
 </html>

@@ -599,16 +599,31 @@
         // WEBHOOK CLIENT (Communication avec Backend)
         // ============================================
         class WebhookClient {
-            constructor(baseUrl = 'http://localhost:8000') {
-                this.baseUrl = baseUrl;
+            constructor(baseUrl = null) {
+                // Auto-detect backend URL (prod vs local)
+                if (!baseUrl) {
+                    const protocol = window.location.protocol === 'https:' ? 'https:' : 'http:';
+                    const host = window.location.host;
+                    this.baseUrl = `${protocol}//${host}`;
+                } else {
+                    this.baseUrl = baseUrl;
+                }
+                
                 this.ws = null;
                 this.subscribers = {};
                 this.connect();
             }
 
             connect() {
+                // Auto-detect WebSocket URL (wss for https, ws for http)
+                const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+                const host = window.location.host;
+                const wsUrl = `${wsProtocol}//${host}/ws`;
+                
+                console.log('🔌 Connecting to WebSocket:', wsUrl);
+                
                 // WebSocket pour real-time updates
-                this.ws = new WebSocket('ws://localhost:8000/ws');
+                this.ws = new WebSocket(wsUrl);
                 
                 this.ws.onopen = () => {
                     console.log('✅ Connected to backend');

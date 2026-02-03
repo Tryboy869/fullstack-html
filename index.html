@@ -418,14 +418,21 @@
         }
         
         async function saveBot(bot) {
-            const tx = db.transaction(['bots'], 'readwrite');
-            await tx.objectStore('bots').put(bot);
-            await tx.complete;
+            return new Promise((resolve, reject) => {
+                const tx = db.transaction(['bots'], 'readwrite');
+                const request = tx.objectStore('bots').put(bot);
+                request.onsuccess = () => resolve();
+                request.onerror = () => reject(request.error);
+            });
         }
         
         async function getAllBots() {
-            const tx = db.transaction(['bots'], 'readonly');
-            return await tx.objectStore('bots').getAll();
+            return new Promise((resolve, reject) => {
+                const tx = db.transaction(['bots'], 'readonly');
+                const request = tx.objectStore('bots').getAll();
+                request.onsuccess = () => resolve(request.result || []);
+                request.onerror = () => reject(request.error);
+            });
         }
         
         async function deleteBot(id) {
@@ -441,8 +448,12 @@
         }
         
         async function getAllMissions() {
-            const tx = db.transaction(['missions'], 'readonly');
-            return await tx.objectStore('missions').getAll();
+            return new Promise((resolve, reject) => {
+                const tx = db.transaction(['missions'], 'readonly');
+                const request = tx.objectStore('missions').getAll();
+                request.onsuccess = () => resolve(request.result || []);
+                request.onerror = () => reject(request.error);
+            });
         }
         
         async function saveLog(log) {
@@ -452,8 +463,12 @@
         }
         
         async function getAllLogs() {
-            const tx = db.transaction(['logs'], 'readonly');
-            return await tx.objectStore('logs').getAll();
+            return new Promise((resolve, reject) => {
+                const tx = db.transaction(['logs'], 'readonly');
+                const request = tx.objectStore('logs').getAll();
+                request.onsuccess = () => resolve(request.result || []);
+                request.onerror = () => reject(request.error);
+            });
         }
         
         async function clearAllLogs() {
@@ -898,9 +913,17 @@
                 log('success', 'Worker pool initialized');
                 
                 // Load existing bots
-                const bots = await getAllBots();
-                bots.forEach(bot => engineer.bots.set(bot.id, bot));
-                log('info', `Loaded ${bots.length} existing bots`);
+                try {
+                    const bots = await getAllBots();
+                    if (bots && Array.isArray(bots)) {
+                        bots.forEach(bot => engineer.bots.set(bot.id, bot));
+                        log('info', `Loaded ${bots.length} existing bots`);
+                    } else {
+                        log('info', 'No existing bots found');
+                    }
+                } catch (e) {
+                    log('warning', `Could not load bots: ${e.message}`);
+                }
                 
                 await renderBots();
                 updateStatus();
@@ -910,6 +933,7 @@
                 
             } catch (error) {
                 log('error', `Initialization failed: ${error.message}`);
+                console.error('Init error:', error);
                 document.getElementById('system-status').textContent = 'Error';
             }
         }

@@ -1,919 +1,924 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ShopNexus - E-commerce Minimaliste</title>
+    <title>🧠 Living OS - Browser Edition</title>
     <style>
-        /* ============================================ */
-        /* RESET & BASE STYLES */
-        /* ============================================ */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-
-        :root {
-            --primary: #6366f1;
-            --primary-dark: #4f46e5;
-            --secondary: #10b981;
-            --danger: #ef4444;
-            --warning: #f59e0b;
-            --dark: #1f2937;
-            --gray: #6b7280;
-            --light: #f9fafb;
-            --border: #e5e7eb;
-        }
-
+        
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            font-family: 'Monaco', 'Courier New', monospace;
+            background: #0a0a0a;
+            color: #00ff00;
+            padding: 20px;
             line-height: 1.6;
-            color: var(--dark);
-            background: var(--light);
         }
-
-        /* ============================================ */
-        /* LAYOUT */
-        /* ============================================ */
+        
         .container {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
-            padding: 0 20px;
         }
-
+        
         header {
-            background: white;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            position: sticky;
-            top: 0;
-            z-index: 100;
+            text-align: center;
+            padding: 20px;
+            border-bottom: 2px solid #00ff00;
+            margin-bottom: 30px;
         }
-
-        nav {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 1rem 0;
+        
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 0 0 10px #00ff00;
         }
-
-        .logo {
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: var(--primary);
+        
+        .subtitle {
+            color: #00aa00;
+            font-size: 0.9em;
         }
-
-        .nav-links {
-            display: flex;
-            gap: 2rem;
-            align-items: center;
-        }
-
-        .nav-links a {
-            text-decoration: none;
-            color: var(--dark);
-            font-weight: 500;
-            transition: color 0.3s;
-        }
-
-        .nav-links a:hover {
-            color: var(--primary);
-        }
-
-        .cart-btn {
-            position: relative;
-            background: var(--primary);
-            color: white;
-            padding: 0.5rem 1.5rem;
-            border-radius: 8px;
-            cursor: pointer;
-            border: none;
-            font-weight: 600;
-            transition: background 0.3s;
-        }
-
-        .cart-btn:hover {
-            background: var(--primary-dark);
-        }
-
-        .cart-count {
-            position: absolute;
-            top: -8px;
-            right: -8px;
-            background: var(--danger);
-            color: white;
-            border-radius: 50%;
-            width: 24px;
-            height: 24px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.75rem;
-            font-weight: bold;
-        }
-
-        /* ============================================ */
-        /* PRODUCTS GRID */
-        /* ============================================ */
-        .products-section {
-            padding: 3rem 0;
-        }
-
-        .section-title {
-            font-size: 2rem;
-            margin-bottom: 2rem;
-            color: var(--dark);
-        }
-
-        .products-grid {
+        
+        .grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 2rem;
-            margin-bottom: 3rem;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
         }
-
-        .product-card {
-            background: white;
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            transition: transform 0.3s, box-shadow 0.3s;
-            cursor: pointer;
-        }
-
-        .product-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 4px 16px rgba(0,0,0,0.15);
-        }
-
-        .product-image {
-            width: 100%;
-            height: 250px;
-            object-fit: cover;
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 3rem;
-        }
-
-        .product-info {
-            padding: 1.5rem;
-        }
-
-        .product-name {
-            font-size: 1.25rem;
-            font-weight: 600;
-            margin-bottom: 0.5rem;
-        }
-
-        .product-description {
-            color: var(--gray);
-            font-size: 0.9rem;
-            margin-bottom: 1rem;
-        }
-
-        .product-footer {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .product-price {
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: var(--primary);
-        }
-
-        .product-stock {
-            font-size: 0.85rem;
-            color: var(--gray);
-        }
-
-        .btn-add-cart {
-            background: var(--primary);
-            color: white;
-            border: none;
-            padding: 0.75rem 1.5rem;
+        
+        .panel {
+            background: #111;
+            border: 1px solid #00ff00;
             border-radius: 8px;
-            cursor: pointer;
-            font-weight: 600;
+            padding: 20px;
+        }
+        
+        .panel h2 {
+            color: #00ff00;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+            border-bottom: 1px solid #00ff00;
+            padding-bottom: 10px;
+        }
+        
+        .mission-form {
+            margin-bottom: 15px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #00aa00;
+        }
+        
+        input, select, textarea {
             width: 100%;
-            margin-top: 1rem;
-            transition: background 0.3s;
+            padding: 10px;
+            background: #000;
+            border: 1px solid #00ff00;
+            color: #00ff00;
+            border-radius: 4px;
+            font-family: inherit;
         }
-
-        .btn-add-cart:hover {
-            background: var(--primary-dark);
+        
+        textarea {
+            resize: vertical;
+            min-height: 80px;
         }
-
-        .btn-add-cart:disabled {
-            background: var(--gray);
+        
+        button {
+            background: #003300;
+            color: #00ff00;
+            border: 1px solid #00ff00;
+            padding: 12px 24px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 1em;
+            transition: all 0.3s;
+        }
+        
+        button:hover {
+            background: #00ff00;
+            color: #000;
+            box-shadow: 0 0 15px #00ff00;
+        }
+        
+        button:disabled {
+            opacity: 0.5;
             cursor: not-allowed;
         }
-
-        /* ============================================ */
-        /* CART MODAL */
-        /* ============================================ */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.5);
-            z-index: 1000;
-            align-items: center;
-            justify-content: center;
+        
+        .status-bar {
+            background: #000;
+            border: 1px solid #00ff00;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
         }
-
-        .modal.active {
-            display: flex;
+        
+        .status-item {
+            display: inline-block;
+            margin-right: 20px;
         }
-
-        .modal-content {
-            background: white;
-            border-radius: 16px;
-            padding: 2rem;
-            max-width: 600px;
-            width: 90%;
-            max-height: 80vh;
+        
+        .status-label {
+            color: #00aa00;
+            margin-right: 5px;
+        }
+        
+        .log-container {
+            background: #000;
+            border: 1px solid #00ff00;
+            border-radius: 4px;
+            padding: 15px;
+            height: 300px;
+            overflow-y: auto;
+            font-size: 0.85em;
+        }
+        
+        .log-entry {
+            margin-bottom: 8px;
+            padding: 5px;
+            border-left: 3px solid #00ff00;
+            padding-left: 10px;
+        }
+        
+        .log-entry.info { border-left-color: #00ff00; }
+        .log-entry.success { border-left-color: #00ff00; color: #00ff00; }
+        .log-entry.warning { border-left-color: #ffaa00; color: #ffaa00; }
+        .log-entry.error { border-left-color: #ff0000; color: #ff0000; }
+        
+        .bot-list {
+            max-height: 400px;
             overflow-y: auto;
         }
-
-        .modal-header {
+        
+        .bot-card {
+            background: #000;
+            border: 1px solid #00aa00;
+            border-radius: 4px;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+        
+        .bot-card.active {
+            border-color: #00ff00;
+            box-shadow: 0 0 10px rgba(0, 255, 0, 0.3);
+        }
+        
+        .bot-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 2rem;
+            margin-bottom: 8px;
         }
-
-        .modal-title {
-            font-size: 1.5rem;
+        
+        .bot-name {
             font-weight: bold;
+            color: #00ff00;
         }
-
-        .btn-close {
-            background: none;
-            border: none;
-            font-size: 2rem;
-            cursor: pointer;
-            color: var(--gray);
+        
+        .bot-runtime {
+            color: #00aa00;
+            font-size: 0.85em;
         }
-
-        .cart-items {
-            margin-bottom: 2rem;
-        }
-
-        .cart-item {
+        
+        .bot-stats {
             display: flex;
-            gap: 1rem;
-            padding: 1rem;
-            border-bottom: 1px solid var(--border);
+            gap: 15px;
+            font-size: 0.8em;
+            color: #00aa00;
         }
-
-        .cart-item-image {
-            width: 80px;
-            height: 80px;
-            border-radius: 8px;
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
+        
+        .metric {
             display: flex;
             align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 2rem;
+            gap: 5px;
         }
-
-        .cart-item-info {
-            flex: 1;
-        }
-
-        .cart-item-name {
-            font-weight: 600;
-            margin-bottom: 0.5rem;
-        }
-
-        .cart-item-price {
-            color: var(--primary);
-            font-weight: bold;
-        }
-
-        .cart-item-controls {
+        
+        .quick-actions {
             display: flex;
-            gap: 0.5rem;
-            align-items: center;
-            margin-top: 0.5rem;
+            gap: 10px;
+            flex-wrap: wrap;
         }
-
-        .btn-quantity {
-            background: var(--light);
-            border: 1px solid var(--border);
-            width: 32px;
-            height: 32px;
+        
+        .quick-actions button {
+            padding: 8px 16px;
+            font-size: 0.9em;
+        }
+        
+        .github-section {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #00aa00;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .pulsing {
+            animation: pulse 1.5s infinite;
+        }
+        
+        .full-width {
+            grid-column: 1 / -1;
+        }
+        
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: #000;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: #00ff00;
             border-radius: 4px;
-            cursor: pointer;
-            font-weight: bold;
         }
-
-        .btn-remove {
-            background: var(--danger);
-            color: white;
-            border: none;
-            padding: 0.5rem 1rem;
-            border-radius: 4px;
-            cursor: pointer;
-            margin-left: auto;
-        }
-
-        .cart-total {
-            border-top: 2px solid var(--border);
-            padding-top: 1rem;
-            margin-top: 1rem;
-        }
-
-        .total-row {
-            display: flex;
-            justify-content: space-between;
-            font-size: 1.25rem;
-            font-weight: bold;
-            margin-bottom: 1rem;
-        }
-
-        .btn-checkout {
-            background: var(--secondary);
-            color: white;
-            border: none;
-            padding: 1rem;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 600;
-            width: 100%;
-            font-size: 1.1rem;
-            transition: background 0.3s;
-        }
-
-        .btn-checkout:hover {
-            background: #059669;
-        }
-
-        /* ============================================ */
-        /* ADMIN DASHBOARD */
-        /* ============================================ */
-        .admin-section {
-            display: none;
-            padding: 3rem 0;
-        }
-
-        .admin-section.active {
-            display: block;
-        }
-
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 1.5rem;
-            margin-bottom: 3rem;
-        }
-
-        .stat-card {
-            background: white;
-            padding: 2rem;
-            border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        }
-
-        .stat-value {
-            font-size: 2.5rem;
-            font-weight: bold;
-            color: var(--primary);
-        }
-
-        .stat-label {
-            color: var(--gray);
-            margin-top: 0.5rem;
-        }
-
-        .orders-table {
-            background: white;
-            border-radius: 12px;
-            padding: 2rem;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        th, td {
-            padding: 1rem;
-            text-align: left;
-            border-bottom: 1px solid var(--border);
-        }
-
-        th {
-            font-weight: 600;
-            color: var(--gray);
-        }
-
-        .status-badge {
-            padding: 0.25rem 0.75rem;
-            border-radius: 12px;
-            font-size: 0.85rem;
-            font-weight: 600;
-        }
-
-        .status-pending {
-            background: var(--warning);
-            color: white;
-        }
-
-        .status-completed {
-            background: var(--secondary);
-            color: white;
-        }
-
-        /* ============================================ */
-        /* NOTIFICATIONS */
-        /* ============================================ */
-        .notification {
-            position: fixed;
-            top: 100px;
-            right: 20px;
-            background: white;
-            padding: 1rem 1.5rem;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            z-index: 1001;
-            animation: slideIn 0.3s ease;
-        }
-
-        @keyframes slideIn {
-            from {
-                transform: translateX(400px);
-                opacity: 0;
-            }
-            to {
-                transform: translateX(0);
-                opacity: 1;
-            }
-        }
-
-        .notification.success {
-            border-left: 4px solid var(--secondary);
-        }
-
-        .notification.error {
-            border-left: 4px solid var(--danger);
-        }
-
-        /* ============================================ */
-        /* RESPONSIVE */
-        /* ============================================ */
-        @media (max-width: 768px) {
-            .products-grid {
-                grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-                gap: 1rem;
-            }
-
-            .nav-links {
-                gap: 1rem;
-            }
-
-            .modal-content {
-                width: 95%;
-                padding: 1.5rem;
-            }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: #00aa00;
         }
     </style>
 </head>
 <body>
-    <!-- ============================================ -->
-    <!-- HEADER / NAVIGATION -->
-    <!-- ============================================ -->
-    <header>
-        <nav class="container">
-            <div class="logo">🛍️ ShopNexus</div>
-            <div class="nav-links">
-                <a href="#" onclick="showSection('shop')">Boutique</a>
-                <a href="#" onclick="showSection('admin')">Admin</a>
-                <button class="cart-btn" onclick="toggleCart()">
-                    🛒 Panier
-                    <span class="cart-count" id="cartCount">0</span>
-                </button>
-            </div>
-        </nav>
-    </header>
-
-    <!-- ============================================ -->
-    <!-- SHOP SECTION (Customer View) -->
-    <!-- ============================================ -->
-    <section id="shopSection" class="products-section">
-        <div class="container">
-            <h1 class="section-title">Nos Produits</h1>
-            <div class="products-grid" id="productsGrid"></div>
+    <div class="container">
+        <header>
+            <h1>🧠 LIVING OPERATING SYSTEM</h1>
+            <p class="subtitle">Browser-Based Self-Bootstrapping Ecosystem</p>
+            <p class="subtitle">IndexedDB • WebWorkers • Multi-Runtime • P2P</p>
+        </header>
+        
+        <div class="status-bar">
+            <span class="status-item">
+                <span class="status-label">Status:</span>
+                <span id="system-status">Initializing...</span>
+            </span>
+            <span class="status-item">
+                <span class="status-label">Bots:</span>
+                <span id="bot-count">0</span>
+            </span>
+            <span class="status-item">
+                <span class="status-label">Workers:</span>
+                <span id="worker-count">0</span>
+            </span>
+            <span class="status-item">
+                <span class="status-label">Missions:</span>
+                <span id="mission-count">0</span>
+            </span>
+            <span class="status-item">
+                <span class="status-label">Storage:</span>
+                <span id="storage-usage">0 KB</span>
+            </span>
         </div>
-    </section>
-
-    <!-- ============================================ -->
-    <!-- ADMIN SECTION (Seller Dashboard) -->
-    <!-- ============================================ -->
-    <section id="adminSection" class="admin-section">
-        <div class="container">
-            <h1 class="section-title">Dashboard Vendeur</h1>
-            
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-value" id="statOrders">0</div>
-                    <div class="stat-label">Commandes</div>
+        
+        <div class="grid">
+            <!-- Mission Control -->
+            <div class="panel">
+                <h2>📋 Mission Control</h2>
+                <div class="mission-form">
+                    <div class="form-group">
+                        <label for="mission-type">Mission Type:</label>
+                        <select id="mission-type">
+                            <option value="create_bot">Create Bot</option>
+                            <option value="create_system">Create System</option>
+                            <option value="optimize">Optimize Ecosystem</option>
+                            <option value="scale">Scale Bots</option>
+                            <option value="clone_self">Clone EngineerBot</option>
+                            <option value="sync_github">Sync to GitHub</option>
+                            <option value="analyze">Analyze Performance</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="mission-desc">Description:</label>
+                        <textarea id="mission-desc" placeholder="Describe the mission..."></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="mission-priority">Priority (1-10):</label>
+                        <input type="number" id="mission-priority" min="1" max="10" value="5">
+                    </div>
+                    
+                    <div class="form-group" id="runtime-select-group" style="display:none;">
+                        <label for="bot-runtime">Runtime:</label>
+                        <select id="bot-runtime">
+                            <option value="python">Python</option>
+                            <option value="javascript">JavaScript</option>
+                            <option value="go">Go</option>
+                            <option value="rust">Rust</option>
+                        </select>
+                    </div>
+                    
+                    <button onclick="submitMission()">🚀 Submit Mission</button>
+                    <button onclick="executeAllMissions()">⚡ Execute All</button>
                 </div>
-                <div class="stat-card">
-                    <div class="stat-value" id="statRevenue">0€</div>
-                    <div class="stat-label">Revenus</div>
+                
+                <div class="quick-actions">
+                    <button onclick="quickCreateBot('python')">+ Python Bot</button>
+                    <button onclick="quickCreateBot('javascript')">+ JS Bot</button>
+                    <button onclick="quickCreateBot('go')">+ Go Bot</button>
+                    <button onclick="quickCreateBot('rust')">+ Rust Bot</button>
+                    <button onclick="quickOptimize()">🔧 Optimize</button>
+                    <button onclick="quickClone()">🧬 Clone Self</button>
                 </div>
-                <div class="stat-card">
-                    <div class="stat-value" id="statProducts">0</div>
-                    <div class="stat-label">Produits</div>
+                
+                <div class="github-section">
+                    <h3 style="color: #00aa00; margin-bottom: 10px;">GitHub Integration</h3>
+                    <div class="form-group">
+                        <label for="github-token">GitHub Token (optional):</label>
+                        <input type="password" id="github-token" placeholder="ghp_...">
+                    </div>
+                    <div class="form-group">
+                        <label for="github-repo">Repository:</label>
+                        <input type="text" id="github-repo" placeholder="username/repo">
+                    </div>
+                    <button onclick="syncToGitHub()">📤 Sync to GitHub</button>
+                    <button onclick="pullFromGitHub()">📥 Pull Latest</button>
                 </div>
             </div>
-
-            <div class="orders-table">
-                <h2 style="margin-bottom: 1.5rem;">Commandes Récentes</h2>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Client</th>
-                            <th>Produits</th>
-                            <th>Total</th>
-                            <th>Statut</th>
-                        </tr>
-                    </thead>
-                    <tbody id="ordersTable"></tbody>
-                </table>
+            
+            <!-- Bot Registry -->
+            <div class="panel">
+                <h2>🤖 Bot Registry</h2>
+                <div id="bot-list" class="bot-list">
+                    <p style="color: #00aa00; text-align: center; padding: 20px;">
+                        No bots created yet. Submit a mission to create bots.
+                    </p>
+                </div>
             </div>
         </div>
-    </section>
-
-    <!-- ============================================ -->
-    <!-- CART MODAL -->
-    <!-- ============================================ -->
-    <div id="cartModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2 class="modal-title">Votre Panier</h2>
-                <button class="btn-close" onclick="toggleCart()">&times;</button>
-            </div>
-            
-            <div class="cart-items" id="cartItems"></div>
-            
-            <div class="cart-total">
-                <div class="total-row">
-                    <span>Total:</span>
-                    <span id="cartTotal">0€</span>
-                </div>
-                <button class="btn-checkout" onclick="checkout()">
-                    Passer Commande
-                </button>
-            </div>
+        
+        <!-- Logs -->
+        <div class="panel full-width">
+            <h2>📊 System Logs</h2>
+            <div id="log-container" class="log-container"></div>
+            <button onclick="clearLogs()" style="margin-top: 10px;">Clear Logs</button>
+            <button onclick="exportLogs()" style="margin-top: 10px;">Export Logs</button>
         </div>
     </div>
-
-    <!-- ============================================ -->
-    <!-- JAVASCRIPT APPLICATION -->
-    <!-- ============================================ -->
+    
     <script>
         // ============================================
-        // STATE MANAGEMENT
+        // INDEXEDDB SETUP
         // ============================================
-        const STATE = {
-            products: [],
-            cart: [],
-            orders: [],
-            currentSection: 'shop'
-        };
-
-        // ============================================
-        // WEBHOOK CLIENT (Communication avec Backend)
-        // ============================================
-        class WebhookClient {
-            constructor(baseUrl = null) {
-                // Auto-detect backend URL (prod vs local)
-                if (!baseUrl) {
-                    const protocol = window.location.protocol === 'https:' ? 'https:' : 'http:';
-                    const host = window.location.host;
-                    this.baseUrl = `${protocol}//${host}`;
-                } else {
-                    this.baseUrl = baseUrl;
-                }
+        
+        let db;
+        
+        function initDB() {
+            return new Promise((resolve, reject) => {
+                const request = indexedDB.open('LivingOS', 1);
                 
-                this.ws = null;
-                this.subscribers = {};
-                this.connect();
-            }
-
-            connect() {
-                // Auto-detect WebSocket URL (wss for https, ws for http)
-                const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-                const host = window.location.host;
-                const wsUrl = `${wsProtocol}//${host}/ws`;
-                
-                console.log('🔌 Connecting to WebSocket:', wsUrl);
-                
-                // WebSocket pour real-time updates
-                this.ws = new WebSocket(wsUrl);
-                
-                this.ws.onopen = () => {
-                    console.log('✅ Connected to backend');
-                    this.emit('client.connected', {});
+                request.onerror = () => reject(request.error);
+                request.onsuccess = () => {
+                    db = request.result;
+                    resolve(db);
                 };
-
-                this.ws.onmessage = (event) => {
-                    const data = JSON.parse(event.data);
-                    console.log('📨 Received event:', data);
+                
+                request.onupgradeneeded = (event) => {
+                    const db = event.target.result;
                     
-                    // Dispatch to subscribers
-                    if (this.subscribers[data.event]) {
-                        this.subscribers[data.event](data.payload);
+                    // Bots store
+                    if (!db.objectStoreNames.contains('bots')) {
+                        const botsStore = db.createObjectStore('bots', { keyPath: 'id' });
+                        botsStore.createIndex('runtime', 'runtime', { unique: false });
+                        botsStore.createIndex('created', 'createdAt', { unique: false });
+                    }
+                    
+                    // Missions store
+                    if (!db.objectStoreNames.contains('missions')) {
+                        const missionsStore = db.createObjectStore('missions', { keyPath: 'id' });
+                        missionsStore.createIndex('status', 'status', { unique: false });
+                        missionsStore.createIndex('priority', 'priority', { unique: false });
+                    }
+                    
+                    // State store
+                    if (!db.objectStoreNames.contains('state')) {
+                        db.createObjectStore('state', { keyPath: 'key' });
+                    }
+                    
+                    // Logs store
+                    if (!db.objectStoreNames.contains('logs')) {
+                        const logsStore = db.createObjectStore('logs', { keyPath: 'id', autoIncrement: true });
+                        logsStore.createIndex('timestamp', 'timestamp', { unique: false });
                     }
                 };
-
-                this.ws.onerror = (error) => {
-                    console.error('❌ WebSocket error:', error);
-                };
-
-                this.ws.onclose = () => {
-                    console.log('⚠️ Disconnected, reconnecting...');
-                    setTimeout(() => this.connect(), 3000);
-                };
+            });
+        }
+        
+        async function saveBot(bot) {
+            const tx = db.transaction(['bots'], 'readwrite');
+            await tx.objectStore('bots').put(bot);
+            await tx.complete;
+        }
+        
+        async function getAllBots() {
+            const tx = db.transaction(['bots'], 'readonly');
+            return await tx.objectStore('bots').getAll();
+        }
+        
+        async function deleteBot(id) {
+            const tx = db.transaction(['bots'], 'readwrite');
+            await tx.objectStore('bots').delete(id);
+            await tx.complete;
+        }
+        
+        async function saveMission(mission) {
+            const tx = db.transaction(['missions'], 'readwrite');
+            await tx.objectStore('missions').put(mission);
+            await tx.complete;
+        }
+        
+        async function getAllMissions() {
+            const tx = db.transaction(['missions'], 'readonly');
+            return await tx.objectStore('missions').getAll();
+        }
+        
+        async function saveLog(log) {
+            const tx = db.transaction(['logs'], 'readwrite');
+            await tx.objectStore('logs').add(log);
+            await tx.complete;
+        }
+        
+        async function getAllLogs() {
+            const tx = db.transaction(['logs'], 'readonly');
+            return await tx.objectStore('logs').getAll();
+        }
+        
+        async function clearAllLogs() {
+            const tx = db.transaction(['logs'], 'readwrite');
+            await tx.objectStore('logs').clear();
+            await tx.complete;
+        }
+        
+        // ============================================
+        // WEBWORKER POOL
+        // ============================================
+        
+        class WorkerPool {
+            constructor(size = 4) {
+                this.size = size;
+                this.workers = [];
+                this.queue = [];
+                this.activeJobs = 0;
             }
-
-            emit(event, payload) {
-                if (this.ws && this.ws.readyState === WebSocket.OPEN) {
-                    this.ws.send(JSON.stringify({ event, payload }));
-                }
-            }
-
-            on(event, callback) {
-                this.subscribers[event] = callback;
-            }
-
-            async http(endpoint, method = 'GET', data = null) {
-                const options = {
-                    method,
-                    headers: { 'Content-Type': 'application/json' }
-                };
+            
+            init() {
+                const workerCode = `
+                    self.onmessage = function(e) {
+                        const { id, type, data } = e.data;
+                        
+                        // Simulate bot execution
+                        setTimeout(() => {
+                            const result = {
+                                id: id,
+                                type: type,
+                                result: 'executed',
+                                timestamp: Date.now()
+                            };
+                            
+                            self.postMessage(result);
+                        }, Math.random() * 1000 + 500);
+                    };
+                `;
                 
-                if (data) {
-                    options.body = JSON.stringify(data);
+                const blob = new Blob([workerCode], { type: 'application/javascript' });
+                const workerUrl = URL.createObjectURL(blob);
+                
+                for (let i = 0; i < this.size; i++) {
+                    const worker = new Worker(workerUrl);
+                    worker.onmessage = (e) => this.handleResult(e.data);
+                    this.workers.push(worker);
                 }
-
-                const response = await fetch(`${this.baseUrl}${endpoint}`, options);
-                return await response.json();
+                
+                log('info', `Worker pool initialized with ${this.size} workers`);
             }
-        }
-
-        const webhook = new WebhookClient();
-
-        // ============================================
-        // EVENT HANDLERS (Subscribe to backend events)
-        // ============================================
-        webhook.on('products.updated', (products) => {
-            STATE.products = products;
-            renderProducts();
-        });
-
-        webhook.on('order.created', (order) => {
-            STATE.orders.push(order);
-            updateAdminStats();
-            showNotification('Nouvelle commande reçue!', 'success');
-        });
-
-        webhook.on('stock.updated', (data) => {
-            const product = STATE.products.find(p => p.id === data.productId);
-            if (product) {
-                product.stock = data.newStock;
-                renderProducts();
-            }
-        });
-
-        // ============================================
-        // UI RENDERING
-        // ============================================
-        function renderProducts() {
-            const grid = document.getElementById('productsGrid');
-            grid.innerHTML = STATE.products.map(product => `
-                <div class="product-card">
-                    <div class="product-image">${product.emoji}</div>
-                    <div class="product-info">
-                        <h3 class="product-name">${product.name}</h3>
-                        <p class="product-description">${product.description}</p>
-                        <div class="product-footer">
-                            <span class="product-price">${product.price}€</span>
-                            <span class="product-stock">Stock: ${product.stock}</span>
-                        </div>
-                        <button 
-                            class="btn-add-cart" 
-                            onclick="addToCart(${product.id})"
-                            ${product.stock === 0 ? 'disabled' : ''}
-                        >
-                            ${product.stock === 0 ? 'Rupture' : 'Ajouter au panier'}
-                        </button>
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        function renderCart() {
-            const cartItems = document.getElementById('cartItems');
-            const cartTotal = document.getElementById('cartTotal');
-            const cartCount = document.getElementById('cartCount');
-
-            if (STATE.cart.length === 0) {
-                cartItems.innerHTML = '<p style="text-align:center;color:var(--gray);padding:2rem;">Votre panier est vide</p>';
-                cartTotal.textContent = '0€';
-                cartCount.textContent = '0';
-                return;
-            }
-
-            cartItems.innerHTML = STATE.cart.map(item => `
-                <div class="cart-item">
-                    <div class="cart-item-image">${item.emoji}</div>
-                    <div class="cart-item-info">
-                        <div class="cart-item-name">${item.name}</div>
-                        <div class="cart-item-price">${item.price}€</div>
-                        <div class="cart-item-controls">
-                            <button class="btn-quantity" onclick="updateQuantity(${item.id}, -1)">-</button>
-                            <span style="padding: 0 1rem;">${item.quantity}</span>
-                            <button class="btn-quantity" onclick="updateQuantity(${item.id}, 1)">+</button>
-                            <button class="btn-remove" onclick="removeFromCart(${item.id})">Retirer</button>
-                        </div>
-                    </div>
-                </div>
-            `).join('');
-
-            const total = STATE.cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-            const count = STATE.cart.reduce((sum, item) => sum + item.quantity, 0);
             
-            cartTotal.textContent = `${total.toFixed(2)}€`;
-            cartCount.textContent = count;
-        }
-
-        function renderOrders() {
-            const ordersTable = document.getElementById('ordersTable');
-            ordersTable.innerHTML = STATE.orders.map(order => `
-                <tr>
-                    <td>#${order.id}</td>
-                    <td>${order.customer || 'Client'}</td>
-                    <td>${order.items.length} produit(s)</td>
-                    <td>${order.total.toFixed(2)}€</td>
-                    <td><span class="status-badge status-${order.status}">${order.status}</span></td>
-                </tr>
-            `).join('');
-        }
-
-        function updateAdminStats() {
-            document.getElementById('statOrders').textContent = STATE.orders.length;
-            document.getElementById('statProducts').textContent = STATE.products.length;
-            
-            const revenue = STATE.orders.reduce((sum, order) => sum + order.total, 0);
-            document.getElementById('statRevenue').textContent = `${revenue.toFixed(2)}€`;
-        }
-
-        // ============================================
-        // CART ACTIONS
-        // ============================================
-        function addToCart(productId) {
-            const product = STATE.products.find(p => p.id === productId);
-            if (!product || product.stock === 0) return;
-
-            const cartItem = STATE.cart.find(item => item.id === productId);
-            
-            if (cartItem) {
-                if (cartItem.quantity < product.stock) {
-                    cartItem.quantity++;
-                }
-            } else {
-                STATE.cart.push({
-                    ...product,
-                    quantity: 1
+            execute(job) {
+                return new Promise((resolve) => {
+                    this.queue.push({ job, resolve });
+                    this.processQueue();
                 });
             }
-
-            renderCart();
-            showNotification(`${product.name} ajouté au panier!`, 'success');
-        }
-
-        function updateQuantity(productId, delta) {
-            const cartItem = STATE.cart.find(item => item.id === productId);
-            const product = STATE.products.find(p => p.id === productId);
             
-            if (cartItem) {
-                const newQuantity = cartItem.quantity + delta;
-                
-                if (newQuantity <= 0) {
-                    removeFromCart(productId);
-                } else if (newQuantity <= product.stock) {
-                    cartItem.quantity = newQuantity;
-                    renderCart();
-                }
-            }
-        }
-
-        function removeFromCart(productId) {
-            STATE.cart = STATE.cart.filter(item => item.id !== productId);
-            renderCart();
-        }
-
-        async function checkout() {
-            if (STATE.cart.length === 0) return;
-
-            const order = {
-                items: STATE.cart.map(item => ({
-                    productId: item.id,
-                    quantity: item.quantity,
-                    price: item.price
-                })),
-                total: STATE.cart.reduce((sum, item) => sum + (item.price * item.quantity), 0)
-            };
-
-            try {
-                const response = await webhook.http('/api/orders', 'POST', order);
-                
-                if (response.success) {
-                    showNotification('Commande passée avec succès!', 'success');
-                    STATE.cart = [];
-                    renderCart();
-                    toggleCart();
+            processQueue() {
+                while (this.queue.length > 0 && this.activeJobs < this.size) {
+                    const { job, resolve } = this.queue.shift();
+                    const worker = this.workers[this.activeJobs % this.size];
                     
-                    // Notify via webhook
-                    webhook.emit('order.placed', order);
-                } else {
-                    showNotification('Erreur lors de la commande', 'error');
+                    this.activeJobs++;
+                    worker.postMessage(job);
+                    
+                    // Store resolve callback
+                    worker._resolve = resolve;
                 }
-            } catch (error) {
-                showNotification('Erreur: ' + error.message, 'error');
+            }
+            
+            handleResult(result) {
+                this.activeJobs--;
+                
+                // Find worker and call its resolve
+                const worker = this.workers.find(w => w._resolve);
+                if (worker && worker._resolve) {
+                    worker._resolve(result);
+                    delete worker._resolve;
+                }
+                
+                this.processQueue();
             }
         }
-
+        
+        const workerPool = new WorkerPool(4);
+        
         // ============================================
-        // UI HELPERS
+        // ENGINEER BOT CORE
         // ============================================
-        function toggleCart() {
-            const modal = document.getElementById('cartModal');
-            modal.classList.toggle('active');
-        }
-
-        function showSection(section) {
-            STATE.currentSection = section;
-            document.getElementById('shopSection').style.display = section === 'shop' ? 'block' : 'none';
-            document.getElementById('adminSection').classList.toggle('active', section === 'admin');
+        
+        class EngineerBot {
+            constructor() {
+                this.id = 'engineer-bot-001';
+                this.bots = new Map();
+                this.missions = [];
+                this.botCounter = 0;
+                this.clones = [];
+            }
             
-            if (section === 'admin') {
-                renderOrders();
-                updateAdminStats();
+            async createBot(runtime, purpose = 'general') {
+                this.botCounter++;
+                
+                const bot = {
+                    id: `bot-${runtime}-${String(this.botCounter).padStart(3, '0')}`,
+                    runtime: runtime,
+                    purpose: purpose,
+                    createdAt: Date.now(),
+                    executionCount: 0,
+                    errorCount: 0,
+                    utilityScore: 1.0,
+                    modules: [],
+                    active: true
+                };
+                
+                await saveBot(bot);
+                this.bots.set(bot.id, bot);
+                
+                log('success', `Created bot: ${bot.id} (${runtime})`);
+                
+                return bot;
+            }
+            
+            async createSystem(type, numBots = 3) {
+                const runtimes = ['python', 'javascript', 'go', 'rust'];
+                const createdBots = [];
+                
+                for (let i = 0; i < numBots; i++) {
+                    const runtime = runtimes[i % runtimes.length];
+                    const bot = await this.createBot(runtime, `${type}_worker_${i+1}`);
+                    createdBots.push(bot.id);
+                }
+                
+                log('success', `Created ${type} system with ${numBots} bots`);
+                
+                return { type, bots: createdBots };
+            }
+            
+            async optimizeEcosystem() {
+                const actions = [];
+                
+                for (const [id, bot] of this.bots) {
+                    if (bot.utilityScore < 0.3) {
+                        // Delete low utility bots
+                        await deleteBot(id);
+                        this.bots.delete(id);
+                        actions.push(`Deleted ${id} (low utility)`);
+                        log('warning', `Deleted bot: ${id} (utility: ${bot.utilityScore.toFixed(2)})`);
+                    } else if (bot.errorCount > bot.executionCount) {
+                        // Refactor high-error bots
+                        bot.errorCount = 0;
+                        await saveBot(bot);
+                        actions.push(`Refactored ${id}`);
+                        log('info', `Refactored bot: ${id}`);
+                    } else if (bot.executionCount > 100 && bot.errorCount === 0) {
+                        // Clone high-performing bots
+                        const clone = await this.createBot(bot.runtime, `${bot.purpose}_clone`);
+                        actions.push(`Cloned ${id} → ${clone.id}`);
+                    }
+                }
+                
+                log('success', `Optimization complete: ${actions.length} actions taken`);
+                
+                return { actions, remainingBots: this.bots.size };
+            }
+            
+            async scaleBots(targetCount) {
+                const currentCount = this.bots.size;
+                
+                if (targetCount > currentCount) {
+                    for (let i = 0; i < targetCount - currentCount; i++) {
+                        await this.createBot('python', 'scaled_worker');
+                    }
+                }
+                
+                log('success', `Scaled from ${currentCount} to ${this.bots.size} bots`);
+                
+                return { previous: currentCount, new: this.bots.size };
+            }
+            
+            async cloneSelf() {
+                const cloneId = `${this.id}-clone-${this.clones.length + 1}`;
+                this.clones.push(cloneId);
+                
+                log('success', `Cloned EngineerBot: ${cloneId}`);
+                
+                return { cloneId, totalClones: this.clones.length };
+            }
+            
+            async executeMission(mission) {
+                log('info', `Executing mission: ${mission.type}`);
+                
+                let result;
+                
+                switch (mission.type) {
+                    case 'create_bot':
+                        result = await this.createBot(
+                            mission.params.runtime || 'python',
+                            mission.params.purpose || 'general'
+                        );
+                        break;
+                        
+                    case 'create_system':
+                        result = await this.createSystem(
+                            mission.params.type || 'pipeline',
+                            mission.params.numBots || 3
+                        );
+                        break;
+                        
+                    case 'optimize':
+                        result = await this.optimizeEcosystem();
+                        break;
+                        
+                    case 'scale':
+                        result = await this.scaleBots(mission.params.targetCount || 10);
+                        break;
+                        
+                    case 'clone_self':
+                        result = await this.cloneSelf();
+                        break;
+                        
+                    default:
+                        result = { status: 'unknown_mission_type' };
+                }
+                
+                return result;
             }
         }
-
-        function showNotification(message, type = 'success') {
-            const notification = document.createElement('div');
-            notification.className = `notification ${type}`;
-            notification.textContent = message;
-            document.body.appendChild(notification);
+        
+        const engineer = new EngineerBot();
+        
+        // ============================================
+        // UI FUNCTIONS
+        // ============================================
+        
+        function log(level, message) {
+            const logEntry = {
+                level,
+                message,
+                timestamp: Date.now()
+            };
             
-            setTimeout(() => notification.remove(), 3000);
+            saveLog(logEntry);
+            
+            const container = document.getElementById('log-container');
+            const entry = document.createElement('div');
+            entry.className = `log-entry ${level}`;
+            entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            container.appendChild(entry);
+            container.scrollTop = container.scrollHeight;
         }
-
+        
+        function updateStatus() {
+            document.getElementById('system-status').textContent = 'Running';
+            document.getElementById('bot-count').textContent = engineer.bots.size;
+            document.getElementById('worker-count').textContent = workerPool.size;
+            document.getElementById('mission-count').textContent = engineer.missions.length;
+            
+            // Calculate storage usage
+            if (navigator.storage && navigator.storage.estimate) {
+                navigator.storage.estimate().then(estimate => {
+                    const usage = (estimate.usage / 1024).toFixed(2);
+                    document.getElementById('storage-usage').textContent = `${usage} KB`;
+                });
+            }
+        }
+        
+        async function renderBots() {
+            const bots = await getAllBots();
+            const container = document.getElementById('bot-list');
+            
+            if (bots.length === 0) {
+                container.innerHTML = '<p style="color: #00aa00; text-align: center; padding: 20px;">No bots created yet.</p>';
+                return;
+            }
+            
+            container.innerHTML = bots.map(bot => `
+                <div class="bot-card ${bot.active ? 'active' : ''}">
+                    <div class="bot-header">
+                        <span class="bot-name">${bot.id}</span>
+                        <span class="bot-runtime">${bot.runtime}</span>
+                    </div>
+                    <div class="bot-stats">
+                        <div class="metric">
+                            <span>📊</span>
+                            <span>Executions: ${bot.executionCount}</span>
+                        </div>
+                        <div class="metric">
+                            <span>⚠️</span>
+                            <span>Errors: ${bot.errorCount}</span>
+                        </div>
+                        <div class="metric">
+                            <span>💯</span>
+                            <span>Utility: ${(bot.utilityScore * 100).toFixed(0)}%</span>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        async function submitMission() {
+            const type = document.getElementById('mission-type').value;
+            const desc = document.getElementById('mission-desc').value;
+            const priority = parseInt(document.getElementById('mission-priority').value);
+            
+            const mission = {
+                id: `mission-${Date.now()}`,
+                type,
+                description: desc || `Auto-generated ${type} mission`,
+                priority,
+                params: {},
+                status: 'pending',
+                createdAt: Date.now()
+            };
+            
+            if (type === 'create_bot') {
+                mission.params.runtime = document.getElementById('bot-runtime').value;
+            }
+            
+            await saveMission(mission);
+            engineer.missions.push(mission);
+            
+            log('info', `Mission submitted: ${mission.description}`);
+            updateStatus();
+            
+            // Clear form
+            document.getElementById('mission-desc').value = '';
+        }
+        
+        async function executeAllMissions() {
+            const missions = await getAllMissions();
+            const pending = missions.filter(m => m.status === 'pending');
+            
+            if (pending.length === 0) {
+                log('warning', 'No pending missions to execute');
+                return;
+            }
+            
+            log('info', `Executing ${pending.length} pending missions...`);
+            
+            for (const mission of pending) {
+                try {
+                    const result = await engineer.executeMission(mission);
+                    mission.status = 'completed';
+                    mission.result = result;
+                    mission.completedAt = Date.now();
+                    await saveMission(mission);
+                    
+                    log('success', `Mission completed: ${mission.description}`);
+                } catch (error) {
+                    mission.status = 'failed';
+                    mission.error = error.message;
+                    await saveMission(mission);
+                    
+                    log('error', `Mission failed: ${mission.description} - ${error.message}`);
+                }
+            }
+            
+            await renderBots();
+            updateStatus();
+        }
+        
+        async function quickCreateBot(runtime) {
+            await engineer.createBot(runtime, `quick_${runtime}_bot`);
+            await renderBots();
+            updateStatus();
+        }
+        
+        async function quickOptimize() {
+            await engineer.optimizeEcosystem();
+            await renderBots();
+            updateStatus();
+        }
+        
+        async function quickClone() {
+            await engineer.cloneSelf();
+            updateStatus();
+        }
+        
+        async function syncToGitHub() {
+            const token = document.getElementById('github-token').value;
+            const repo = document.getElementById('github-repo').value;
+            
+            if (!repo) {
+                log('error', 'GitHub repository required');
+                return;
+            }
+            
+            log('info', 'Syncing to GitHub... (simulated)');
+            
+            // Simulation - dans une vraie version, on utiliserait l'API GitHub
+            setTimeout(() => {
+                log('success', `Synced ${engineer.bots.size} bots to ${repo}`);
+            }, 1000);
+        }
+        
+        async function pullFromGitHub() {
+            log('info', 'Pulling from GitHub... (simulated)');
+            
+            setTimeout(() => {
+                log('success', 'Pulled latest from GitHub');
+            }, 1000);
+        }
+        
+        function clearLogs() {
+            document.getElementById('log-container').innerHTML = '';
+            clearAllLogs();
+            log('info', 'Logs cleared');
+        }
+        
+        async function exportLogs() {
+            const logs = await getAllLogs();
+            const blob = new Blob([JSON.stringify(logs, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `living-os-logs-${Date.now()}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+            
+            log('success', 'Logs exported');
+        }
+        
+        // Show/hide runtime selector based on mission type
+        document.getElementById('mission-type').addEventListener('change', (e) => {
+            const runtimeGroup = document.getElementById('runtime-select-group');
+            runtimeGroup.style.display = e.target.value === 'create_bot' ? 'block' : 'none';
+        });
+        
         // ============================================
         // INITIALIZATION
         // ============================================
+        
         async function init() {
+            log('info', 'Initializing Living OS...');
+            
             try {
-                // Load initial data
-                const productsData = await webhook.http('/api/products');
-                STATE.products = productsData.products || [];
+                await initDB();
+                log('success', 'IndexedDB initialized');
                 
-                const ordersData = await webhook.http('/api/orders');
-                STATE.orders = ordersData.orders || [];
+                workerPool.init();
+                log('success', 'Worker pool initialized');
                 
-                renderProducts();
-                updateAdminStats();
+                // Load existing bots
+                const bots = await getAllBots();
+                bots.forEach(bot => engineer.bots.set(bot.id, bot));
+                log('info', `Loaded ${bots.length} existing bots`);
                 
-                console.log('✅ App initialized');
+                await renderBots();
+                updateStatus();
+                
+                log('success', 'Living OS ready! 🚀');
+                document.getElementById('system-status').textContent = 'Ready';
+                
             } catch (error) {
-                console.error('❌ Init error:', error);
-                showNotification('Erreur de connexion au serveur', 'error');
+                log('error', `Initialization failed: ${error.message}`);
+                document.getElementById('system-status').textContent = 'Error';
             }
         }
-
-        // Start app when DOM is ready
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', init);
-        } else {
-            init();
-        }
+        
+        // Start the system
+        window.addEventListener('DOMContentLoaded', init);
+        
+        // Auto-update status every 5 seconds
+        setInterval(updateStatus, 5000);
     </script>
 </body>
 </html>

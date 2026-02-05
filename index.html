@@ -3,132 +3,198 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cosmic P2P - Phase Video</title>
+    <title>Cosmic P2P - Phase Video Réelle</title>
+    <!-- On utilise GunDB pour la propagation décentralisée des signaux -->
     <script src="https://cdn.jsdelivr.net/npm/gun/gun.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body { background: #050505; color: #00ffcc; font-family: 'Courier New', monospace; }
-        .cosmic-border { border: 1px solid #00ffcc; box-shadow: 0 0 10px #00ffcc; }
+        body { background: #020617; color: #2dd4bf; font-family: 'ui-monospace', 'SFMono-Regular', monospace; }
+        .cosmic-card { border: 1px solid #134e4a; background: rgba(0,0,0,0.8); box-shadow: 0 0 20px rgba(45, 212, 191, 0.1); }
+        .status-pulse { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .3; } }
     </style>
 </head>
-<body class="p-8">
-    <div class="max-w-4xl mx-auto">
-        <h1 class="text-3xl font-bold mb-6 text-center tracking-tighter">COSMIC P2P DISCOVERY</h1>
-        
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <!-- Section Identité -->
-            <div class="cosmic-border p-6 rounded-lg bg-black">
-                <h2 class="text-xl mb-4 border-b border-teal-800">1. IDENTITÉ (MATIÈRE NOIRE)</h2>
-                <input id="phone" type="text" placeholder="Numéro de téléphone" class="w-full p-2 bg-gray-900 border border-teal-900 mb-4 rounded">
-                <button onclick="initIdentity()" class="w-full bg-teal-900 hover:bg-teal-700 p-2 rounded transition">ACTIVER NODE</button>
-                <div id="status" class="mt-4 text-xs text-gray-400">En attente d'activation...</div>
+<body class="p-4 min-h-screen flex flex-col items-center">
+    <div class="w-full max-w-5xl">
+        <header class="text-center mb-10">
+            <h1 class="text-4xl font-black tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-teal-400 to-emerald-500">
+                COSMIC P2P ENGINE
+            </h1>
+            <p class="text-teal-900 text-sm mt-2 uppercase tracking-widest">Rétro-ingénierie du Réseau de Phase</p>
+        </header>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Panneau de Contrôle -->
+            <div class="lg:col-span-1 space-y-6">
+                <div class="cosmic-card p-6 rounded-2xl border-teal-500/30">
+                    <h2 class="text-xs font-bold mb-4 text-teal-500 uppercase">1. Activation Node</h2>
+                    <input id="phone" type="text" placeholder="+33 6..." class="w-full p-3 bg-black/50 border border-teal-900 rounded-xl mb-3 focus:outline-none focus:border-teal-400 transition-all">
+                    <button onclick="activateNode()" id="btn-activate" class="w-full bg-teal-600 hover:bg-teal-500 text-black font-bold p-3 rounded-xl transition-all active:scale-95">
+                        FORER L'IDENTITÉ
+                    </button>
+                    <div id="node-info" class="hidden mt-4 p-3 bg-teal-950/30 rounded-lg border border-teal-900/50">
+                        <p class="text-[10px] text-teal-600 uppercase mb-1">Hash de Phase (Matière Noire)</p>
+                        <p id="display-id" class="text-xs break-all font-bold text-teal-300"></p>
+                    </div>
+                </div>
+
+                <div class="cosmic-card p-6 rounded-2xl border-teal-500/30">
+                    <h2 class="text-xs font-bold mb-4 text-teal-500 uppercase">2. Intrication Cible</h2>
+                    <input id="targetPhone" type="text" placeholder="Numéro du contact" class="w-full p-3 bg-black/50 border border-teal-900 rounded-xl mb-3 focus:outline-none focus:border-teal-400 transition-all">
+                    <button onclick="startCall()" id="btn-call" class="w-full bg-emerald-600 hover:bg-emerald-500 text-black font-bold p-3 rounded-xl transition-all active:scale-95 disabled:opacity-30" disabled>
+                        LANCER L'APPEL
+                    </button>
+                    <div id="call-status" class="mt-4 text-center text-xs font-bold uppercase tracking-widest"></div>
+                </div>
             </div>
 
-            <!-- Section Appel -->
-            <div class="cosmic-border p-6 rounded-lg bg-black">
-                <h2 class="text-xl mb-4 border-b border-teal-800">2. INTRICATION (APPEL)</h2>
-                <input id="targetPhone" type="text" placeholder="Numéro du contact" class="w-full p-2 bg-gray-900 border border-teal-900 mb-4 rounded">
-                <button onclick="startCall()" class="w-full bg-purple-900 hover:bg-purple-700 p-2 rounded transition text-white">LANCER L'APPEL</button>
-            </div>
-        </div>
-
-        <div class="mt-8 grid grid-cols-2 gap-4">
-            <div class="relative">
-                <p class="absolute top-2 left-2 text-xs bg-black p-1">LOCAL_STREAM</p>
-                <video id="localVideo" autoplay muted class="w-full rounded cosmic-border bg-gray-950 h-48 object-cover"></video>
-            </div>
-            <div class="relative">
-                <p class="absolute top-2 left-2 text-xs bg-black p-1">REMOTE_STREAM</p>
-                <video id="remoteVideo" autoplay class="w-full rounded cosmic-border bg-gray-950 h-48 object-cover"></video>
+            <!-- Flux Vidéo -->
+            <div class="lg:col-span-2 space-y-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="relative cosmic-card rounded-3xl overflow-hidden aspect-video group">
+                        <video id="localVideo" autoplay muted playsinline class="w-full h-full object-cover grayscale opacity-50"></video>
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent flex items-end p-4">
+                            <span class="text-[10px] font-bold tracking-widest uppercase">Flux Local</span>
+                        </div>
+                    </div>
+                    <div class="relative cosmic-card rounded-3xl overflow-hidden aspect-video group border-emerald-500/50 shadow-emerald-500/10 shadow-2xl">
+                        <video id="remoteVideo" autoplay playsinline class="w-full h-full object-cover"></video>
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent flex items-end p-4">
+                            <span class="text-[10px] font-bold tracking-widest uppercase">Flux Distant (Résonance)</span>
+                        </div>
+                        <div id="waiting-overlay" class="absolute inset-0 flex items-center justify-center bg-black/80 text-xs uppercase tracking-tighter status-pulse">
+                            En attente de connexion...
+                        </div>
+                    </div>
+                </div>
+                <div id="logs" class="cosmic-card p-4 rounded-xl h-40 overflow-y-auto text-[10px] text-teal-700 leading-tight">
+                    > SYSTEM_READY: En attente d'activation...
+                </div>
             </div>
         </div>
     </div>
 
     <script>
-        // Initialisation de la DHT (GunDB utilise un réseau de pairs pour discovery)
-        const gun = Gun(['https://gun-manhattan.herokuapp.com/gun']); 
+        const gun = Gun(['https://gun-manhattan.herokuapp.com/gun']);
         let myId = null;
         let pc = null;
+        let localStream = null;
+
+        function addLog(msg) {
+            const logs = document.getElementById('logs');
+            logs.innerHTML += `<br>> ${new Date().toLocaleTimeString()}: ${msg}`;
+            logs.scrollTop = logs.scrollHeight;
+        }
 
         async function hashPhone(phone) {
-            const msgUint8 = new TextEncoder().encode(phone.replace(/\s/g, ''));
+            const normalized = phone.replace(/\s+/g, '').replace(/[-.()]/g, '');
+            const msgUint8 = new TextEncoder().encode(normalized);
             const hashBuffer = await crypto.subtle.digest('SHA-256', msgUint8);
             return Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
         }
 
-        async function initIdentity() {
+        async function activateNode() {
             const phone = document.getElementById('phone').value;
-            if(!phone) return alert("Phone requis");
-            
+            if(!phone) return;
+
+            addLog("Forage de l'identité en cours...");
             myId = await hashPhone(phone);
-            document.getElementById('status').innerText = `NODE ACTIF : ${myId.substring(0,16)}...`;
             
-            // Écouter les tentatives d'appels entrants sur notre hash (Matière Noire)
-            gun.get('cosmic-p2p').get(myId).get('offer').on(async (data) => {
-                if(data && !pc) {
-                    console.log("Offre reçue, intrication en cours...");
-                    handleOffer(JSON.parse(data));
+            document.getElementById('node-info').classList.remove('hidden');
+            document.getElementById('display-id').innerText = myId;
+            document.getElementById('btn-call').disabled = false;
+            document.getElementById('btn-activate').disabled = true;
+
+            // Démarrage caméra
+            try {
+                localStream = await navigator.mediaDevices.getUserMedia({video: true, audio: true});
+                document.getElementById('localVideo').srcObject = localStream;
+                document.getElementById('localVideo').classList.remove('grayscale', 'opacity-50');
+                addLog("Flux local activé.");
+            } catch(e) {
+                addLog("ERREUR_MEDIA: Accès caméra refusé.");
+            }
+
+            // Écouter les appels entrants (Matière Noire)
+            gun.get('cosmic_v3').get(myId).get('signal').on(async (data) => {
+                const signal = JSON.parse(data || '{}');
+                if(signal.type === 'offer' && !pc) {
+                    addLog(`Appel entrant détecté de ${signal.from.substring(0,8)}...`);
+                    handleIncomingCall(signal);
                 }
             });
-
-            // Start Camera
-            const stream = await navigator.mediaDevices.getUserMedia({video: true, audio: true});
-            document.getElementById('localVideo').srcObject = stream;
         }
 
-        function createPeerConnection(targetId) {
+        function setupPeer(targetId) {
             pc = new RTCPeerConnection({
                 iceServers: [{ urls: 'stun:stun.l.google.com:19302' }]
             });
 
-            pc.onicecandidate = (e) => {
-                if(e.candidate) {
-                    gun.get('cosmic-p2p').get(targetId).get('candidates').set(JSON.stringify(e.candidate));
+            pc.onicecandidate = (event) => {
+                if (event.candidate) {
+                    addLog("Envoi d'un candidat ICE...");
+                    gun.get('cosmic_v3').get(targetId).get('ice').set(JSON.stringify(event.candidate));
                 }
             };
 
-            pc.ontrack = (e) => {
-                document.getElementById('remoteVideo').srcObject = e.streams[0];
+            pc.ontrack = (event) => {
+                addLog("Intrication réussie ! Réception du flux distant.");
+                document.getElementById('remoteVideo').srcObject = event.streams[0];
+                document.getElementById('waiting-overlay').classList.add('hidden');
+                document.getElementById('call-status').innerText = "CONNECTÉ";
             };
 
-            const stream = document.getElementById('localVideo').srcObject;
-            stream.getTracks().forEach(track => pc.addTrack(track, stream));
+            localStream.getTracks().forEach(track => pc.addTrack(track, localStream));
             return pc;
         }
 
         async function startCall() {
             const target = document.getElementById('targetPhone').value;
+            if(!target) return;
             const targetId = await hashPhone(target);
             
-            pc = createPeerConnection(targetId);
+            addLog(`Tentative d'intrication avec ${targetId.substring(0,8)}...`);
+            document.getElementById('call-status').innerText = "APPEL EN COURS...";
+
+            pc = setupPeer(targetId);
             const offer = await pc.createOffer();
             await pc.setLocalDescription(offer);
-            
-            // Publier l'offre sur la DHT (GunDB) à l'adresse du hash cible
-            gun.get('cosmic-p2p').get(targetId).get('offer').put(JSON.stringify(offer));
-            
-            // Attendre la réponse
-            gun.get('cosmic-p2p').get(myId).get('answer').on(async (data) => {
-                if(data) await pc.setRemoteDescription(new RTCSessionDescription(JSON.parse(data)));
+
+            // Envoyer l'offre avec notre ID pour la réponse
+            const signal = { type: 'offer', sdp: offer.sdp, from: myId };
+            gun.get('cosmic_v3').get(targetId).get('signal').put(JSON.stringify(signal));
+
+            // Écouter la réponse
+            gun.get('cosmic_v3').get(myId).get('answer').on(async (data) => {
+                if(data && pc.signalingState !== 'stable') {
+                    addLog("Réponse reçue. Stabilisation de la phase.");
+                    await pc.setRemoteDescription(new RTCSessionDescription(JSON.parse(data)));
+                }
             });
 
-            // Échanger les ICE candidates
-            gun.get('cosmic-p2p').get(myId).get('candidates').map().on((data) => {
+            // Écouter les candidats ICE de la cible
+            gun.get('cosmic_v3').get(myId).get('ice').map().on((data) => {
                 if(data) pc.addIceCandidate(new RTCIceCandidate(JSON.parse(data)));
             });
         }
 
-        async function handleOffer(offer) {
-            const senderId = myId; // Dans un flux réel, on extrairait l'ID de l'appelant
-            pc = createPeerConnection(senderId); // simplifié pour le test
-            await pc.setRemoteDescription(new RTCSessionDescription(offer));
+        async function handleIncomingCall(signal) {
+            const senderId = signal.from;
+            pc = setupPeer(senderId);
             
+            await pc.setRemoteDescription(new RTCSessionDescription(signal));
             const answer = await pc.createAnswer();
             await pc.setLocalDescription(answer);
+
+            // Renvoyer la réponse à l'appelant
+            gun.get('cosmic_v3').get(senderId).get('answer').put(JSON.stringify(answer));
+
+            // Écouter les candidats ICE de l'appelant
+            gun.get('cosmic_v3').get(myId).get('ice').map().on((data) => {
+                if(data) pc.addIceCandidate(new RTCIceCandidate(JSON.parse(data)));
+            });
             
-            // On renvoie l'answer (ici on simplifie le routage pour la démo)
-            // Dans une vraie app, chaque node a son propre slot de réponse
-            gun.get('cosmic-p2p').get(offer.senderId || 'global-response').get('answer').put(JSON.stringify(answer));
+            document.getElementById('call-status').innerText = "SESSION ENTRANTE";
         }
     </script>
 </body>

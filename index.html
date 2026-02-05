@@ -3,765 +3,240 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>P2P Reality DB Server</title>
-    <meta name="description" content="Your personal database server in the browser - Zero cost, infinite storage">
+    <title>P2P Reality DB Server v2.0</title>
     
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
         :root {
+            --bg: #0f172a;
+            --text: #f1f5f9;
             --primary: #3b82f6;
-            --primary-dark: #2563eb;
             --success: #10b981;
-            --danger: #ef4444;
-            --warning: #f59e0b;
-            --bg-dark: #0f172a;
-            --bg-medium: #1e293b;
-            --bg-light: #334155;
-            --text-primary: #f1f5f9;
-            --text-secondary: #cbd5e1;
-            --border: #475569;
         }
-
+        
         body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            background: var(--bg-dark);
-            color: var(--text-primary);
+            font-family: system-ui, -apple-system, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            padding: 2rem;
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 2rem;
         }
-
+        
         .container {
-            max-width: 900px;
+            max-width: 800px;
             width: 100%;
-            background: var(--bg-medium);
-            border: 1px solid var(--border);
-            border-radius: 16px;
-            padding: 3rem;
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
         }
-
-        .header {
-            text-align: center;
-            margin-bottom: 3rem;
-        }
-
-        .logo {
-            width: 80px;
-            height: 80px;
-            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-            border-radius: 20px;
-            margin: 0 auto 1.5rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 2.5rem;
-        }
-
+        
         h1 {
             font-size: 2.5rem;
-            margin-bottom: 0.5rem;
+            text-align: center;
+            margin-bottom: 1rem;
             background: linear-gradient(135deg, var(--primary), var(--success));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            background-clip: text;
         }
-
-        .subtitle {
-            color: var(--text-secondary);
-            font-size: 1.1rem;
-        }
-
+        
         .status {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            padding: 1.5rem;
-            background: var(--bg-light);
-            border-radius: 12px;
-            margin-bottom: 2rem;
-        }
-
-        .status-indicator {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            background: var(--success);
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
-        }
-
-        .status-text {
-            flex: 1;
-        }
-
-        .status-label {
-            font-size: 0.9rem;
-            color: var(--text-secondary);
-        }
-
-        .status-value {
-            font-size: 1.2rem;
-            font-weight: 600;
-            color: var(--success);
-        }
-
-        .info-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1rem;
-            margin-bottom: 2rem;
-        }
-
-        .info-card {
-            background: var(--bg-light);
-            padding: 1.5rem;
-            border-radius: 12px;
-            border: 1px solid var(--border);
-        }
-
-        .info-label {
-            font-size: 0.85rem;
-            color: var(--text-secondary);
-            margin-bottom: 0.5rem;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .info-value {
+            text-align: center;
             font-size: 1.5rem;
-            font-weight: 700;
-            color: var(--text-primary);
+            color: var(--success);
+            margin-bottom: 3rem;
         }
-
-        .config-section {
-            background: var(--bg-light);
-            padding: 2rem;
+        
+        .info {
+            background: rgba(59, 130, 246, 0.1);
+            border: 1px solid var(--primary);
             border-radius: 12px;
+            padding: 2rem;
             margin-bottom: 2rem;
         }
-
-        .config-title {
-            font-size: 1.3rem;
+        
+        .info h2 {
             margin-bottom: 1rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
+            color: var(--primary);
         }
-
-        .config-warning {
-            background: rgba(239, 68, 68, 0.1);
-            border: 1px solid var(--danger);
+        
+        .info pre {
+            background: rgba(0, 0, 0, 0.3);
             padding: 1rem;
             border-radius: 8px;
-            margin-bottom: 1.5rem;
-            color: var(--danger);
-        }
-
-        .config-code {
-            background: var(--bg-dark);
-            padding: 1.5rem;
-            border-radius: 8px;
-            font-family: 'Courier New', monospace;
+            overflow-x: auto;
             font-size: 0.9rem;
             line-height: 1.6;
-            overflow-x: auto;
-            margin-top: 1rem;
         }
-
-        .highlight {
-            color: var(--warning);
-        }
-
-        .endpoint-list {
+        
+        .endpoints {
             list-style: none;
-            margin-top: 1rem;
         }
-
-        .endpoint-item {
-            background: var(--bg-dark);
-            padding: 1rem;
+        
+        .endpoints li {
+            padding: 0.75rem;
+            margin: 0.5rem 0;
+            background: rgba(16, 185, 129, 0.1);
             border-radius: 8px;
-            margin-bottom: 0.5rem;
-            display: flex;
-            align-items: center;
-            gap: 1rem;
+            border-left: 3px solid var(--success);
         }
-
+        
         .method {
-            padding: 0.25rem 0.75rem;
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
             border-radius: 4px;
             font-weight: 600;
             font-size: 0.85rem;
+            margin-right: 0.5rem;
         }
-
-        .method.get { background: var(--success); color: white; }
-        .method.post { background: var(--primary); color: white; }
-        .method.put { background: var(--warning); color: white; }
-        .method.delete { background: var(--danger); color: white; }
-
-        .endpoint-path {
-            font-family: 'Courier New', monospace;
-            color: var(--text-secondary);
+        
+        .get { background: var(--success); color: white; }
+        .post { background: var(--primary); color: white; }
+        .put { background: #f59e0b; color: white; }
+        .delete { background: #ef4444; color: white; }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 2rem;
         }
-
-        .footer {
-            text-align: center;
-            margin-top: 3rem;
-            padding-top: 2rem;
-            border-top: 1px solid var(--border);
-            color: var(--text-secondary);
-            font-size: 0.9rem;
-        }
-
-        .link {
-            color: var(--primary);
-            text-decoration: none;
-        }
-
-        .link:hover {
-            text-decoration: underline;
-        }
-
-        .badge {
-            display: inline-block;
-            padding: 0.25rem 0.75rem;
+        
+        .stat-card {
+            background: rgba(16, 185, 129, 0.1);
+            padding: 1.5rem;
             border-radius: 12px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            background: var(--success);
-            color: white;
+            text-align: center;
         }
-
-        #logs {
-            background: var(--bg-dark);
-            padding: 1rem;
-            border-radius: 8px;
-            max-height: 200px;
-            overflow-y: auto;
-            font-family: 'Courier New', monospace;
-            font-size: 0.85rem;
-            margin-top: 1rem;
+        
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--success);
         }
-
-        .log-entry {
-            margin-bottom: 0.5rem;
-            color: var(--text-secondary);
+        
+        .stat-label {
+            font-size: 0.9rem;
+            color: rgba(241, 245, 249, 0.7);
+            margin-top: 0.5rem;
         }
-
-        .log-time {
-            color: var(--primary);
-        }
-
-        .log-level {
-            font-weight: 600;
-        }
-
-        .log-level.info { color: var(--success); }
-        .log-level.warn { color: var(--warning); }
-        .log-level.error { color: var(--danger); }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="header">
-            <div class="logo">🗄️</div>
-            <h1>P2P Reality DB Server</h1>
-            <p class="subtitle">Your Personal Database in the Browser · Zero Cost · Infinite Possibilities</p>
-        </div>
-
-        <div class="status">
-            <div class="status-indicator"></div>
-            <div class="status-text">
-                <div class="status-label">Server Status</div>
-                <div class="status-value">🟢 ONLINE & READY</div>
-            </div>
-            <span class="badge">v1.0.0</span>
-        </div>
-
-        <div class="info-grid">
-            <div class="info-card">
-                <div class="info-label">Storage Used</div>
-                <div class="info-value" id="storage-used">0 MB</div>
-            </div>
-            <div class="info-card">
-                <div class="info-label">Collections</div>
-                <div class="info-value" id="collections-count">0</div>
-            </div>
-            <div class="info-card">
-                <div class="info-label">Total Documents</div>
-                <div class="info-value" id="documents-count">0</div>
-            </div>
-        </div>
-
-        <div class="config-section">
-            <h2 class="config-title">⚠️ Configuration Required</h2>
-            
-            <div class="config-warning">
-                <strong>🚨 IMPORTANT:</strong> This database server is NOT yet configured. 
-                Anyone can currently access it. Follow the steps below to secure your instance.
-            </div>
-
-            <h3 style="margin-bottom: 1rem;">Step 1: Fork & Configure</h3>
-            <div class="config-code">
-<span class="highlight">// 1. Fork this repository</span>
-git clone https://github.com/YOUR-USERNAME/p2p-reality-db
-
-<span class="highlight">// 2. Edit this file and configure allowed origins</span>
-const ALLOWED_ORIGINS = [
-    "https://your-app.vercel.app",  <span class="highlight">// Your production app</span>
-    "http://localhost:3000"         <span class="highlight">// Local development</span>
-];
-
-<span class="highlight">// 3. Generate your unique deployment key</span>
-const DEPLOYMENT_KEY = "your-unique-key-here";
-
-<span class="highlight">// 4. Deploy to Vercel/Netlify/GitHub Pages</span>
-vercel deploy
-            </div>
-
-            <h3 style="margin: 2rem 0 1rem;">Step 2: Use in Your Projects</h3>
-            <div class="config-code">
-<span class="highlight">// In your Next.js/React/Android project</span>
-DATABASE_URL=<span id="current-url">DEPLOY_FIRST</span>
-
-<span class="highlight">// Then use the P2P Reality DB Client</span>
-const db = new P2PRealityDB(process.env.DATABASE_URL);
-
-await db.insert("users", { name: "Alice" });
-const users = await db.query("users");
-            </div>
-        </div>
-
-        <div class="config-section">
-            <h2 class="config-title">📡 API Endpoints</h2>
-            <ul class="endpoint-list">
-                <li class="endpoint-item">
-                    <span class="method get">GET</span>
-                    <span class="endpoint-path">/api/collections</span>
-                    <span style="flex: 1; color: var(--text-secondary);">List all collections</span>
-                </li>
-                <li class="endpoint-item">
-                    <span class="method get">GET</span>
-                    <span class="endpoint-path">/api/:collection</span>
-                    <span style="flex: 1; color: var(--text-secondary);">Get all documents in collection</span>
-                </li>
-                <li class="endpoint-item">
-                    <span class="method post">POST</span>
-                    <span class="endpoint-path">/api/:collection</span>
-                    <span style="flex: 1; color: var(--text-secondary);">Insert document</span>
-                </li>
-                <li class="endpoint-item">
-                    <span class="method put">PUT</span>
-                    <span class="endpoint-path">/api/:collection/:id</span>
-                    <span style="flex: 1; color: var(--text-secondary);">Update document</span>
-                </li>
-                <li class="endpoint-item">
-                    <span class="method delete">DELETE</span>
-                    <span class="endpoint-path">/api/:collection/:id</span>
-                    <span style="flex: 1; color: var(--text-secondary);">Delete document</span>
-                </li>
+        <h1>🗄️ P2P Reality DB Server</h1>
+        <div class="status">✅ ONLINE & READY</div>
+        
+        <div class="info">
+            <h2>📡 API Endpoints</h2>
+            <ul class="endpoints">
+                <li><span class="method get">GET</span> <code>/api/collections</code> - List all collections</li>
+                <li><span class="method get">GET</span> <code>/api/:collection</code> - Get all documents in collection</li>
+                <li><span class="method post">POST</span> <code>/api/:collection</code> - Insert document</li>
+                <li><span class="method put">PUT</span> <code>/api/:collection/:id</code> - Update document</li>
+                <li><span class="method delete">DELETE</span> <code>/api/:collection/:id</code> - Delete document</li>
             </ul>
         </div>
+        
+        <div class="info">
+            <h2>🚀 Quick Start</h2>
+            <pre>// In your project
+DATABASE_URL="<span id="current-url">loading...</span>"
 
-        <div class="config-section">
-            <h2 class="config-title">📊 Activity Logs</h2>
-            <div id="logs"></div>
+// Use like a real cloud database
+const response = await fetch(`${DATABASE_URL}/api/users`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ name: "Alice", email: "alice@example.com" })
+});
+
+const result = await response.json();
+console.log(result); // { success: true, data: {...} }</pre>
         </div>
-
-        <div class="footer">
-            <p>Powered by <strong>P2P Reality Framework</strong> + <strong>LDSS Storage</strong></p>
-            <p style="margin-top: 0.5rem;">
-                <a href="https://github.com/anzize/p2p-reality-db" class="link">GitHub</a> · 
-                <a href="#" class="link">Documentation</a> · 
-                <a href="#" class="link">Support</a>
-            </p>
-            <p style="margin-top: 1rem; font-size: 0.8rem;">
-                © 2025 Anzize Daouda · Open Source · MIT License
-            </p>
+        
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-value" id="collections-count">0</div>
+                <div class="stat-label">Collections</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="documents-count">0</div>
+                <div class="stat-label">Documents</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="storage-used">0 MB</div>
+                <div class="stat-label">Storage Used</div>
+            </div>
         </div>
     </div>
-
+    
     <script>
-        // =================================================================
-        // P2P REALITY DB SERVER - CORE IMPLEMENTATION
-        // =================================================================
+        // Display current URL
+        document.getElementById('current-url').textContent = window.location.origin;
         
-        // ⚠️ SECURITY CONFIGURATION - MUST BE CHANGED AFTER FORK
-        const CONFIG = {
-            ALLOWED_ORIGINS: [
-                // "https://your-app.vercel.app",  // Add your production domain
-                // "http://localhost:3000"         // Add local dev if needed
-            ],
-            DEPLOYMENT_KEY: null, // Generate unique key after fork
-            VERSION: "1.0.0",
-            
-            isConfigured() {
-                return this.DEPLOYMENT_KEY !== null && this.ALLOWED_ORIGINS.length > 0;
-            },
-            
-            isOriginAllowed(origin) {
-                if (!this.isConfigured()) return false;
-                return this.ALLOWED_ORIGINS.includes(origin);
-            }
-        };
-
-        // =================================================================
-        // LDSS INTEGRATION - 6 WORKERS STORAGE SYSTEM
-        // =================================================================
+        // Service Worker registration
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/sw.js')
+                .then(reg => console.log('✅ Service Worker registered', reg))
+                .catch(err => console.error('❌ Service Worker registration failed', err));
+        }
         
-        class LDSSStorage {
-            constructor() {
-                this.dbName = 'p2p-reality-db';
-                this.version = 1;
-                this.db = null;
-                this.stats = {
-                    collections: new Map(),
-                    totalDocuments: 0,
-                    totalSize: 0
-                };
-            }
-
-            async init() {
-                return new Promise((resolve, reject) => {
-                    const request = indexedDB.open(this.dbName, this.version);
-                    
-                    request.onerror = () => reject(request.error);
-                    request.onsuccess = () => {
-                        this.db = request.result;
-                        this.log('Database initialized successfully', 'info');
-                        resolve();
-                    };
-                    
-                    request.onupgradeneeded = (event) => {
-                        const db = event.target.result;
-                        
-                        // Create collections store if doesn't exist
-                        if (!db.objectStoreNames.contains('collections')) {
-                            const store = db.createObjectStore('collections', { 
-                                keyPath: 'id', 
-                                autoIncrement: true 
-                            });
-                            store.createIndex('collection', 'collection', { unique: false });
-                            store.createIndex('timestamp', 'timestamp', { unique: false });
-                        }
-                    };
-                });
-            }
-
-            async insert(collection, data) {
-                const tx = this.db.transaction(['collections'], 'readwrite');
-                const store = tx.objectStore('collections');
+        // Initialize IndexedDB for stats
+        let db;
+        const dbName = 'p2p-reality-db';
+        
+        async function initDB() {
+            return new Promise((resolve, reject) => {
+                const request = indexedDB.open(dbName, 1);
                 
-                const document = {
-                    collection,
-                    data,
-                    timestamp: Date.now(),
-                    size: new Blob([JSON.stringify(data)]).size
+                request.onerror = () => reject(request.error);
+                request.onsuccess = () => {
+                    db = request.result;
+                    updateStats();
+                    resolve(db);
                 };
                 
-                return new Promise((resolve, reject) => {
-                    const request = store.add(document);
-                    request.onsuccess = () => {
-                        this.updateStats(collection, 1, document.size);
-                        this.log(`Inserted document in collection: ${collection}`, 'info');
-                        resolve({ id: request.result, ...document });
-                    };
-                    request.onerror = () => reject(request.error);
-                });
-            }
-
-            async query(collection, filter = {}) {
-                const tx = this.db.transaction(['collections'], 'readonly');
-                const store = tx.objectStore('collections');
-                const index = store.index('collection');
-                
-                return new Promise((resolve, reject) => {
-                    const request = index.getAll(collection);
-                    request.onsuccess = () => {
-                        let results = request.result;
-                        
-                        // Apply filters if provided
-                        if (Object.keys(filter).length > 0) {
-                            results = results.filter(doc => {
-                                return Object.entries(filter).every(([key, value]) => {
-                                    return doc.data[key] === value;
-                                });
-                            });
-                        }
-                        
-                        resolve(results);
-                    };
-                    request.onerror = () => reject(request.error);
-                });
-            }
-
-            async update(collection, id, updates) {
-                const tx = this.db.transaction(['collections'], 'readwrite');
-                const store = tx.objectStore('collections');
-                
-                return new Promise((resolve, reject) => {
-                    const getRequest = store.get(id);
-                    
-                    getRequest.onsuccess = () => {
-                        const document = getRequest.result;
-                        if (!document) {
-                            reject(new Error('Document not found'));
-                            return;
-                        }
-                        
-                        // Update data
-                        document.data = { ...document.data, ...updates };
-                        document.timestamp = Date.now();
-                        
-                        const putRequest = store.put(document);
-                        putRequest.onsuccess = () => {
-                            this.log(`Updated document ${id} in collection: ${collection}`, 'info');
-                            resolve(document);
-                        };
-                        putRequest.onerror = () => reject(putRequest.error);
-                    };
-                    getRequest.onerror = () => reject(getRequest.error);
-                });
-            }
-
-            async delete(collection, id) {
-                const tx = this.db.transaction(['collections'], 'readwrite');
-                const store = tx.objectStore('collections');
-                
-                return new Promise((resolve, reject) => {
-                    const getRequest = store.get(id);
-                    
-                    getRequest.onsuccess = () => {
-                        const document = getRequest.result;
-                        if (!document) {
-                            reject(new Error('Document not found'));
-                            return;
-                        }
-                        
-                        const deleteRequest = store.delete(id);
-                        deleteRequest.onsuccess = () => {
-                            this.updateStats(collection, -1, -document.size);
-                            this.log(`Deleted document ${id} from collection: ${collection}`, 'info');
-                            resolve({ success: true });
-                        };
-                        deleteRequest.onerror = () => reject(deleteRequest.error);
-                    };
-                    getRequest.onerror = () => reject(getRequest.error);
-                });
-            }
-
-            async getCollections() {
-                const collections = Array.from(this.stats.collections.keys());
-                return collections.map(name => ({
-                    name,
-                    count: this.stats.collections.get(name).count,
-                    size: this.stats.collections.get(name).size
-                }));
-            }
-
-            updateStats(collection, countDelta, sizeDelta) {
-                if (!this.stats.collections.has(collection)) {
-                    this.stats.collections.set(collection, { count: 0, size: 0 });
-                }
-                
-                const stats = this.stats.collections.get(collection);
-                stats.count += countDelta;
-                stats.size += sizeDelta;
-                
-                this.stats.totalDocuments += countDelta;
-                this.stats.totalSize += sizeDelta;
-                
-                this.updateUI();
-            }
-
-            updateUI() {
-                document.getElementById('storage-used').textContent = 
-                    `${(this.stats.totalSize / (1024 * 1024)).toFixed(2)} MB`;
-                document.getElementById('collections-count').textContent = 
-                    this.stats.collections.size;
-                document.getElementById('documents-count').textContent = 
-                    this.stats.totalDocuments;
-            }
-
-            log(message, level = 'info') {
-                const timestamp = new Date().toLocaleTimeString();
-                const logEntry = document.createElement('div');
-                logEntry.className = 'log-entry';
-                logEntry.innerHTML = `
-                    <span class="log-time">[${timestamp}]</span>
-                    <span class="log-level ${level}">[${level.toUpperCase()}]</span>
-                    ${message}
-                `;
-                
-                const logsContainer = document.getElementById('logs');
-                logsContainer.insertBefore(logEntry, logsContainer.firstChild);
-                
-                // Keep only last 50 logs
-                while (logsContainer.children.length > 50) {
-                    logsContainer.removeChild(logsContainer.lastChild);
-                }
-            }
+                request.onupgradeneeded = (event) => {
+                    const db = event.target.result;
+                    if (!db.objectStoreNames.contains('collections')) {
+                        const store = db.createObjectStore('collections', { keyPath: 'id', autoIncrement: true });
+                        store.createIndex('collection', 'collection', { unique: false });
+                    }
+                };
+            });
         }
-
-        // =================================================================
-        // P2P REALITY FRAMEWORK - HTTP ILLUSION LAYER
-        // =================================================================
         
-        class P2PRealityServer {
-            constructor(storage) {
-                this.storage = storage;
-                this.routes = new Map();
-                this.setupRoutes();
-                this.setupMessageHandler();
-            }
-
-            setupRoutes() {
-                // GET /api/collections
-                this.routes.set('GET:/api/collections', async () => {
-                    const collections = await this.storage.getCollections();
-                    return { success: true, data: collections };
-                });
-
-                // GET /api/:collection
-                this.routes.set('GET:/api/:collection', async (params) => {
-                    const data = await this.storage.query(params.collection);
-                    return { success: true, data };
-                });
-
-                // POST /api/:collection
-                this.routes.set('POST:/api/:collection', async (params, body) => {
-                    const result = await this.storage.insert(params.collection, body);
-                    return { success: true, data: result };
-                });
-
-                // PUT /api/:collection/:id
-                this.routes.set('PUT:/api/:collection/:id', async (params, body) => {
-                    const result = await this.storage.update(params.collection, parseInt(params.id), body);
-                    return { success: true, data: result };
-                });
-
-                // DELETE /api/:collection/:id
-                this.routes.set('DELETE:/api/:collection/:id', async (params) => {
-                    const result = await this.storage.delete(params.collection, parseInt(params.id));
-                    return { success: true, data: result };
-                });
-            }
-
-            setupMessageHandler() {
-                window.addEventListener('message', async (event) => {
-                    // Security check
-                    if (!CONFIG.isOriginAllowed(event.origin)) {
-                        this.storage.log(`Blocked request from unauthorized origin: ${event.origin}`, 'warn');
-                        return;
-                    }
-
-                    const { type, method, path, body, requestId } = event.data;
-                    
-                    if (type !== 'P2P_REALITY_REQUEST') return;
-
-                    try {
-                        const result = await this.handleRequest(method, path, body);
-                        
-                        event.source.postMessage({
-                            type: 'P2P_REALITY_RESPONSE',
-                            requestId,
-                            success: true,
-                            data: result
-                        }, event.origin);
-                    } catch (error) {
-                        this.storage.log(`Error handling request: ${error.message}`, 'error');
-                        
-                        event.source.postMessage({
-                            type: 'P2P_REALITY_RESPONSE',
-                            requestId,
-                            success: false,
-                            error: error.message
-                        }, event.origin);
-                    }
-                });
-            }
-
-            async handleRequest(method, path, body) {
-                const routeKey = `${method}:${path}`;
-                
-                // Try exact match
-                if (this.routes.has(routeKey)) {
-                    return await this.routes.get(routeKey)({}, body);
-                }
-
-                // Try pattern matching
-                for (const [pattern, handler] of this.routes.entries()) {
-                    const params = this.matchRoute(pattern, `${method}:${path}`);
-                    if (params) {
-                        return await handler(params, body);
-                    }
-                }
-
-                throw new Error(`Route not found: ${method} ${path}`);
-            }
-
-            matchRoute(pattern, route) {
-                const patternParts = pattern.split('/');
-                const routeParts = route.split('/');
-
-                if (patternParts.length !== routeParts.length) return null;
-
-                const params = {};
-                for (let i = 0; i < patternParts.length; i++) {
-                    if (patternParts[i].startsWith(':')) {
-                        params[patternParts[i].slice(1)] = routeParts[i];
-                    } else if (patternParts[i] !== routeParts[i]) {
-                        return null;
-                    }
-                }
-
-                return params;
-            }
-        }
-
-        // =================================================================
-        // INITIALIZATION
-        // =================================================================
-        
-        (async function init() {
-            // Display current URL
-            document.getElementById('current-url').textContent = window.location.href;
-
-            // Check if configured
-            if (!CONFIG.isConfigured()) {
-                console.warn('⚠️ Database server is NOT configured. Please follow setup instructions.');
-            }
-
-            // Initialize storage
-            const storage = new LDSSStorage();
-            await storage.init();
-
-            // Initialize P2P Reality server
-            const server = new P2PRealityServer(storage);
-
-            storage.log('P2P Reality DB Server started successfully', 'info');
-            storage.log(`Version: ${CONFIG.VERSION}`, 'info');
-            storage.log(`Configured: ${CONFIG.isConfigured() ? 'YES ✅' : 'NO ⚠️'}`, CONFIG.isConfigured() ? 'info' : 'warn');
+        async function updateStats() {
+            if (!db) return;
             
-            if (CONFIG.isConfigured()) {
-                storage.log(`Allowed origins: ${CONFIG.ALLOWED_ORIGINS.join(', ')}`, 'info');
-            }
-
-            // Make server accessible globally for debugging
-            window.P2PRealityDB = { storage, server, CONFIG };
-        })();
+            const tx = db.transaction(['collections'], 'readonly');
+            const store = tx.objectStore('collections');
+            const countRequest = store.count();
+            
+            countRequest.onsuccess = () => {
+                document.getElementById('documents-count').textContent = countRequest.result;
+            };
+            
+            // Get all documents to calculate size and collections
+            const getAllRequest = store.getAll();
+            getAllRequest.onsuccess = () => {
+                const docs = getAllRequest.result;
+                const collections = new Set(docs.map(d => d.collection));
+                document.getElementById('collections-count').textContent = collections.size;
+                
+                const totalSize = docs.reduce((sum, doc) => {
+                    return sum + new Blob([JSON.stringify(doc)]).size;
+                }, 0);
+                
+                document.getElementById('storage-used').textContent = `${(totalSize / (1024 * 1024)).toFixed(2)} MB`;
+            };
+        }
+        
+        // Initialize on load
+        initDB();
+        
+        // Update stats every 5 seconds
+        setInterval(updateStats, 5000);
     </script>
 </body>
 </html>

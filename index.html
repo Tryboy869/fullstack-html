@@ -1,948 +1,135 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🧠 Living OS - Browser Edition</title>
+    <title>Cosmic P2P - Phase Video</title>
+    <script src="https://cdn.jsdelivr.net/npm/gun/gun.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: 'Monaco', 'Courier New', monospace;
-            background: #0a0a0a;
-            color: #00ff00;
-            padding: 20px;
-            line-height: 1.6;
-        }
-        
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-        }
-        
-        header {
-            text-align: center;
-            padding: 20px;
-            border-bottom: 2px solid #00ff00;
-            margin-bottom: 30px;
-        }
-        
-        h1 {
-            font-size: 2.5em;
-            margin-bottom: 10px;
-            text-shadow: 0 0 10px #00ff00;
-        }
-        
-        .subtitle {
-            color: #00aa00;
-            font-size: 0.9em;
-        }
-        
-        .grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-            margin-bottom: 20px;
-        }
-        
-        .panel {
-            background: #111;
-            border: 1px solid #00ff00;
-            border-radius: 8px;
-            padding: 20px;
-        }
-        
-        .panel h2 {
-            color: #00ff00;
-            margin-bottom: 15px;
-            font-size: 1.3em;
-            border-bottom: 1px solid #00ff00;
-            padding-bottom: 10px;
-        }
-        
-        .mission-form {
-            margin-bottom: 15px;
-        }
-        
-        .form-group {
-            margin-bottom: 15px;
-        }
-        
-        label {
-            display: block;
-            margin-bottom: 5px;
-            color: #00aa00;
-        }
-        
-        input, select, textarea {
-            width: 100%;
-            padding: 10px;
-            background: #000;
-            border: 1px solid #00ff00;
-            color: #00ff00;
-            border-radius: 4px;
-            font-family: inherit;
-        }
-        
-        textarea {
-            resize: vertical;
-            min-height: 80px;
-        }
-        
-        button {
-            background: #003300;
-            color: #00ff00;
-            border: 1px solid #00ff00;
-            padding: 12px 24px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-family: inherit;
-            font-size: 1em;
-            transition: all 0.3s;
-        }
-        
-        button:hover {
-            background: #00ff00;
-            color: #000;
-            box-shadow: 0 0 15px #00ff00;
-        }
-        
-        button:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-        
-        .status-bar {
-            background: #000;
-            border: 1px solid #00ff00;
-            padding: 15px;
-            border-radius: 4px;
-            margin-bottom: 20px;
-        }
-        
-        .status-item {
-            display: inline-block;
-            margin-right: 20px;
-        }
-        
-        .status-label {
-            color: #00aa00;
-            margin-right: 5px;
-        }
-        
-        .log-container {
-            background: #000;
-            border: 1px solid #00ff00;
-            border-radius: 4px;
-            padding: 15px;
-            height: 300px;
-            overflow-y: auto;
-            font-size: 0.85em;
-        }
-        
-        .log-entry {
-            margin-bottom: 8px;
-            padding: 5px;
-            border-left: 3px solid #00ff00;
-            padding-left: 10px;
-        }
-        
-        .log-entry.info { border-left-color: #00ff00; }
-        .log-entry.success { border-left-color: #00ff00; color: #00ff00; }
-        .log-entry.warning { border-left-color: #ffaa00; color: #ffaa00; }
-        .log-entry.error { border-left-color: #ff0000; color: #ff0000; }
-        
-        .bot-list {
-            max-height: 400px;
-            overflow-y: auto;
-        }
-        
-        .bot-card {
-            background: #000;
-            border: 1px solid #00aa00;
-            border-radius: 4px;
-            padding: 10px;
-            margin-bottom: 10px;
-        }
-        
-        .bot-card.active {
-            border-color: #00ff00;
-            box-shadow: 0 0 10px rgba(0, 255, 0, 0.3);
-        }
-        
-        .bot-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 8px;
-        }
-        
-        .bot-name {
-            font-weight: bold;
-            color: #00ff00;
-        }
-        
-        .bot-runtime {
-            color: #00aa00;
-            font-size: 0.85em;
-        }
-        
-        .bot-stats {
-            display: flex;
-            gap: 15px;
-            font-size: 0.8em;
-            color: #00aa00;
-        }
-        
-        .metric {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-        
-        .quick-actions {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-        
-        .quick-actions button {
-            padding: 8px 16px;
-            font-size: 0.9em;
-        }
-        
-        .github-section {
-            margin-top: 20px;
-            padding-top: 20px;
-            border-top: 1px solid #00aa00;
-        }
-        
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
-        }
-        
-        .pulsing {
-            animation: pulse 1.5s infinite;
-        }
-        
-        .full-width {
-            grid-column: 1 / -1;
-        }
-        
-        ::-webkit-scrollbar {
-            width: 8px;
-        }
-        
-        ::-webkit-scrollbar-track {
-            background: #000;
-        }
-        
-        ::-webkit-scrollbar-thumb {
-            background: #00ff00;
-            border-radius: 4px;
-        }
-        
-        ::-webkit-scrollbar-thumb:hover {
-            background: #00aa00;
-        }
+        body { background: #050505; color: #00ffcc; font-family: 'Courier New', monospace; }
+        .cosmic-border { border: 1px solid #00ffcc; box-shadow: 0 0 10px #00ffcc; }
     </style>
 </head>
-<body>
-    <div class="container">
-        <header>
-            <h1>🧠 LIVING OPERATING SYSTEM</h1>
-            <p class="subtitle">Browser-Based Self-Bootstrapping Ecosystem</p>
-            <p class="subtitle">IndexedDB • WebWorkers • Multi-Runtime • P2P</p>
-        </header>
+<body class="p-8">
+    <div class="max-w-4xl mx-auto">
+        <h1 class="text-3xl font-bold mb-6 text-center tracking-tighter">COSMIC P2P DISCOVERY</h1>
         
-        <div class="status-bar">
-            <span class="status-item">
-                <span class="status-label">Status:</span>
-                <span id="system-status">Initializing...</span>
-            </span>
-            <span class="status-item">
-                <span class="status-label">Bots:</span>
-                <span id="bot-count">0</span>
-            </span>
-            <span class="status-item">
-                <span class="status-label">Workers:</span>
-                <span id="worker-count">0</span>
-            </span>
-            <span class="status-item">
-                <span class="status-label">Missions:</span>
-                <span id="mission-count">0</span>
-            </span>
-            <span class="status-item">
-                <span class="status-label">Storage:</span>
-                <span id="storage-usage">0 KB</span>
-            </span>
-        </div>
-        
-        <div class="grid">
-            <!-- Mission Control -->
-            <div class="panel">
-                <h2>📋 Mission Control</h2>
-                <div class="mission-form">
-                    <div class="form-group">
-                        <label for="mission-type">Mission Type:</label>
-                        <select id="mission-type">
-                            <option value="create_bot">Create Bot</option>
-                            <option value="create_system">Create System</option>
-                            <option value="optimize">Optimize Ecosystem</option>
-                            <option value="scale">Scale Bots</option>
-                            <option value="clone_self">Clone EngineerBot</option>
-                            <option value="sync_github">Sync to GitHub</option>
-                            <option value="analyze">Analyze Performance</option>
-                        </select>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="mission-desc">Description:</label>
-                        <textarea id="mission-desc" placeholder="Describe the mission..."></textarea>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="mission-priority">Priority (1-10):</label>
-                        <input type="number" id="mission-priority" min="1" max="10" value="5">
-                    </div>
-                    
-                    <div class="form-group" id="runtime-select-group" style="display:none;">
-                        <label for="bot-runtime">Runtime:</label>
-                        <select id="bot-runtime">
-                            <option value="python">Python</option>
-                            <option value="javascript">JavaScript</option>
-                            <option value="go">Go</option>
-                            <option value="rust">Rust</option>
-                        </select>
-                    </div>
-                    
-                    <button onclick="submitMission()">🚀 Submit Mission</button>
-                    <button onclick="executeAllMissions()">⚡ Execute All</button>
-                </div>
-                
-                <div class="quick-actions">
-                    <button onclick="quickCreateBot('python')">+ Python Bot</button>
-                    <button onclick="quickCreateBot('javascript')">+ JS Bot</button>
-                    <button onclick="quickCreateBot('go')">+ Go Bot</button>
-                    <button onclick="quickCreateBot('rust')">+ Rust Bot</button>
-                    <button onclick="quickOptimize()">🔧 Optimize</button>
-                    <button onclick="quickClone()">🧬 Clone Self</button>
-                </div>
-                
-                <div class="github-section">
-                    <h3 style="color: #00aa00; margin-bottom: 10px;">GitHub Integration</h3>
-                    <div class="form-group">
-                        <label for="github-token">GitHub Token (optional):</label>
-                        <input type="password" id="github-token" placeholder="ghp_...">
-                    </div>
-                    <div class="form-group">
-                        <label for="github-repo">Repository:</label>
-                        <input type="text" id="github-repo" placeholder="username/repo">
-                    </div>
-                    <button onclick="syncToGitHub()">📤 Sync to GitHub</button>
-                    <button onclick="pullFromGitHub()">📥 Pull Latest</button>
-                </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <!-- Section Identité -->
+            <div class="cosmic-border p-6 rounded-lg bg-black">
+                <h2 class="text-xl mb-4 border-b border-teal-800">1. IDENTITÉ (MATIÈRE NOIRE)</h2>
+                <input id="phone" type="text" placeholder="Numéro de téléphone" class="w-full p-2 bg-gray-900 border border-teal-900 mb-4 rounded">
+                <button onclick="initIdentity()" class="w-full bg-teal-900 hover:bg-teal-700 p-2 rounded transition">ACTIVER NODE</button>
+                <div id="status" class="mt-4 text-xs text-gray-400">En attente d'activation...</div>
             </div>
-            
-            <!-- Bot Registry -->
-            <div class="panel">
-                <h2>🤖 Bot Registry</h2>
-                <div id="bot-list" class="bot-list">
-                    <p style="color: #00aa00; text-align: center; padding: 20px;">
-                        No bots created yet. Submit a mission to create bots.
-                    </p>
-                </div>
+
+            <!-- Section Appel -->
+            <div class="cosmic-border p-6 rounded-lg bg-black">
+                <h2 class="text-xl mb-4 border-b border-teal-800">2. INTRICATION (APPEL)</h2>
+                <input id="targetPhone" type="text" placeholder="Numéro du contact" class="w-full p-2 bg-gray-900 border border-teal-900 mb-4 rounded">
+                <button onclick="startCall()" class="w-full bg-purple-900 hover:bg-purple-700 p-2 rounded transition text-white">LANCER L'APPEL</button>
             </div>
         </div>
-        
-        <!-- Logs -->
-        <div class="panel full-width">
-            <h2>📊 System Logs</h2>
-            <div id="log-container" class="log-container"></div>
-            <button onclick="clearLogs()" style="margin-top: 10px;">Clear Logs</button>
-            <button onclick="exportLogs()" style="margin-top: 10px;">Export Logs</button>
+
+        <div class="mt-8 grid grid-cols-2 gap-4">
+            <div class="relative">
+                <p class="absolute top-2 left-2 text-xs bg-black p-1">LOCAL_STREAM</p>
+                <video id="localVideo" autoplay muted class="w-full rounded cosmic-border bg-gray-950 h-48 object-cover"></video>
+            </div>
+            <div class="relative">
+                <p class="absolute top-2 left-2 text-xs bg-black p-1">REMOTE_STREAM</p>
+                <video id="remoteVideo" autoplay class="w-full rounded cosmic-border bg-gray-950 h-48 object-cover"></video>
+            </div>
         </div>
     </div>
-    
+
     <script>
-        // ============================================
-        // INDEXEDDB SETUP
-        // ============================================
-        
-        let db;
-        
-        function initDB() {
-            return new Promise((resolve, reject) => {
-                const request = indexedDB.open('LivingOS', 1);
-                
-                request.onerror = () => reject(request.error);
-                request.onsuccess = () => {
-                    db = request.result;
-                    resolve(db);
-                };
-                
-                request.onupgradeneeded = (event) => {
-                    const db = event.target.result;
-                    
-                    // Bots store
-                    if (!db.objectStoreNames.contains('bots')) {
-                        const botsStore = db.createObjectStore('bots', { keyPath: 'id' });
-                        botsStore.createIndex('runtime', 'runtime', { unique: false });
-                        botsStore.createIndex('created', 'createdAt', { unique: false });
-                    }
-                    
-                    // Missions store
-                    if (!db.objectStoreNames.contains('missions')) {
-                        const missionsStore = db.createObjectStore('missions', { keyPath: 'id' });
-                        missionsStore.createIndex('status', 'status', { unique: false });
-                        missionsStore.createIndex('priority', 'priority', { unique: false });
-                    }
-                    
-                    // State store
-                    if (!db.objectStoreNames.contains('state')) {
-                        db.createObjectStore('state', { keyPath: 'key' });
-                    }
-                    
-                    // Logs store
-                    if (!db.objectStoreNames.contains('logs')) {
-                        const logsStore = db.createObjectStore('logs', { keyPath: 'id', autoIncrement: true });
-                        logsStore.createIndex('timestamp', 'timestamp', { unique: false });
-                    }
-                };
+        // Initialisation de la DHT (GunDB utilise un réseau de pairs pour discovery)
+        const gun = Gun(['https://gun-manhattan.herokuapp.com/gun']); 
+        let myId = null;
+        let pc = null;
+
+        async function hashPhone(phone) {
+            const msgUint8 = new TextEncoder().encode(phone.replace(/\s/g, ''));
+            const hashBuffer = await crypto.subtle.digest('SHA-256', msgUint8);
+            return Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
+        }
+
+        async function initIdentity() {
+            const phone = document.getElementById('phone').value;
+            if(!phone) return alert("Phone requis");
+            
+            myId = await hashPhone(phone);
+            document.getElementById('status').innerText = `NODE ACTIF : ${myId.substring(0,16)}...`;
+            
+            // Écouter les tentatives d'appels entrants sur notre hash (Matière Noire)
+            gun.get('cosmic-p2p').get(myId).get('offer').on(async (data) => {
+                if(data && !pc) {
+                    console.log("Offre reçue, intrication en cours...");
+                    handleOffer(JSON.parse(data));
+                }
             });
+
+            // Start Camera
+            const stream = await navigator.mediaDevices.getUserMedia({video: true, audio: true});
+            document.getElementById('localVideo').srcObject = stream;
         }
-        
-        async function saveBot(bot) {
-            return new Promise((resolve, reject) => {
-                const tx = db.transaction(['bots'], 'readwrite');
-                const request = tx.objectStore('bots').put(bot);
-                request.onsuccess = () => resolve();
-                request.onerror = () => reject(request.error);
+
+        function createPeerConnection(targetId) {
+            pc = new RTCPeerConnection({
+                iceServers: [{ urls: 'stun:stun.l.google.com:19302' }]
             });
-        }
-        
-        async function getAllBots() {
-            return new Promise((resolve, reject) => {
-                const tx = db.transaction(['bots'], 'readonly');
-                const request = tx.objectStore('bots').getAll();
-                request.onsuccess = () => resolve(request.result || []);
-                request.onerror = () => reject(request.error);
-            });
-        }
-        
-        async function deleteBot(id) {
-            const tx = db.transaction(['bots'], 'readwrite');
-            await tx.objectStore('bots').delete(id);
-            await tx.complete;
-        }
-        
-        async function saveMission(mission) {
-            const tx = db.transaction(['missions'], 'readwrite');
-            await tx.objectStore('missions').put(mission);
-            await tx.complete;
-        }
-        
-        async function getAllMissions() {
-            return new Promise((resolve, reject) => {
-                const tx = db.transaction(['missions'], 'readonly');
-                const request = tx.objectStore('missions').getAll();
-                request.onsuccess = () => resolve(request.result || []);
-                request.onerror = () => reject(request.error);
-            });
-        }
-        
-        async function saveLog(log) {
-            const tx = db.transaction(['logs'], 'readwrite');
-            await tx.objectStore('logs').add(log);
-            await tx.complete;
-        }
-        
-        async function getAllLogs() {
-            return new Promise((resolve, reject) => {
-                const tx = db.transaction(['logs'], 'readonly');
-                const request = tx.objectStore('logs').getAll();
-                request.onsuccess = () => resolve(request.result || []);
-                request.onerror = () => reject(request.error);
-            });
-        }
-        
-        async function clearAllLogs() {
-            const tx = db.transaction(['logs'], 'readwrite');
-            await tx.objectStore('logs').clear();
-            await tx.complete;
-        }
-        
-        // ============================================
-        // WEBWORKER POOL
-        // ============================================
-        
-        class WorkerPool {
-            constructor(size = 4) {
-                this.size = size;
-                this.workers = [];
-                this.queue = [];
-                this.activeJobs = 0;
-            }
-            
-            init() {
-                const workerCode = `
-                    self.onmessage = function(e) {
-                        const { id, type, data } = e.data;
-                        
-                        // Simulate bot execution
-                        setTimeout(() => {
-                            const result = {
-                                id: id,
-                                type: type,
-                                result: 'executed',
-                                timestamp: Date.now()
-                            };
-                            
-                            self.postMessage(result);
-                        }, Math.random() * 1000 + 500);
-                    };
-                `;
-                
-                const blob = new Blob([workerCode], { type: 'application/javascript' });
-                const workerUrl = URL.createObjectURL(blob);
-                
-                for (let i = 0; i < this.size; i++) {
-                    const worker = new Worker(workerUrl);
-                    worker.onmessage = (e) => this.handleResult(e.data);
-                    this.workers.push(worker);
+
+            pc.onicecandidate = (e) => {
+                if(e.candidate) {
+                    gun.get('cosmic-p2p').get(targetId).get('candidates').set(JSON.stringify(e.candidate));
                 }
-                
-                log('info', `Worker pool initialized with ${this.size} workers`);
-            }
-            
-            execute(job) {
-                return new Promise((resolve) => {
-                    this.queue.push({ job, resolve });
-                    this.processQueue();
-                });
-            }
-            
-            processQueue() {
-                while (this.queue.length > 0 && this.activeJobs < this.size) {
-                    const { job, resolve } = this.queue.shift();
-                    const worker = this.workers[this.activeJobs % this.size];
-                    
-                    this.activeJobs++;
-                    worker.postMessage(job);
-                    
-                    // Store resolve callback
-                    worker._resolve = resolve;
-                }
-            }
-            
-            handleResult(result) {
-                this.activeJobs--;
-                
-                // Find worker and call its resolve
-                const worker = this.workers.find(w => w._resolve);
-                if (worker && worker._resolve) {
-                    worker._resolve(result);
-                    delete worker._resolve;
-                }
-                
-                this.processQueue();
-            }
-        }
-        
-        const workerPool = new WorkerPool(4);
-        
-        // ============================================
-        // ENGINEER BOT CORE
-        // ============================================
-        
-        class EngineerBot {
-            constructor() {
-                this.id = 'engineer-bot-001';
-                this.bots = new Map();
-                this.missions = [];
-                this.botCounter = 0;
-                this.clones = [];
-            }
-            
-            async createBot(runtime, purpose = 'general') {
-                this.botCounter++;
-                
-                const bot = {
-                    id: `bot-${runtime}-${String(this.botCounter).padStart(3, '0')}`,
-                    runtime: runtime,
-                    purpose: purpose,
-                    createdAt: Date.now(),
-                    executionCount: 0,
-                    errorCount: 0,
-                    utilityScore: 1.0,
-                    modules: [],
-                    active: true
-                };
-                
-                await saveBot(bot);
-                this.bots.set(bot.id, bot);
-                
-                log('success', `Created bot: ${bot.id} (${runtime})`);
-                
-                return bot;
-            }
-            
-            async createSystem(type, numBots = 3) {
-                const runtimes = ['python', 'javascript', 'go', 'rust'];
-                const createdBots = [];
-                
-                for (let i = 0; i < numBots; i++) {
-                    const runtime = runtimes[i % runtimes.length];
-                    const bot = await this.createBot(runtime, `${type}_worker_${i+1}`);
-                    createdBots.push(bot.id);
-                }
-                
-                log('success', `Created ${type} system with ${numBots} bots`);
-                
-                return { type, bots: createdBots };
-            }
-            
-            async optimizeEcosystem() {
-                const actions = [];
-                
-                for (const [id, bot] of this.bots) {
-                    if (bot.utilityScore < 0.3) {
-                        // Delete low utility bots
-                        await deleteBot(id);
-                        this.bots.delete(id);
-                        actions.push(`Deleted ${id} (low utility)`);
-                        log('warning', `Deleted bot: ${id} (utility: ${bot.utilityScore.toFixed(2)})`);
-                    } else if (bot.errorCount > bot.executionCount) {
-                        // Refactor high-error bots
-                        bot.errorCount = 0;
-                        await saveBot(bot);
-                        actions.push(`Refactored ${id}`);
-                        log('info', `Refactored bot: ${id}`);
-                    } else if (bot.executionCount > 100 && bot.errorCount === 0) {
-                        // Clone high-performing bots
-                        const clone = await this.createBot(bot.runtime, `${bot.purpose}_clone`);
-                        actions.push(`Cloned ${id} → ${clone.id}`);
-                    }
-                }
-                
-                log('success', `Optimization complete: ${actions.length} actions taken`);
-                
-                return { actions, remainingBots: this.bots.size };
-            }
-            
-            async scaleBots(targetCount) {
-                const currentCount = this.bots.size;
-                
-                if (targetCount > currentCount) {
-                    for (let i = 0; i < targetCount - currentCount; i++) {
-                        await this.createBot('python', 'scaled_worker');
-                    }
-                }
-                
-                log('success', `Scaled from ${currentCount} to ${this.bots.size} bots`);
-                
-                return { previous: currentCount, new: this.bots.size };
-            }
-            
-            async cloneSelf() {
-                const cloneId = `${this.id}-clone-${this.clones.length + 1}`;
-                this.clones.push(cloneId);
-                
-                log('success', `Cloned EngineerBot: ${cloneId}`);
-                
-                return { cloneId, totalClones: this.clones.length };
-            }
-            
-            async executeMission(mission) {
-                log('info', `Executing mission: ${mission.type}`);
-                
-                let result;
-                
-                switch (mission.type) {
-                    case 'create_bot':
-                        result = await this.createBot(
-                            mission.params.runtime || 'python',
-                            mission.params.purpose || 'general'
-                        );
-                        break;
-                        
-                    case 'create_system':
-                        result = await this.createSystem(
-                            mission.params.type || 'pipeline',
-                            mission.params.numBots || 3
-                        );
-                        break;
-                        
-                    case 'optimize':
-                        result = await this.optimizeEcosystem();
-                        break;
-                        
-                    case 'scale':
-                        result = await this.scaleBots(mission.params.targetCount || 10);
-                        break;
-                        
-                    case 'clone_self':
-                        result = await this.cloneSelf();
-                        break;
-                        
-                    default:
-                        result = { status: 'unknown_mission_type' };
-                }
-                
-                return result;
-            }
-        }
-        
-        const engineer = new EngineerBot();
-        
-        // ============================================
-        // UI FUNCTIONS
-        // ============================================
-        
-        function log(level, message) {
-            const logEntry = {
-                level,
-                message,
-                timestamp: Date.now()
             };
-            
-            saveLog(logEntry);
-            
-            const container = document.getElementById('log-container');
-            const entry = document.createElement('div');
-            entry.className = `log-entry ${level}`;
-            entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
-            container.appendChild(entry);
-            container.scrollTop = container.scrollHeight;
-        }
-        
-        function updateStatus() {
-            document.getElementById('system-status').textContent = 'Running';
-            document.getElementById('bot-count').textContent = engineer.bots.size;
-            document.getElementById('worker-count').textContent = workerPool.size;
-            document.getElementById('mission-count').textContent = engineer.missions.length;
-            
-            // Calculate storage usage
-            if (navigator.storage && navigator.storage.estimate) {
-                navigator.storage.estimate().then(estimate => {
-                    const usage = (estimate.usage / 1024).toFixed(2);
-                    document.getElementById('storage-usage').textContent = `${usage} KB`;
-                });
-            }
-        }
-        
-        async function renderBots() {
-            const bots = await getAllBots();
-            const container = document.getElementById('bot-list');
-            
-            if (bots.length === 0) {
-                container.innerHTML = '<p style="color: #00aa00; text-align: center; padding: 20px;">No bots created yet.</p>';
-                return;
-            }
-            
-            container.innerHTML = bots.map(bot => `
-                <div class="bot-card ${bot.active ? 'active' : ''}">
-                    <div class="bot-header">
-                        <span class="bot-name">${bot.id}</span>
-                        <span class="bot-runtime">${bot.runtime}</span>
-                    </div>
-                    <div class="bot-stats">
-                        <div class="metric">
-                            <span>📊</span>
-                            <span>Executions: ${bot.executionCount}</span>
-                        </div>
-                        <div class="metric">
-                            <span>⚠️</span>
-                            <span>Errors: ${bot.errorCount}</span>
-                        </div>
-                        <div class="metric">
-                            <span>💯</span>
-                            <span>Utility: ${(bot.utilityScore * 100).toFixed(0)}%</span>
-                        </div>
-                    </div>
-                </div>
-            `).join('');
-        }
-        
-        async function submitMission() {
-            const type = document.getElementById('mission-type').value;
-            const desc = document.getElementById('mission-desc').value;
-            const priority = parseInt(document.getElementById('mission-priority').value);
-            
-            const mission = {
-                id: `mission-${Date.now()}`,
-                type,
-                description: desc || `Auto-generated ${type} mission`,
-                priority,
-                params: {},
-                status: 'pending',
-                createdAt: Date.now()
+
+            pc.ontrack = (e) => {
+                document.getElementById('remoteVideo').srcObject = e.streams[0];
             };
-            
-            if (type === 'create_bot') {
-                mission.params.runtime = document.getElementById('bot-runtime').value;
-            }
-            
-            await saveMission(mission);
-            engineer.missions.push(mission);
-            
-            log('info', `Mission submitted: ${mission.description}`);
-            updateStatus();
-            
-            // Clear form
-            document.getElementById('mission-desc').value = '';
+
+            const stream = document.getElementById('localVideo').srcObject;
+            stream.getTracks().forEach(track => pc.addTrack(track, stream));
+            return pc;
         }
-        
-        async function executeAllMissions() {
-            const missions = await getAllMissions();
-            const pending = missions.filter(m => m.status === 'pending');
+
+        async function startCall() {
+            const target = document.getElementById('targetPhone').value;
+            const targetId = await hashPhone(target);
             
-            if (pending.length === 0) {
-                log('warning', 'No pending missions to execute');
-                return;
-            }
+            pc = createPeerConnection(targetId);
+            const offer = await pc.createOffer();
+            await pc.setLocalDescription(offer);
             
-            log('info', `Executing ${pending.length} pending missions...`);
+            // Publier l'offre sur la DHT (GunDB) à l'adresse du hash cible
+            gun.get('cosmic-p2p').get(targetId).get('offer').put(JSON.stringify(offer));
             
-            for (const mission of pending) {
-                try {
-                    const result = await engineer.executeMission(mission);
-                    mission.status = 'completed';
-                    mission.result = result;
-                    mission.completedAt = Date.now();
-                    await saveMission(mission);
-                    
-                    log('success', `Mission completed: ${mission.description}`);
-                } catch (error) {
-                    mission.status = 'failed';
-                    mission.error = error.message;
-                    await saveMission(mission);
-                    
-                    log('error', `Mission failed: ${mission.description} - ${error.message}`);
-                }
-            }
-            
-            await renderBots();
-            updateStatus();
+            // Attendre la réponse
+            gun.get('cosmic-p2p').get(myId).get('answer').on(async (data) => {
+                if(data) await pc.setRemoteDescription(new RTCSessionDescription(JSON.parse(data)));
+            });
+
+            // Échanger les ICE candidates
+            gun.get('cosmic-p2p').get(myId).get('candidates').map().on((data) => {
+                if(data) pc.addIceCandidate(new RTCIceCandidate(JSON.parse(data)));
+            });
         }
-        
-        async function quickCreateBot(runtime) {
-            await engineer.createBot(runtime, `quick_${runtime}_bot`);
-            await renderBots();
-            updateStatus();
-        }
-        
-        async function quickOptimize() {
-            await engineer.optimizeEcosystem();
-            await renderBots();
-            updateStatus();
-        }
-        
-        async function quickClone() {
-            await engineer.cloneSelf();
-            updateStatus();
-        }
-        
-        async function syncToGitHub() {
-            const token = document.getElementById('github-token').value;
-            const repo = document.getElementById('github-repo').value;
+
+        async function handleOffer(offer) {
+            const senderId = myId; // Dans un flux réel, on extrairait l'ID de l'appelant
+            pc = createPeerConnection(senderId); // simplifié pour le test
+            await pc.setRemoteDescription(new RTCSessionDescription(offer));
             
-            if (!repo) {
-                log('error', 'GitHub repository required');
-                return;
-            }
+            const answer = await pc.createAnswer();
+            await pc.setLocalDescription(answer);
             
-            log('info', 'Syncing to GitHub... (simulated)');
-            
-            // Simulation - dans une vraie version, on utiliserait l'API GitHub
-            setTimeout(() => {
-                log('success', `Synced ${engineer.bots.size} bots to ${repo}`);
-            }, 1000);
+            // On renvoie l'answer (ici on simplifie le routage pour la démo)
+            // Dans une vraie app, chaque node a son propre slot de réponse
+            gun.get('cosmic-p2p').get(offer.senderId || 'global-response').get('answer').put(JSON.stringify(answer));
         }
-        
-        async function pullFromGitHub() {
-            log('info', 'Pulling from GitHub... (simulated)');
-            
-            setTimeout(() => {
-                log('success', 'Pulled latest from GitHub');
-            }, 1000);
-        }
-        
-        function clearLogs() {
-            document.getElementById('log-container').innerHTML = '';
-            clearAllLogs();
-            log('info', 'Logs cleared');
-        }
-        
-        async function exportLogs() {
-            const logs = await getAllLogs();
-            const blob = new Blob([JSON.stringify(logs, null, 2)], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `living-os-logs-${Date.now()}.json`;
-            a.click();
-            URL.revokeObjectURL(url);
-            
-            log('success', 'Logs exported');
-        }
-        
-        // Show/hide runtime selector based on mission type
-        document.getElementById('mission-type').addEventListener('change', (e) => {
-            const runtimeGroup = document.getElementById('runtime-select-group');
-            runtimeGroup.style.display = e.target.value === 'create_bot' ? 'block' : 'none';
-        });
-        
-        // ============================================
-        // INITIALIZATION
-        // ============================================
-        
-        async function init() {
-            log('info', 'Initializing Living OS...');
-            
-            try {
-                await initDB();
-                log('success', 'IndexedDB initialized');
-                
-                workerPool.init();
-                log('success', 'Worker pool initialized');
-                
-                // Load existing bots
-                try {
-                    const bots = await getAllBots();
-                    if (bots && Array.isArray(bots)) {
-                        bots.forEach(bot => engineer.bots.set(bot.id, bot));
-                        log('info', `Loaded ${bots.length} existing bots`);
-                    } else {
-                        log('info', 'No existing bots found');
-                    }
-                } catch (e) {
-                    log('warning', `Could not load bots: ${e.message}`);
-                }
-                
-                await renderBots();
-                updateStatus();
-                
-                log('success', 'Living OS ready! 🚀');
-                document.getElementById('system-status').textContent = 'Ready';
-                
-            } catch (error) {
-                log('error', `Initialization failed: ${error.message}`);
-                console.error('Init error:', error);
-                document.getElementById('system-status').textContent = 'Error';
-            }
-        }
-        
-        // Start the system
-        window.addEventListener('DOMContentLoaded', init);
-        
-        // Auto-update status every 5 seconds
-        setInterval(updateStatus, 5000);
     </script>
 </body>
 </html>

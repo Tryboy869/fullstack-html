@@ -3,199 +3,607 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cosmic P2P - Phase Video Réelle</title>
-    <!-- On utilise GunDB pour la propagation décentralisée des signaux -->
-    <script src="https://cdn.jsdelivr.net/npm/gun/gun.js"></script>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>P2PR Video Call - ILN</title>
     <style>
-        body { background: #020617; color: #2dd4bf; font-family: 'ui-monospace', 'SFMono-Regular', monospace; }
-        .cosmic-card { border: 1px solid #134e4a; background: rgba(0,0,0,0.8); box-shadow: 0 0 20px rgba(45, 212, 191, 0.1); }
-        .status-pulse { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
-        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .3; } }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 30px;
+            max-width: 1200px;
+            width: 100%;
+        }
+
+        h1 {
+            text-align: center;
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 2rem;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 0.9rem;
+        }
+
+        .control-panel {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        input {
+            padding: 12px 20px;
+            border: 2px solid #667eea;
+            border-radius: 8px;
+            font-size: 1rem;
+            flex: 1;
+            min-width: 200px;
+        }
+
+        button {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            color: white;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .video-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .video-wrapper {
+            position: relative;
+            background: #000;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        video {
+            width: 100%;
+            height: auto;
+            display: block;
+            min-height: 300px;
+            object-fit: cover;
+        }
+
+        .video-label {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .status {
+            text-align: center;
+            padding: 15px;
+            background: rgba(102, 126, 234, 0.1);
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .status-dot {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 8px;
+            animation: pulse 2s infinite;
+        }
+
+        .status-offline { background: #f5576c; }
+        .status-connecting { background: #ffa726; }
+        .status-online { background: #4caf50; }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .logs {
+            background: #1e1e1e;
+            color: #00ff00;
+            padding: 15px;
+            border-radius: 8px;
+            max-height: 200px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85rem;
+            line-height: 1.5;
+        }
+
+        .log-entry {
+            margin-bottom: 5px;
+        }
+
+        .log-timestamp {
+            color: #888;
+        }
+
+        .log-info { color: #00ff00; }
+        .log-warn { color: #ffa726; }
+        .log-error { color: #f5576c; }
+        .log-success { color: #4caf50; }
+
+        @media (max-width: 768px) {
+            .video-container {
+                grid-template-columns: 1fr;
+            }
+            
+            h1 {
+                font-size: 1.5rem;
+            }
+        }
     </style>
 </head>
-<body class="p-4 min-h-screen flex flex-col items-center">
-    <div class="w-full max-w-5xl">
-        <header class="text-center mb-10">
-            <h1 class="text-4xl font-black tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-teal-400 to-emerald-500">
-                COSMIC P2P ENGINE
-            </h1>
-            <p class="text-teal-900 text-sm mt-2 uppercase tracking-widest">Rétro-ingénierie du Réseau de Phase</p>
-        </header>
+<body>
+    <div class="container">
+        <h1>🎥 P2PR Video Call</h1>
+        <p class="subtitle">ILN Niveau 1 - P2P Reality + WebRTC</p>
 
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <!-- Panneau de Contrôle -->
-            <div class="lg:col-span-1 space-y-6">
-                <div class="cosmic-card p-6 rounded-2xl border-teal-500/30">
-                    <h2 class="text-xs font-bold mb-4 text-teal-500 uppercase">1. Activation Node</h2>
-                    <input id="phone" type="text" placeholder="+33 6..." class="w-full p-3 bg-black/50 border border-teal-900 rounded-xl mb-3 focus:outline-none focus:border-teal-400 transition-all">
-                    <button onclick="activateNode()" id="btn-activate" class="w-full bg-teal-600 hover:bg-teal-500 text-black font-bold p-3 rounded-xl transition-all active:scale-95">
-                        FORER L'IDENTITÉ
-                    </button>
-                    <div id="node-info" class="hidden mt-4 p-3 bg-teal-950/30 rounded-lg border border-teal-900/50">
-                        <p class="text-[10px] text-teal-600 uppercase mb-1">Hash de Phase (Matière Noire)</p>
-                        <p id="display-id" class="text-xs break-all font-bold text-teal-300"></p>
-                    </div>
-                </div>
+        <div class="status">
+            <span class="status-dot status-offline" id="statusDot"></span>
+            <span id="statusText">Déconnecté</span>
+        </div>
 
-                <div class="cosmic-card p-6 rounded-2xl border-teal-500/30">
-                    <h2 class="text-xs font-bold mb-4 text-teal-500 uppercase">2. Intrication Cible</h2>
-                    <input id="targetPhone" type="text" placeholder="Numéro du contact" class="w-full p-3 bg-black/50 border border-teal-900 rounded-xl mb-3 focus:outline-none focus:border-teal-400 transition-all">
-                    <button onclick="startCall()" id="btn-call" class="w-full bg-emerald-600 hover:bg-emerald-500 text-black font-bold p-3 rounded-xl transition-all active:scale-95 disabled:opacity-30" disabled>
-                        LANCER L'APPEL
-                    </button>
-                    <div id="call-status" class="mt-4 text-center text-xs font-bold uppercase tracking-widest"></div>
-                </div>
+        <div class="control-panel">
+            <input type="text" id="peerIdInput" placeholder="Votre ID (ex: alice)" />
+            <input type="text" id="remotePeerInput" placeholder="ID du destinataire (ex: bob)" />
+            <button class="btn-success" id="initBtn" onclick="initializePeer()">Initialiser</button>
+            <button class="btn-primary" id="callBtn" onclick="startCall()" disabled>Appeler</button>
+            <button class="btn-danger" id="hangupBtn" onclick="hangup()" disabled>Raccrocher</button>
+        </div>
+
+        <div class="video-container">
+            <div class="video-wrapper">
+                <div class="video-label">Vous</div>
+                <video id="localVideo" autoplay muted playsinline></video>
             </div>
-
-            <!-- Flux Vidéo -->
-            <div class="lg:col-span-2 space-y-6">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div class="relative cosmic-card rounded-3xl overflow-hidden aspect-video group">
-                        <video id="localVideo" autoplay muted playsinline class="w-full h-full object-cover grayscale opacity-50"></video>
-                        <div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent flex items-end p-4">
-                            <span class="text-[10px] font-bold tracking-widest uppercase">Flux Local</span>
-                        </div>
-                    </div>
-                    <div class="relative cosmic-card rounded-3xl overflow-hidden aspect-video group border-emerald-500/50 shadow-emerald-500/10 shadow-2xl">
-                        <video id="remoteVideo" autoplay playsinline class="w-full h-full object-cover"></video>
-                        <div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent flex items-end p-4">
-                            <span class="text-[10px] font-bold tracking-widest uppercase">Flux Distant (Résonance)</span>
-                        </div>
-                        <div id="waiting-overlay" class="absolute inset-0 flex items-center justify-center bg-black/80 text-xs uppercase tracking-tighter status-pulse">
-                            En attente de connexion...
-                        </div>
-                    </div>
-                </div>
-                <div id="logs" class="cosmic-card p-4 rounded-xl h-40 overflow-y-auto text-[10px] text-teal-700 leading-tight">
-                    > SYSTEM_READY: En attente d'activation...
-                </div>
+            <div class="video-wrapper">
+                <div class="video-label">Distant</div>
+                <video id="remoteVideo" autoplay playsinline></video>
             </div>
         </div>
+
+        <div class="logs" id="logs"></div>
     </div>
 
     <script>
-        const gun = Gun(['https://gun-manhattan.herokuapp.com/gun']);
-        let myId = null;
-        let pc = null;
-        let localStream = null;
+        // =============================================================================
+        // ILN P2PR + WebRTC Implementation
+        // =============================================================================
 
-        function addLog(msg) {
-            const logs = document.getElementById('logs');
-            logs.innerHTML += `<br>> ${new Date().toLocaleTimeString()}: ${msg}`;
-            logs.scrollTop = logs.scrollHeight;
-        }
-
-        async function hashPhone(phone) {
-            const normalized = phone.replace(/\s+/g, '').replace(/[-.()]/g, '');
-            const msgUint8 = new TextEncoder().encode(normalized);
-            const hashBuffer = await crypto.subtle.digest('SHA-256', msgUint8);
-            return Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
-        }
-
-        async function activateNode() {
-            const phone = document.getElementById('phone').value;
-            if(!phone) return;
-
-            addLog("Forage de l'identité en cours...");
-            myId = await hashPhone(phone);
-            
-            document.getElementById('node-info').classList.remove('hidden');
-            document.getElementById('display-id').innerText = myId;
-            document.getElementById('btn-call').disabled = false;
-            document.getElementById('btn-activate').disabled = true;
-
-            // Démarrage caméra
-            try {
-                localStream = await navigator.mediaDevices.getUserMedia({video: true, audio: true});
-                document.getElementById('localVideo').srcObject = localStream;
-                document.getElementById('localVideo').classList.remove('grayscale', 'opacity-50');
-                addLog("Flux local activé.");
-            } catch(e) {
-                addLog("ERREUR_MEDIA: Accès caméra refusé.");
+        class P2PRealityNode {
+            constructor(nodeId) {
+                this.nodeId = nodeId;
+                this.peers = new Map();
+                this.messageHandlers = new Map();
+                this.logs = [];
             }
 
-            // Écouter les appels entrants (Matière Noire)
-            gun.get('cosmic_v3').get(myId).get('signal').on(async (data) => {
-                const signal = JSON.parse(data || '{}');
-                if(signal.type === 'offer' && !pc) {
-                    addLog(`Appel entrant détecté de ${signal.from.substring(0,8)}...`);
-                    handleIncomingCall(signal);
+            log(message, level = 'info') {
+                const timestamp = new Date().toLocaleTimeString('fr-FR');
+                const entry = { timestamp, message, level };
+                this.logs.push(entry);
+                
+                const logsDiv = document.getElementById('logs');
+                const logEntry = document.createElement('div');
+                logEntry.className = `log-entry log-${level}`;
+                logEntry.innerHTML = `<span class="log-timestamp">[${timestamp}]</span> ${message}`;
+                logsDiv.appendChild(logEntry);
+                logsDiv.scrollTop = logsDiv.scrollHeight;
+            }
+
+            registerHandler(path, handler) {
+                this.messageHandlers.set(path, handler);
+                this.log(`📍 Route enregistrée: ${path}`, 'info');
+            }
+
+            async handleMessage(fromPeer, message) {
+                this.log(`📨 Message P2P reçu de ${fromPeer}`, 'info');
+                
+                const httpRequest = this.p2pToHttpRequest(fromPeer, message);
+                this.log(`🔄 P2P → HTTP: ${httpRequest.method} ${httpRequest.path}`, 'info');
+                
+                const handler = this.messageHandlers.get(httpRequest.path);
+                
+                if (handler) {
+                    const response = await handler(httpRequest);
+                    return this.httpToP2pResponse(response);
+                } else {
+                    this.log(`❌ Route non trouvée: ${httpRequest.path}`, 'warn');
+                    return { status: 404, body: { error: 'Not Found' } };
                 }
-            });
+            }
+
+            p2pToHttpRequest(fromPeer, message) {
+                return {
+                    method: message.method || 'POST',
+                    path: message.path || '/',
+                    headers: {
+                        'Host': `p2p-node-${fromPeer}`,
+                        'X-P2P-Original': fromPeer
+                    },
+                    body: message.body || {}
+                };
+            }
+
+            httpToP2pResponse(httpResponse) {
+                return {
+                    peer_id: this.nodeId,
+                    timestamp: Date.now(),
+                    payload: httpResponse.body,
+                    metadata: {
+                        status: httpResponse.status || 200
+                    }
+                };
+            }
+
+            async sendMessage(toPeer, message) {
+                this.log(`📤 Envoi message à ${toPeer}`, 'info');
+                
+                // Simulation P2P direct (en réalité utilise BroadcastChannel ou WebSocket)
+                const channel = new BroadcastChannel(`p2pr-${toPeer}`);
+                
+                return new Promise((resolve) => {
+                    const responseChannel = new BroadcastChannel(`p2pr-${this.nodeId}`);
+                    
+                    responseChannel.onmessage = (event) => {
+                        if (event.data.from === toPeer) {
+                            this.log(`📥 Réponse reçue de ${toPeer}`, 'success');
+                            resolve(event.data.response);
+                            responseChannel.close();
+                        }
+                    };
+
+                    channel.postMessage({
+                        from: this.nodeId,
+                        to: toPeer,
+                        message: message
+                    });
+
+                    channel.close();
+                });
+            }
+
+            startListening() {
+                const channel = new BroadcastChannel(`p2pr-${this.nodeId}`);
+                
+                channel.onmessage = async (event) => {
+                    if (event.data.to === this.nodeId) {
+                        const fromPeer = event.data.from;
+                        const message = event.data.message;
+                        
+                        const response = await this.handleMessage(fromPeer, message);
+                        
+                        const responseChannel = new BroadcastChannel(`p2pr-${fromPeer}`);
+                        responseChannel.postMessage({
+                            from: this.nodeId,
+                            response: response
+                        });
+                        responseChannel.close();
+                    }
+                };
+
+                this.log(`🎧 Écoute sur canal: p2pr-${this.nodeId}`, 'success');
+            }
         }
 
-        function setupPeer(targetId) {
-            pc = new RTCPeerConnection({
-                iceServers: [{ urls: 'stun:stun.l.google.com:19302' }]
-            });
+        class VideoCallApp {
+            constructor() {
+                this.p2prNode = null;
+                this.peerConnection = null;
+                this.localStream = null;
+                this.remoteStream = null;
+                this.iceCandidatesQueue = [];
+            }
 
-            pc.onicecandidate = (event) => {
-                if (event.candidate) {
-                    addLog("Envoi d'un candidat ICE...");
-                    gun.get('cosmic_v3').get(targetId).get('ice').set(JSON.stringify(event.candidate));
+            updateStatus(status, text) {
+                const statusDot = document.getElementById('statusDot');
+                const statusText = document.getElementById('statusText');
+                
+                statusDot.className = `status-dot status-${status}`;
+                statusText.textContent = text;
+            }
+
+            async initialize(peerId) {
+                try {
+                    this.p2prNode = new P2PRealityNode(peerId);
+                    
+                    // Enregistrer les handlers WebRTC via P2PR
+                    this.p2prNode.registerHandler('/webrtc/offer', async (req) => {
+                        return await this.handleOffer(req.body);
+                    });
+
+                    this.p2prNode.registerHandler('/webrtc/answer', async (req) => {
+                        return await this.handleAnswer(req.body);
+                    });
+
+                    this.p2prNode.registerHandler('/webrtc/ice', async (req) => {
+                        return await this.handleIceCandidate(req.body);
+                    });
+
+                    this.p2prNode.startListening();
+                    
+                    // Obtenir le flux local
+                    this.localStream = await navigator.mediaDevices.getUserMedia({
+                        video: true,
+                        audio: true
+                    });
+
+                    document.getElementById('localVideo').srcObject = this.localStream;
+                    
+                    this.updateStatus('online', `Connecté en tant que: ${peerId}`);
+                    this.p2prNode.log(`✅ Initialisation réussie - ID: ${peerId}`, 'success');
+                    
+                    document.getElementById('callBtn').disabled = false;
+                    document.getElementById('initBtn').disabled = true;
+                    
+                    return true;
+                } catch (error) {
+                    this.p2prNode?.log(`❌ Erreur initialisation: ${error.message}`, 'error');
+                    this.updateStatus('offline', 'Erreur d\'initialisation');
+                    return false;
                 }
-            };
+            }
 
-            pc.ontrack = (event) => {
-                addLog("Intrication réussie ! Réception du flux distant.");
-                document.getElementById('remoteVideo').srcObject = event.streams[0];
-                document.getElementById('waiting-overlay').classList.add('hidden');
-                document.getElementById('call-status').innerText = "CONNECTÉ";
-            };
+            createPeerConnection() {
+                const configuration = {
+                    iceServers: [
+                        { urls: 'stun:stun.l.google.com:19302' },
+                        { urls: 'stun:stun1.l.google.com:19302' }
+                    ]
+                };
 
-            localStream.getTracks().forEach(track => pc.addTrack(track, localStream));
-            return pc;
+                this.peerConnection = new RTCPeerConnection(configuration);
+
+                this.localStream.getTracks().forEach(track => {
+                    this.peerConnection.addTrack(track, this.localStream);
+                });
+
+                this.peerConnection.ontrack = (event) => {
+                    this.p2prNode.log(`📺 Flux distant reçu`, 'success');
+                    document.getElementById('remoteVideo').srcObject = event.streams[0];
+                };
+
+                this.peerConnection.onicecandidate = (event) => {
+                    if (event.candidate) {
+                        this.p2prNode.log(`🧊 ICE candidate généré`, 'info');
+                        this.sendIceCandidate(event.candidate);
+                    }
+                };
+
+                this.peerConnection.onconnectionstatechange = () => {
+                    this.p2prNode.log(`🔗 État connexion: ${this.peerConnection.connectionState}`, 'info');
+                    
+                    if (this.peerConnection.connectionState === 'connected') {
+                        this.updateStatus('online', 'Appel en cours');
+                    } else if (this.peerConnection.connectionState === 'disconnected') {
+                        this.updateStatus('offline', 'Déconnecté');
+                    }
+                };
+            }
+
+            async startCall(remotePeerId) {
+                try {
+                    this.updateStatus('connecting', 'Appel en cours...');
+                    this.p2prNode.log(`📞 Appel vers: ${remotePeerId}`, 'info');
+                    
+                    this.createPeerConnection();
+
+                    const offer = await this.peerConnection.createOffer();
+                    await this.peerConnection.setLocalDescription(offer);
+
+                    this.p2prNode.log(`📤 Envoi de l'offre SDP via P2PR`, 'info');
+                    
+                    const response = await this.p2prNode.sendMessage(remotePeerId, {
+                        method: 'POST',
+                        path: '/webrtc/offer',
+                        body: {
+                            sdp: offer,
+                            from: this.p2prNode.nodeId
+                        }
+                    });
+
+                    if (response.payload.answer) {
+                        await this.peerConnection.setRemoteDescription(response.payload.answer);
+                        this.p2prNode.log(`✅ Réponse SDP reçue et appliquée`, 'success');
+                    }
+
+                    document.getElementById('hangupBtn').disabled = false;
+                    document.getElementById('callBtn').disabled = true;
+                    
+                } catch (error) {
+                    this.p2prNode.log(`❌ Erreur appel: ${error.message}`, 'error');
+                    this.updateStatus('offline', 'Erreur d\'appel');
+                }
+            }
+
+            async handleOffer(data) {
+                try {
+                    this.p2prNode.log(`📥 Offre SDP reçue de ${data.from}`, 'info');
+                    this.updateStatus('connecting', 'Appel entrant...');
+                    
+                    this.createPeerConnection();
+
+                    await this.peerConnection.setRemoteDescription(data.sdp);
+                    const answer = await this.peerConnection.createAnswer();
+                    await this.peerConnection.setLocalDescription(answer);
+
+                    this.p2prNode.log(`📤 Réponse SDP créée`, 'success');
+                    
+                    document.getElementById('hangupBtn').disabled = false;
+                    
+                    return {
+                        status: 200,
+                        body: {
+                            answer: answer,
+                            from: this.p2prNode.nodeId
+                        }
+                    };
+                } catch (error) {
+                    this.p2prNode.log(`❌ Erreur traitement offre: ${error.message}`, 'error');
+                    return { status: 500, body: { error: error.message } };
+                }
+            }
+
+            async handleAnswer(data) {
+                try {
+                    await this.peerConnection.setRemoteDescription(data.answer);
+                    this.p2prNode.log(`✅ Réponse SDP appliquée`, 'success');
+                    return { status: 200, body: { success: true } };
+                } catch (error) {
+                    this.p2prNode.log(`❌ Erreur traitement réponse: ${error.message}`, 'error');
+                    return { status: 500, body: { error: error.message } };
+                }
+            }
+
+            async sendIceCandidate(candidate) {
+                const remotePeerId = document.getElementById('remotePeerInput').value;
+                if (!remotePeerId) return;
+
+                await this.p2prNode.sendMessage(remotePeerId, {
+                    method: 'POST',
+                    path: '/webrtc/ice',
+                    body: {
+                        candidate: candidate,
+                        from: this.p2prNode.nodeId
+                    }
+                });
+            }
+
+            async handleIceCandidate(data) {
+                try {
+                    if (this.peerConnection && data.candidate) {
+                        await this.peerConnection.addIceCandidate(data.candidate);
+                        this.p2prNode.log(`🧊 ICE candidate ajouté`, 'success');
+                    }
+                    return { status: 200, body: { success: true } };
+                } catch (error) {
+                    this.p2prNode.log(`❌ Erreur ICE: ${error.message}`, 'error');
+                    return { status: 500, body: { error: error.message } };
+                }
+            }
+
+            hangup() {
+                if (this.peerConnection) {
+                    this.peerConnection.close();
+                    this.peerConnection = null;
+                }
+
+                if (this.localStream) {
+                    this.localStream.getTracks().forEach(track => track.stop());
+                }
+
+                document.getElementById('remoteVideo').srcObject = null;
+                
+                this.updateStatus('offline', 'Appel terminé');
+                this.p2prNode.log(`📴 Appel terminé`, 'info');
+                
+                document.getElementById('hangupBtn').disabled = true;
+                document.getElementById('callBtn').disabled = false;
+            }
+        }
+
+        // =============================================================================
+        // Global Instance & Functions
+        // =============================================================================
+
+        let videoApp = new VideoCallApp();
+
+        async function initializePeer() {
+            const peerId = document.getElementById('peerIdInput').value.trim();
+            
+            if (!peerId) {
+                alert('Veuillez entrer votre ID');
+                return;
+            }
+
+            await videoApp.initialize(peerId);
         }
 
         async function startCall() {
-            const target = document.getElementById('targetPhone').value;
-            if(!target) return;
-            const targetId = await hashPhone(target);
+            const remotePeerId = document.getElementById('remotePeerInput').value.trim();
             
-            addLog(`Tentative d'intrication avec ${targetId.substring(0,8)}...`);
-            document.getElementById('call-status').innerText = "APPEL EN COURS...";
+            if (!remotePeerId) {
+                alert('Veuillez entrer l\'ID du destinataire');
+                return;
+            }
 
-            pc = setupPeer(targetId);
-            const offer = await pc.createOffer();
-            await pc.setLocalDescription(offer);
-
-            // Envoyer l'offre avec notre ID pour la réponse
-            const signal = { type: 'offer', sdp: offer.sdp, from: myId };
-            gun.get('cosmic_v3').get(targetId).get('signal').put(JSON.stringify(signal));
-
-            // Écouter la réponse
-            gun.get('cosmic_v3').get(myId).get('answer').on(async (data) => {
-                if(data && pc.signalingState !== 'stable') {
-                    addLog("Réponse reçue. Stabilisation de la phase.");
-                    await pc.setRemoteDescription(new RTCSessionDescription(JSON.parse(data)));
-                }
-            });
-
-            // Écouter les candidats ICE de la cible
-            gun.get('cosmic_v3').get(myId).get('ice').map().on((data) => {
-                if(data) pc.addIceCandidate(new RTCIceCandidate(JSON.parse(data)));
-            });
+            await videoApp.startCall(remotePeerId);
         }
 
-        async function handleIncomingCall(signal) {
-            const senderId = signal.from;
-            pc = setupPeer(senderId);
-            
-            await pc.setRemoteDescription(new RTCSessionDescription(signal));
-            const answer = await pc.createAnswer();
-            await pc.setLocalDescription(answer);
-
-            // Renvoyer la réponse à l'appelant
-            gun.get('cosmic_v3').get(senderId).get('answer').put(JSON.stringify(answer));
-
-            // Écouter les candidats ICE de l'appelant
-            gun.get('cosmic_v3').get(myId).get('ice').map().on((data) => {
-                if(data) pc.addIceCandidate(new RTCIceCandidate(JSON.parse(data)));
-            });
-            
-            document.getElementById('call-status').innerText = "SESSION ENTRANTE";
+        function hangup() {
+            videoApp.hangup();
         }
+
+        // =============================================================================
+        // Auto-log on load
+        // =============================================================================
+
+        window.addEventListener('load', () => {
+            const tempNode = new P2PRealityNode('system');
+            tempNode.log('🚀 P2PR Video Call - ILN Niveau 1 chargé', 'success');
+            tempNode.log('📡 Framework: P2P Reality + WebRTC', 'info');
+            tempNode.log('🎯 Architecture: Signaling P2P + Media WebRTC', 'info');
+            tempNode.log('⚡ Prêt à l\'utilisation', 'success');
+        });
     </script>
 </body>
 </html>

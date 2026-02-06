@@ -3,703 +3,380 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>P2P Reality DB Server - Informatique Réalitaire</title>
-    
+    <title>Test IR - Informatique Réalitaire</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        
-        :root {
-            --bg: #0a0e27;
-            --bg-secondary: #151932;
-            --text: #e4e7eb;
-            --text-dim: #9ca3af;
-            --primary: #3b82f6;
-            --success: #10b981;
-            --warning: #f59e0b;
-            --danger: #ef4444;
-            --border: #1f2937;
-        }
-        
         body {
             font-family: 'Courier New', monospace;
-            background: var(--bg);
-            color: var(--text);
+            background: #0a0e27;
+            color: #e4e7eb;
             padding: 2rem;
-            min-height: 100vh;
         }
-        
-        .header {
-            text-align: center;
-            margin-bottom: 3rem;
-            padding: 2rem;
-            background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(16, 185, 129, 0.1));
-            border: 1px solid var(--border);
-            border-radius: 12px;
-        }
-        
+        .container { max-width: 1200px; margin: 0 auto; }
         h1 {
-            font-size: 2rem;
-            margin-bottom: 0.5rem;
-            background: linear-gradient(135deg, var(--primary), var(--success));
+            text-align: center;
+            margin-bottom: 2rem;
+            background: linear-gradient(135deg, #3b82f6, #10b981);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
-        
-        .subtitle {
-            color: var(--text-dim);
-            font-size: 0.9rem;
-        }
-        
-        .status-bar {
-            display: flex;
-            gap: 1rem;
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
             margin-bottom: 2rem;
-            padding: 1rem;
-            background: var(--bg-secondary);
-            border: 1px solid var(--border);
-            border-radius: 8px;
         }
-        
-        .status-item {
-            flex: 1;
-            padding: 0.75rem;
-            background: rgba(16, 185, 129, 0.05);
-            border-left: 3px solid var(--success);
-            border-radius: 4px;
-        }
-        
-        .status-label {
-            font-size: 0.75rem;
-            color: var(--text-dim);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-        
-        .status-value {
-            font-size: 1.2rem;
-            font-weight: 700;
-            color: var(--success);
-            margin-top: 0.25rem;
-        }
-        
-        .console {
-            background: #000;
-            border: 1px solid var(--border);
+        .panel {
+            background: #151932;
+            border: 1px solid #1f2937;
             border-radius: 8px;
             padding: 1.5rem;
-            height: 500px;
+        }
+        h2 {
+            color: #3b82f6;
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+        }
+        button {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            margin: 0.5rem 0.5rem 0.5rem 0;
+        }
+        button:hover { background: #2563eb; }
+        button:active { transform: scale(0.98); }
+        .console {
+            background: #000;
+            border: 1px solid #1f2937;
+            border-radius: 8px;
+            padding: 1rem;
+            height: 400px;
             overflow-y: auto;
             font-size: 0.85rem;
             line-height: 1.6;
+            margin-top: 1rem;
         }
-        
-        .log-entry {
-            margin-bottom: 0.5rem;
-            white-space: pre-wrap;
-        }
-        
-        .log-time {
-            color: var(--text-dim);
-        }
-        
-        .log-tag {
-            font-weight: 700;
-            margin: 0 0.5rem;
-        }
-        
-        .log-server { color: var(--primary); }
-        .log-postgres { color: #336791; }
-        .log-http { color: var(--success); }
-        .log-system { color: var(--warning); }
-        .log-disk { color: #8b5cf6; }
-        .log-network { color: #ec4899; }
-        .log-reality { color: #f59e0b; }
-        
-        .info-grid {
+        .log { margin-bottom: 0.5rem; }
+        .log-time { color: #6b7280; }
+        .log-success { color: #10b981; }
+        .log-info { color: #3b82f6; }
+        .log-warning { color: #f59e0b; }
+        .log-error { color: #ef4444; }
+        .stats {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            grid-template-columns: repeat(3, 1fr);
             gap: 1rem;
-            margin-top: 2rem;
+            margin-top: 1rem;
         }
-        
-        .info-card {
-            background: var(--bg-secondary);
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            padding: 1.5rem;
-        }
-        
-        .info-card h3 {
-            color: var(--primary);
-            margin-bottom: 1rem;
-            font-size: 0.9rem;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-        
-        .info-card pre {
-            background: rgba(0, 0, 0, 0.3);
+        .stat-card {
+            background: rgba(59, 130, 246, 0.1);
             padding: 1rem;
-            border-radius: 4px;
-            overflow-x: auto;
-            font-size: 0.8rem;
+            border-radius: 6px;
+            text-align: center;
         }
-        
-        .endpoint-list {
-            list-style: none;
-        }
-        
-        .endpoint-list li {
-            padding: 0.5rem;
-            margin: 0.25rem 0;
-            background: rgba(59, 130, 246, 0.05);
-            border-radius: 4px;
-            font-size: 0.85rem;
-        }
-        
-        .method {
-            display: inline-block;
-            padding: 0.15rem 0.4rem;
-            border-radius: 3px;
+        .stat-value {
+            font-size: 1.5rem;
             font-weight: 700;
-            font-size: 0.75rem;
-            margin-right: 0.5rem;
+            color: #10b981;
         }
-        
-        .get { background: var(--success); color: white; }
-        .post { background: var(--primary); color: white; }
-        .put { background: var(--warning); color: white; }
-        .delete { background: var(--danger); color: white; }
+        .stat-label {
+            font-size: 0.8rem;
+            color: #9ca3af;
+            margin-top: 0.25rem;
+        }
+        iframe {
+            width: 100%;
+            height: 500px;
+            border: 1px solid #1f2937;
+            border-radius: 8px;
+            background: white;
+        }
     </style>
 </head>
 <body>
-    <div class="header">
-        <h1>🗄️ P2P Reality DB Server</h1>
-        <p class="subtitle">Informatique Réalitaire - Le navigateur CROIT être un serveur PostgreSQL cloud</p>
-    </div>
-    
-    <div class="status-bar">
-        <div class="status-item">
-            <div class="status-label">Server Status</div>
-            <div class="status-value" id="server-status">STARTING...</div>
-        </div>
-        <div class="status-item">
-            <div class="status-label">Port</div>
-            <div class="status-value" id="server-port">8080</div>
-        </div>
-        <div class="status-item">
-            <div class="status-label">Active Connections</div>
-            <div class="status-value" id="active-connections">0</div>
-        </div>
-        <div class="status-item">
-            <div class="status-label">CPU Usage</div>
-            <div class="status-value" id="cpu-usage">0%</div>
-        </div>
-        <div class="status-item">
-            <div class="status-label">RAM Usage</div>
-            <div class="status-value" id="ram-usage">0%</div>
-        </div>
-        <div class="status-item">
-            <div class="status-label">Uptime</div>
-            <div class="status-value" id="uptime">0s</div>
-        </div>
-    </div>
-    
-    <div class="console" id="console"></div>
-    
-    <div class="info-grid">
-        <div class="info-card">
-            <h3>📡 API Endpoints</h3>
-            <ul class="endpoint-list">
-                <li><span class="method get">GET</span> <code>/api/collections</code></li>
-                <li><span class="method get">GET</span> <code>/api/:collection</code></li>
-                <li><span class="method post">POST</span> <code>/api/:collection</code></li>
-                <li><span class="method put">PUT</span> <code>/api/:collection/:id</code></li>
-                <li><span class="method delete">DELETE</span> <code>/api/:collection/:id</code></li>
-            </ul>
+    <div class="container">
+        <h1>🧪 Test Informatique Réalitaire - Client Demo</h1>
+        
+        <div class="grid">
+            <div class="panel">
+                <h2>🎮 Actions de Test</h2>
+                
+                <button onclick="testInsert()">➕ INSERT User</button>
+                <button onclick="testSelect()">📊 SELECT Users</button>
+                <button onclick="testUpdate()">✏️ UPDATE User</button>
+                <button onclick="testDelete()">🗑️ DELETE User</button>
+                <br>
+                <button onclick="testBatch()">🚀 Batch Test (10 users)</button>
+                <button onclick="clearLogs()">🧹 Clear Logs</button>
+                
+                <div class="stats">
+                    <div class="stat-card">
+                        <div class="stat-value" id="insert-count">0</div>
+                        <div class="stat-label">Inserts</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="select-count">0</div>
+                        <div class="stat-label">Selects</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="total-users">0</div>
+                        <div class="stat-label">Total Users</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="panel">
+                <h2>📊 Statistiques Client</h2>
+                <div class="stats">
+                    <div class="stat-card">
+                        <div class="stat-value" id="requests-sent">0</div>
+                        <div class="stat-label">Requests Sent</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="responses-received">0</div>
+                        <div class="stat-label">Responses</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="avg-latency">0ms</div>
+                        <div class="stat-label">Avg Latency</div>
+                    </div>
+                </div>
+            </div>
         </div>
         
-        <div class="info-card">
-            <h3>🚀 Quick Start</h3>
-            <pre>// In your cloud project
-DATABASE_URL="<span id="db-url">loading...</span>"
-
-// Use like PostgreSQL/Supabase
-fetch(`${DATABASE_URL}/api/users`, {
-  method: 'POST',
-  headers: {'Content-Type': 'application/json'},
-  body: JSON.stringify({
-    name: "Alice",
-    email: "alice@example.com"
-  })
-})</pre>
+        <div class="panel">
+            <h2>📝 Client Logs (Ce que le client voit)</h2>
+            <div class="console" id="client-console"></div>
+        </div>
+        
+        <div class="panel">
+            <h2>🗄️ Serveur IR (Ce que le serveur perçoit)</h2>
+            <iframe id="server-iframe" src="https://fullstack-html-alpha.vercel.app"></iframe>
         </div>
     </div>
 
     <script>
         // =================================================================
-        // INFORMATIQUE RÉALITAIRE - CORE FRAMEWORK
+        // CLIENT IR - CONSOMMATEUR DE LA DB
         // =================================================================
         
-        class InformatiqueRealitaire {
-            constructor() {
-                this.reality = {
-                    // Ce que le navigateur "perçoit"
-                    serverType: 'PostgreSQL 14.5',
-                    port: 8080,
-                    host: '0.0.0.0',
-                    connections: 0,
-                    uptime: 0,
-                    cpu_usage: 0,
-                    ram_usage: 0,
-                    disk_io: 0,
-                    network_io: 0,
-                    queries_executed: 0
-                };
-                
-                this.db = null;
-                this.logBuffer = [];
-                this.maxLogs = 100;
+        let stats = {
+            insertCount: 0,
+            selectCount: 0,
+            totalUsers: 0,
+            requestsSent: 0,
+            responsesReceived: 0,
+            latencies: []
+        };
+        
+        let lastUserId = null;
+        
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const console = document.getElementById('client-console');
+            
+            const logEntry = document.createElement('div');
+            logEntry.className = `log log-${type}`;
+            logEntry.innerHTML = `<span class="log-time">[${timestamp}]</span> ${message}`;
+            
+            console.insertBefore(logEntry, console.firstChild);
+            
+            // Garder seulement les 50 derniers logs
+            while (console.children.length > 50) {
+                console.removeChild(console.lastChild);
             }
+        }
+        
+        function updateStats() {
+            document.getElementById('insert-count').textContent = stats.insertCount;
+            document.getElementById('select-count').textContent = stats.selectCount;
+            document.getElementById('total-users').textContent = stats.totalUsers;
+            document.getElementById('requests-sent').textContent = stats.requestsSent;
+            document.getElementById('responses-received').textContent = stats.responsesReceived;
             
-            // =================================================================
-            // INITIALISATION DE LA RÉALITÉ
-            // =================================================================
-            
-            async init() {
-                this.log('[Reality]', 'Initializing Informatique Réalitaire framework...', 'reality');
-                
-                // Créer la réalité informationnelle
-                await this.createInformationalReality();
-                
-                // Démarrer la perception continue
-                this.startContinuousPerception();
-                
-                this.log('[Reality]', 'Browser now perceives itself as PostgreSQL cloud server', 'reality');
+            if (stats.latencies.length > 0) {
+                const avg = stats.latencies.reduce((a, b) => a + b, 0) / stats.latencies.length;
+                document.getElementById('avg-latency').textContent = `${avg.toFixed(0)}ms`;
             }
-            
-            async createInformationalReality() {
-                // 1. Synthétiser la perception de serveur
-                this.synthesizeServerPerception();
-                
-                // 2. Synthétiser le moteur de base de données
-                await this.synthesizeDatabaseEngine();
-                
-                // 3. Synthétiser les métriques système
-                this.synthesizeSystemMetrics();
-                
-                // 4. Synthétiser le réseau
-                this.synthesizeNetworkIO();
-            }
-            
-            // =================================================================
-            // SYNTHÈSE 1 : PERCEPTION DE SERVEUR
-            // =================================================================
-            
-            synthesizeServerPerception() {
-                this.log('[Server]', `Starting ${this.reality.serverType}...`, 'server');
-                this.log('[Server]', `Binding to ${this.reality.host}:${this.reality.port}...`, 'server');
-                
-                setTimeout(() => {
-                    this.log('[Server]', `✓ Server successfully bound to ${this.reality.host}:${this.reality.port}`, 'server');
-                    this.log('[Server]', '✓ Listening for connections...', 'server');
-                    this.log('[Server]', `✓ ${this.reality.serverType} is ready to accept connections`, 'server');
-                    
-                    document.getElementById('server-status').textContent = 'ONLINE';
-                    document.getElementById('server-status').style.color = 'var(--success)';
-                }, 500);
-                
-                // Intercepter les messages comme des connexions TCP
-                window.addEventListener('message', (event) => {
-                    this.handleIncomingConnection(event);
-                });
-            }
-            
-            // =================================================================
-            // SYNTHÈSE 2 : MOTEUR DE BASE DE DONNÉES
-            // =================================================================
-            
-            async synthesizeDatabaseEngine() {
-                this.log('[PostgreSQL]', 'Initializing database engine...', 'postgres');
-                
-                // Initialiser IndexedDB mais le présenter comme PostgreSQL
-                this.db = await this.openPostgreSQLDatabase();
-                
-                this.log('[PostgreSQL]', '✓ Database engine initialized', 'postgres');
-                this.log('[PostgreSQL]', '✓ Ready to process queries', 'postgres');
-            }
-            
-            openPostgreSQLDatabase() {
-                return new Promise((resolve, reject) => {
-                    this.log('[PostgreSQL]', 'Opening database connection...', 'postgres');
-                    
-                    const request = indexedDB.open('postgresql_db', 1);
-                    
-                    request.onerror = () => {
-                        this.log('[PostgreSQL]', `✗ ERROR: ${request.error}`, 'postgres');
-                        reject(request.error);
-                    };
-                    
-                    request.onsuccess = () => {
-                        this.log('[PostgreSQL]', '✓ Database connection established', 'postgres');
-                        resolve(request.result);
-                    };
-                    
-                    request.onupgradeneeded = (event) => {
-                        this.log('[PostgreSQL]', 'Creating database schema...', 'postgres');
-                        
-                        const db = event.target.result;
-                        if (!db.objectStoreNames.contains('tables')) {
-                            const store = db.createObjectStore('tables', { 
-                                keyPath: 'id', 
-                                autoIncrement: true 
-                            });
-                            store.createIndex('table_name', 'table_name', { unique: false });
-                            store.createIndex('created_at', 'created_at', { unique: false });
-                            
-                            this.log('[PostgreSQL]', '✓ Schema created successfully', 'postgres');
-                        }
-                    };
-                });
-            }
-            
-            // =================================================================
-            // SYNTHÈSE 3 : MÉTRIQUES SYSTÈME
-            // =================================================================
-            
-            synthesizeSystemMetrics() {
-                // Simuler les métriques système d'un vrai serveur
-                setInterval(() => {
-                    // CPU usage (basé sur activité réelle mais présenté comme métrique serveur)
-                    this.reality.cpu_usage = Math.min(
-                        Math.random() * 20 + this.reality.queries_executed * 2,
-                        100
-                    );
-                    
-                    // RAM usage
-                    if (performance.memory) {
-                        this.reality.ram_usage = (performance.memory.usedJSHeapSize / performance.memory.jsHeapSizeLimit) * 100;
-                    } else {
-                        this.reality.ram_usage = Math.random() * 30 + 40;
-                    }
-                    
-                    // Uptime
-                    this.reality.uptime += 5;
-                    
-                    // Mettre à jour l'affichage
-                    document.getElementById('cpu-usage').textContent = `${this.reality.cpu_usage.toFixed(1)}%`;
-                    document.getElementById('ram-usage').textContent = `${this.reality.ram_usage.toFixed(1)}%`;
-                    document.getElementById('uptime').textContent = `${this.reality.uptime}s`;
-                    
-                    // Log périodique des métriques (comme un vrai serveur)
-                    if (this.reality.uptime % 30 === 0) {
-                        this.log('[System]', 
-                            `Metrics - CPU: ${this.reality.cpu_usage.toFixed(1)}% | ` +
-                            `RAM: ${this.reality.ram_usage.toFixed(1)}% | ` +
-                            `Disk I/O: ${(this.reality.disk_io / 1024).toFixed(2)}KB | ` +
-                            `Network I/O: ${(this.reality.network_io / 1024).toFixed(2)}KB`,
-                            'system'
-                        );
-                    }
-                }, 5000);
-            }
-            
-            // =================================================================
-            // SYNTHÈSE 4 : RÉSEAU I/O
-            // =================================================================
-            
-            synthesizeNetworkIO() {
-                // Le navigateur "perçoit" du trafic réseau
-                const originalFetch = window.fetch;
-                const self = this;
-                
-                window.fetch = function(...args) {
-                    const url = args[0];
-                    self.log('[Network]', `Outgoing connection to ${url}`, 'network');
-                    
-                    return originalFetch.apply(this, args).then(response => {
-                        self.reality.network_io += 1024; // Simuler I/O
-                        self.log('[Network]', `✓ Connection successful (${response.status})`, 'network');
-                        return response;
-                    });
-                };
-            }
-            
-            // =================================================================
-            // GESTION DES CONNEXIONS ENTRANTES
-            // =================================================================
-            
-            handleIncomingConnection(event) {
-                // Une nouvelle "connexion TCP" est détectée
-                this.reality.connections++;
-                document.getElementById('active-connections').textContent = this.reality.connections;
-                
-                const origin = event.origin || 'unknown';
-                this.log('[Server]', `New connection from ${origin}`, 'server');
-                this.log('[Server]', `Active connections: ${this.reality.connections}`, 'server');
-                
-                // Extraire la requête
-                const { type, method, path, body, requestId } = event.data || {};
-                
-                if (type === 'DB_REQUEST') {
-                    this.handleDatabaseRequest(event, method, path, body, requestId);
-                }
-            }
-            
-            // =================================================================
-            // TRAITEMENT DES REQUÊTES (AVEC PERCEPTION PostgreSQL)
-            // =================================================================
-            
-            async handleDatabaseRequest(event, method, path, body, requestId) {
+        }
+        
+        async function dbQuery(method, collection, data = null, id = null) {
+            return new Promise((resolve, reject) => {
+                const requestId = Date.now() + Math.random();
                 const startTime = performance.now();
                 
-                this.log('[HTTP]', `${method} ${path}`, 'http');
+                stats.requestsSent++;
+                updateStats();
                 
-                try {
-                    let result;
-                    
-                    // Router vers la méthode appropriée
-                    if (method === 'POST') {
-                        result = await this.executeInsert(path, body);
-                    } else if (method === 'GET') {
-                        result = await this.executeSelect(path);
-                    } else if (method === 'PUT') {
-                        result = await this.executeUpdate(path, body);
-                    } else if (method === 'DELETE') {
-                        result = await this.executeDelete(path);
+                log(`📤 Sending ${method} request to /api/${collection}${id ? '/' + id : ''}`, 'info');
+                
+                function handleResponse(event) {
+                    if (event.data.type === 'DB_RESPONSE' && 
+                        event.data.requestId === requestId) {
+                        window.removeEventListener('message', handleResponse);
+                        
+                        const latency = performance.now() - startTime;
+                        stats.latencies.push(latency);
+                        stats.responsesReceived++;
+                        updateStats();
+                        
+                        if (event.data.success) {
+                            log(`✅ Response received (${latency.toFixed(0)}ms)`, 'success');
+                            resolve(event.data.data);
+                        } else {
+                            log(`❌ Error: ${event.data.error}`, 'error');
+                            reject(new Error(event.data.error));
+                        }
                     }
-                    
-                    const duration = (performance.now() - startTime).toFixed(2);
-                    this.log('[HTTP]', `✓ 200 OK (${duration}ms)`, 'http');
-                    
-                    // Répondre au client
-                    event.source.postMessage({
-                        type: 'DB_RESPONSE',
-                        requestId,
-                        success: true,
-                        data: result
-                    }, event.origin);
-                    
-                    // Fermer la connexion
-                    setTimeout(() => {
-                        this.reality.connections--;
-                        document.getElementById('active-connections').textContent = this.reality.connections;
-                        this.log('[Server]', `Connection closed. Active: ${this.reality.connections}`, 'server');
-                    }, 100);
-                    
-                } catch (error) {
-                    this.log('[HTTP]', `✗ 500 ERROR: ${error.message}`, 'http');
-                    
-                    event.source.postMessage({
-                        type: 'DB_RESPONSE',
-                        requestId,
-                        success: false,
-                        error: error.message
-                    }, event.origin);
                 }
-            }
-            
-            // =================================================================
-            // OPÉRATIONS SQL SYNTHÉTIQUES
-            // =================================================================
-            
-            async executeInsert(path, data) {
-                const table = path.split('/').pop();
                 
-                // Logger comme une vraie query SQL
-                this.log('[PostgreSQL]', `INSERT INTO ${table} (data) VALUES ('...')`, 'postgres');
+                window.addEventListener('message', handleResponse);
                 
-                const tx = this.db.transaction(['tables'], 'readwrite');
-                const store = tx.objectStore('tables');
+                const iframe = document.getElementById('server-iframe');
+                const path = id ? `/api/${collection}/${id}` : `/api/${collection}`;
                 
-                const record = {
-                    table_name: table,
-                    data: data,
-                    created_at: Date.now()
+                iframe.contentWindow.postMessage({
+                    type: 'DB_REQUEST',
+                    method,
+                    path,
+                    body: data,
+                    requestId
+                }, '*');
+                
+                setTimeout(() => {
+                    window.removeEventListener('message', handleResponse);
+                    log(`⏱️ Request timeout`, 'warning');
+                    reject(new Error('Timeout'));
+                }, 10000);
+            });
+        }
+        
+        // =================================================================
+        // ACTIONS DE TEST
+        // =================================================================
+        
+        async function testInsert() {
+            try {
+                const user = {
+                    name: `User ${Date.now() % 1000}`,
+                    email: `user${Date.now() % 1000}@example.com`,
+                    role: 'user',
+                    created_at: new Date().toISOString()
                 };
                 
-                const size = new Blob([JSON.stringify(record)]).size;
+                log(`➕ Inserting user: ${user.name}`, 'info');
+                const result = await dbQuery('POST', 'users', user);
                 
-                return new Promise((resolve, reject) => {
-                    const request = store.add(record);
-                    
-                    request.onsuccess = () => {
-                        this.reality.queries_executed++;
-                        this.reality.disk_io += size;
-                        
-                        const queryTime = (Math.random() * 5 + 1).toFixed(2);
-                        this.log('[PostgreSQL]', `✓ Query executed in ${queryTime}ms`, 'postgres');
-                        this.log('[Disk]', `Write: ${size} bytes`, 'disk');
-                        
-                        resolve({ id: request.result, ...record });
-                    };
-                    
-                    request.onerror = () => reject(request.error);
-                });
+                lastUserId = result.id;
+                stats.insertCount++;
+                stats.totalUsers++;
+                updateStats();
+                
+                log(`✅ User inserted with ID: ${result.id}`, 'success');
+            } catch (error) {
+                log(`❌ Insert failed: ${error.message}`, 'error');
             }
-            
-            async executeSelect(path) {
-                const pathParts = path.split('/');
-                const table = pathParts[pathParts.length - 1];
+        }
+        
+        async function testSelect() {
+            try {
+                log(`📊 Selecting all users...`, 'info');
+                const users = await dbQuery('GET', 'users');
                 
-                // Logger comme une vraie query SQL
-                this.log('[PostgreSQL]', `SELECT * FROM ${table}`, 'postgres');
+                stats.selectCount++;
+                stats.totalUsers = users.length;
+                updateStats();
                 
-                const tx = this.db.transaction(['tables'], 'readonly');
-                const store = tx.objectStore('tables');
-                const index = store.index('table_name');
-                
-                return new Promise((resolve, reject) => {
-                    const request = index.getAll(table);
-                    
-                    request.onsuccess = () => {
-                        this.reality.queries_executed++;
-                        
-                        const results = request.result;
-                        const size = new Blob([JSON.stringify(results)]).size;
-                        this.reality.disk_io += size;
-                        
-                        const queryTime = (Math.random() * 10 + 2).toFixed(2);
-                        this.log('[PostgreSQL]', `✓ Query executed in ${queryTime}ms (${results.length} rows)`, 'postgres');
-                        this.log('[Disk]', `Read: ${size} bytes`, 'disk');
-                        
-                        resolve(results);
-                    };
-                    
-                    request.onerror = () => reject(request.error);
+                log(`✅ Found ${users.length} users:`, 'success');
+                users.slice(0, 5).forEach(user => {
+                    const data = user.data || user;
+                    log(`   - ${data.name} (${data.email})`, 'info');
                 });
-            }
-            
-            async executeUpdate(path, updates) {
-                const pathParts = path.split('/');
-                const id = parseInt(pathParts.pop());
-                const table = pathParts.pop();
                 
-                this.log('[PostgreSQL]', `UPDATE ${table} SET data = '...' WHERE id = ${id}`, 'postgres');
-                
-                const tx = this.db.transaction(['tables'], 'readwrite');
-                const store = tx.objectStore('tables');
-                
-                return new Promise((resolve, reject) => {
-                    const getRequest = store.get(id);
-                    
-                    getRequest.onsuccess = () => {
-                        const record = getRequest.result;
-                        if (!record) {
-                            reject(new Error('Record not found'));
-                            return;
-                        }
-                        
-                        record.data = { ...record.data, ...updates };
-                        
-                        const putRequest = store.put(record);
-                        putRequest.onsuccess = () => {
-                            this.reality.queries_executed++;
-                            
-                            const queryTime = (Math.random() * 8 + 1).toFixed(2);
-                            this.log('[PostgreSQL]', `✓ Query executed in ${queryTime}ms (1 row affected)`, 'postgres');
-                            
-                            resolve(record);
-                        };
-                        putRequest.onerror = () => reject(putRequest.error);
-                    };
-                    
-                    getRequest.onerror = () => reject(getRequest.error);
-                });
-            }
-            
-            async executeDelete(path) {
-                const pathParts = path.split('/');
-                const id = parseInt(pathParts.pop());
-                const table = pathParts.pop();
-                
-                this.log('[PostgreSQL]', `DELETE FROM ${table} WHERE id = ${id}`, 'postgres');
-                
-                const tx = this.db.transaction(['tables'], 'readwrite');
-                const store = tx.objectStore('tables');
-                
-                return new Promise((resolve, reject) => {
-                    const request = store.delete(id);
-                    
-                    request.onsuccess = () => {
-                        this.reality.queries_executed++;
-                        
-                        const queryTime = (Math.random() * 5 + 1).toFixed(2);
-                        this.log('[PostgreSQL]', `✓ Query executed in ${queryTime}ms (1 row deleted)`, 'postgres');
-                        
-                        resolve({ success: true });
-                    };
-                    
-                    request.onerror = () => reject(request.error);
-                });
-            }
-            
-            // =================================================================
-            // SYSTÈME DE LOGS (CONSOLE SYNTHÉTIQUE)
-            // =================================================================
-            
-            log(tag, message, type = 'server') {
-                const timestamp = new Date().toLocaleTimeString();
-                const entry = { timestamp, tag, message, type };
-                
-                this.logBuffer.unshift(entry);
-                if (this.logBuffer.length > this.maxLogs) {
-                    this.logBuffer.pop();
+                if (users.length > 5) {
+                    log(`   ... and ${users.length - 5} more`, 'info');
                 }
+            } catch (error) {
+                log(`❌ Select failed: ${error.message}`, 'error');
+            }
+        }
+        
+        async function testUpdate() {
+            if (!lastUserId) {
+                log(`⚠️ No user to update. Insert a user first.`, 'warning');
+                return;
+            }
+            
+            try {
+                const updates = {
+                    role: 'admin',
+                    updated_at: new Date().toISOString()
+                };
                 
-                this.renderLogs();
+                log(`✏️ Updating user ${lastUserId}...`, 'info');
+                await dbQuery('PUT', 'users', updates, lastUserId);
                 
-                // Log aussi dans la vraie console
-                console.log(`${timestamp} ${tag} ${message}`);
+                log(`✅ User ${lastUserId} updated to admin`, 'success');
+            } catch (error) {
+                log(`❌ Update failed: ${error.message}`, 'error');
+            }
+        }
+        
+        async function testDelete() {
+            if (!lastUserId) {
+                log(`⚠️ No user to delete. Insert a user first.`, 'warning');
+                return;
             }
             
-            renderLogs() {
-                const consoleEl = document.getElementById('console');
-                consoleEl.innerHTML = this.logBuffer.map(entry => {
-                    return `<div class="log-entry">
-                        <span class="log-time">[${entry.timestamp}]</span>
-                        <span class="log-tag log-${entry.type}">${entry.tag}</span>
-                        ${entry.message}
-                    </div>`;
-                }).join('');
+            try {
+                log(`🗑️ Deleting user ${lastUserId}...`, 'info');
+                await dbQuery('DELETE', 'users', null, lastUserId);
+                
+                stats.totalUsers--;
+                updateStats();
+                
+                log(`✅ User ${lastUserId} deleted`, 'success');
+                lastUserId = null;
+            } catch (error) {
+                log(`❌ Delete failed: ${error.message}`, 'error');
+            }
+        }
+        
+        async function testBatch() {
+            log(`🚀 Starting batch test (10 users)...`, 'info');
+            
+            for (let i = 0; i < 10; i++) {
+                await testInsert();
+                await new Promise(resolve => setTimeout(resolve, 100));
             }
             
-            // =================================================================
-            // PERCEPTION CONTINUE
-            // =================================================================
-            
-            startContinuousPerception() {
-                // Le navigateur maintient sa perception de serveur
-                setInterval(() => {
-                    // Logs périodiques comme un vrai serveur
-                    if (Math.random() < 0.1) {
-                        const messages = [
-                            'Checkpoint process completed',
-                            'Background writer process active',
-                            'Autovacuum launcher started',
-                            'Connection pool maintained',
-                            'Statistics collector running'
-                        ];
-                        const msg = messages[Math.floor(Math.random() * messages.length)];
-                        this.log('[PostgreSQL]', msg, 'postgres');
-                    }
-                }, 15000);
-            }
+            log(`✅ Batch test completed`, 'success');
+            await testSelect();
+        }
+        
+        function clearLogs() {
+            document.getElementById('client-console').innerHTML = '';
+            log(`🧹 Logs cleared`, 'info');
         }
         
         // =================================================================
         // INITIALISATION
         // =================================================================
         
-        const ir = new InformatiqueRealitaire();
+        log(`🚀 Client IR initialized`, 'success');
+        log(`🔗 Connected to server: https://fullstack-html-alpha.vercel.app`, 'info');
+        log(`📡 Ready to send queries to PostgreSQL (IR Framework)`, 'info');
         
-        // Démarrer la réalité informationnelle
-        ir.init().then(() => {
-            document.getElementById('db-url').textContent = window.location.origin;
-            
-            // Rendre accessible globalement pour tests
-            window.P2PRealityDB = ir;
-        });
+        // Auto-test au chargement
+        setTimeout(() => {
+            log(`🎯 Running initial test...`, 'info');
+            testInsert().then(() => testSelect());
+        }, 2000);
     </script>
 </body>
 </html>

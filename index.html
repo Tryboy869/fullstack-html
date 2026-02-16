@@ -2,973 +2,800 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Telegram Bot — Live</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Telegram Bot Builder</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;600&family=Space+Grotesk:wght@300;500;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@400;500;700&display=swap');
 
-  :root {
-    --bg: #0d0f14;
-    --surface: #13161e;
-    --surface2: #1a1e29;
-    --border: #232735;
-    --tg: #2AABEE;
-    --tg-dim: rgba(42,171,238,0.12);
-    --tg-glow: rgba(42,171,238,0.35);
-    --green: #00e676;
-    --green-dim: rgba(0,230,118,0.12);
-    --red: #ff3d57;
-    --red-dim: rgba(255,61,87,0.12);
-    --amber: #ffab00;
-    --text: #e8eaf0;
-    --muted: #5a6075;
-    --mono: 'IBM Plex Mono', monospace;
-    --sans: 'Space Grotesk', sans-serif;
-  }
+:root {
+  --bg: #fafaf9;
+  --surface: #ffffff;
+  --border: #e7e5e4;
+  --text: #1c1917;
+  --muted: #78716c;
+  --accent: #2563eb;
+  --accent-light: #dbeafe;
+  --success: #16a34a;
+  --success-light: #dcfce7;
+  --amber: #f59e0b;
+  --amber-light: #fef3c7;
+  --red: #dc2626;
+  --shadow: rgba(0,0,0,0.04);
+  --shadow-md: rgba(0,0,0,0.08);
+  --radius: 16px;
+  --serif: 'Instrument Serif', serif;
+  --sans: 'DM Sans', sans-serif;
+}
 
-  * { box-sizing: border-box; margin: 0; padding: 0; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
 
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: var(--sans);
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    overflow-x: hidden;
-  }
+body {
+  font-family: var(--sans);
+  background: var(--bg);
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+  padding-bottom: 2rem;
+}
 
-  /* Grid background */
-  body::before {
-    content: '';
+/* Header */
+header {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 1.25rem 1.5rem;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  backdrop-filter: blur(12px);
+  background: rgba(255,255,255,0.85);
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.logo-icon {
+  width: 36px;
+  height: 36px;
+  background: linear-gradient(135deg, #2563eb, #3b82f6);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.logo-icon svg { width: 20px; height: 20px; fill: white; }
+
+.logo-text h1 {
+  font-family: var(--serif);
+  font-size: 1.125rem;
+  font-weight: 400;
+  font-style: italic;
+  letter-spacing: -0.3px;
+}
+
+.logo-text span {
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+
+/* Container */
+.container {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 1.5rem;
+}
+
+/* Section */
+.section {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 1px 3px var(--shadow);
+}
+
+.section-title {
+  font-family: var(--serif);
+  font-size: 1.125rem;
+  font-style: italic;
+  margin-bottom: 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.section-title::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+/* Form */
+.field {
+  margin-bottom: 1.25rem;
+}
+
+.field:last-child { margin-bottom: 0; }
+
+label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text);
+  margin-bottom: 0.5rem;
+  letter-spacing: -0.2px;
+}
+
+label .required {
+  color: var(--red);
+  margin-left: 2px;
+}
+
+input[type="text"],
+input[type="password"],
+textarea {
+  width: 100%;
+  padding: 0.875rem 1rem;
+  border: 1.5px solid var(--border);
+  border-radius: 12px;
+  font-family: var(--sans);
+  font-size: 0.9375rem;
+  background: var(--surface);
+  transition: all 0.2s;
+  color: var(--text);
+}
+
+input:focus,
+textarea:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-light);
+}
+
+textarea {
+  resize: vertical;
+  min-height: 70px;
+  line-height: 1.5;
+}
+
+.hint {
+  font-size: 0.8125rem;
+  color: var(--muted);
+  margin-top: 0.375rem;
+}
+
+/* Function card */
+.function-card {
+  border: 1.5px solid var(--border);
+  border-radius: 12px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  background: var(--bg);
+  transition: all 0.2s;
+}
+
+.function-card.active {
+  border-color: var(--accent);
+  background: var(--accent-light);
+}
+
+.function-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+}
+
+.function-name {
+  font-weight: 600;
+  font-size: 0.9375rem;
+  letter-spacing: -0.2px;
+}
+
+.function-desc {
+  font-size: 0.8125rem;
+  color: var(--muted);
+  margin-bottom: 0.75rem;
+  line-height: 1.5;
+}
+
+/* Toggle switch */
+.toggle {
+  position: relative;
+  width: 44px;
+  height: 24px;
+  cursor: pointer;
+}
+
+.toggle input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.toggle-slider {
+  position: absolute;
+  inset: 0;
+  background: #d6d3d1;
+  border-radius: 12px;
+  transition: all 0.3s;
+}
+
+.toggle-slider::before {
+  content: '';
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  left: 3px;
+  top: 3px;
+  background: white;
+  border-radius: 50%;
+  transition: all 0.3s;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+}
+
+.toggle input:checked + .toggle-slider {
+  background: var(--accent);
+}
+
+.toggle input:checked + .toggle-slider::before {
+  transform: translateX(20px);
+}
+
+/* Buttons */
+.btn {
+  width: 100%;
+  padding: 1rem 1.5rem;
+  border-radius: 12px;
+  font-family: var(--sans);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s;
+  letter-spacing: -0.2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.btn-primary {
+  background: var(--accent);
+  color: white;
+  box-shadow: 0 1px 3px var(--shadow-md);
+}
+
+.btn-primary:active {
+  transform: scale(0.98);
+}
+
+.btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-secondary {
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  color: var(--text);
+}
+
+/* Status banner */
+.status-banner {
+  padding: 1rem;
+  border-radius: 12px;
+  font-size: 0.875rem;
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  line-height: 1.5;
+}
+
+.status-banner.info {
+  background: var(--accent-light);
+  color: var(--accent);
+  border: 1px solid var(--accent);
+}
+
+.status-banner.success {
+  background: var(--success-light);
+  color: var(--success);
+  border: 1px solid var(--success);
+}
+
+.status-banner.warning {
+  background: var(--amber-light);
+  color: #92400e;
+  border: 1px solid var(--amber);
+}
+
+.status-banner svg {
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+/* Steps */
+.steps {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+  padding: 0 0.5rem;
+}
+
+.step {
+  flex: 1;
+  height: 3px;
+  background: var(--border);
+  border-radius: 2px;
+  transition: all 0.3s;
+}
+
+.step.active { background: var(--accent); }
+
+/* Loading spinner */
+.spinner {
+  width: 18px;
+  height: 18px;
+  border: 2px solid rgba(255,255,255,0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Code display */
+.code-block {
+  background: #1c1917;
+  color: #fafaf9;
+  padding: 1rem;
+  border-radius: 12px;
+  font-family: 'Courier New', monospace;
+  font-size: 0.8125rem;
+  overflow-x: auto;
+  line-height: 1.6;
+  margin-top: 1rem;
+}
+
+.code-block::-webkit-scrollbar { height: 6px; }
+.code-block::-webkit-scrollbar-track { background: transparent; }
+.code-block::-webkit-scrollbar-thumb { background: #57534e; border-radius: 3px; }
+
+/* Expandable */
+.expandable-content {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease-out;
+}
+
+.expandable-content.open {
+  max-height: 500px;
+}
+
+/* Mobile optimization */
+@media (max-width: 640px) {
+  .container { padding: 1rem; }
+  .section { padding: 1.25rem; }
+  header { padding: 1rem 1.25rem; }
+}
+
+/* Floating deploy button on mobile */
+@media (max-width: 640px) {
+  .deploy-sticky {
     position: fixed;
-    inset: 0;
-    background-image:
-      linear-gradient(rgba(42,171,238,0.03) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(42,171,238,0.03) 1px, transparent 1px);
-    background-size: 40px 40px;
-    pointer-events: none;
-    z-index: 0;
+    bottom: 1rem;
+    left: 1rem;
+    right: 1rem;
+    z-index: 50;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.15);
   }
-
-  .container {
-    width: 100%;
-    max-width: 900px;
-    padding: 2rem 1.5rem;
-    position: relative;
-    z-index: 1;
-  }
-
-  /* Header */
-  header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 2.5rem;
-    padding-bottom: 1.5rem;
-    border-bottom: 1px solid var(--border);
-  }
-
-  .brand {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-  }
-
-  .tg-icon {
-    width: 44px;
-    height: 44px;
-    background: var(--tg-dim);
-    border: 1px solid rgba(42,171,238,0.3);
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-  }
-
-  .tg-icon svg { width: 24px; height: 24px; fill: var(--tg); }
-
-  .brand-text h1 {
-    font-size: 1.1rem;
-    font-weight: 700;
-    letter-spacing: -0.3px;
-  }
-
-  .brand-text span {
-    font-size: 0.75rem;
-    color: var(--muted);
-    font-family: var(--mono);
-  }
-
-  /* Status pill */
-  .status-pill {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.4rem 1rem;
-    border-radius: 99px;
-    font-size: 0.8rem;
-    font-family: var(--mono);
-    font-weight: 600;
-    transition: all 0.3s;
-    border: 1px solid transparent;
-  }
-
-  .status-pill.offline {
-    background: var(--red-dim);
-    border-color: rgba(255,61,87,0.2);
-    color: var(--red);
-  }
-
-  .status-pill.online {
-    background: var(--green-dim);
-    border-color: rgba(0,230,118,0.2);
-    color: var(--green);
-  }
-
-  .status-pill.polling {
-    background: var(--tg-dim);
-    border-color: rgba(42,171,238,0.2);
-    color: var(--tg);
-  }
-
-  .dot {
-    width: 7px;
-    height: 7px;
-    border-radius: 50%;
-    background: currentColor;
-  }
-
-  .dot.pulse {
-    animation: pulse 1.5s infinite;
-  }
-
-  @keyframes pulse {
-    0%, 100% { opacity: 1; transform: scale(1); }
-    50% { opacity: 0.4; transform: scale(0.85); }
-  }
-
-  /* Grid layout */
-  .grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1rem;
-    margin-bottom: 1rem;
-  }
-
-  .grid-3 {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 1rem;
-    margin-bottom: 1rem;
-  }
-
-  /* Cards */
-  .card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 1.25rem;
-  }
-
-  .card-label {
-    font-size: 0.7rem;
-    font-family: var(--mono);
-    color: var(--muted);
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    margin-bottom: 0.5rem;
-  }
-
-  .card-value {
-    font-size: 2rem;
-    font-weight: 700;
-    font-family: var(--mono);
-    color: var(--tg);
-    line-height: 1;
-  }
-
-  .card-value.green { color: var(--green); }
-  .card-value.amber { color: var(--amber); }
-
-  /* Config section */
-  .section {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 1.5rem;
-    margin-bottom: 1rem;
-  }
-
-  .section-title {
-    font-size: 0.7rem;
-    font-family: var(--mono);
-    color: var(--muted);
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    margin-bottom: 1.25rem;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-  }
-
-  .section-title::after {
-    content: '';
-    flex: 1;
-    height: 1px;
-    background: var(--border);
-  }
-
-  /* Token display */
-  .token-display {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    background: var(--bg);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 0.75rem 1rem;
-    font-family: var(--mono);
-    font-size: 0.85rem;
-    color: var(--tg);
-    margin-bottom: 1rem;
-  }
-
-  .token-display span {
-    flex: 1;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    letter-spacing: 0.5px;
-  }
-
-  /* Bot info bar */
-  .bot-info {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    padding: 0.75rem 1rem;
-    background: var(--tg-dim);
-    border: 1px solid rgba(42,171,238,0.2);
-    border-radius: 8px;
-    margin-bottom: 1.25rem;
-    font-size: 0.875rem;
-  }
-
-  .bot-avatar {
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    background: var(--tg);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 700;
-    font-size: 0.9rem;
-    color: white;
-    flex-shrink: 0;
-  }
-
-  .bot-name { font-weight: 600; }
-  .bot-username { color: var(--tg); font-family: var(--mono); font-size: 0.8rem; }
-
-  /* Controls */
-  .controls {
-    display: flex;
-    gap: 0.75rem;
-  }
-
-  .btn {
-    flex: 1;
-    padding: 0.875rem 1.5rem;
-    border-radius: 8px;
-    font-family: var(--mono);
-    font-size: 0.875rem;
-    font-weight: 600;
-    cursor: pointer;
-    border: 1px solid transparent;
-    transition: all 0.2s;
-    letter-spacing: 0.3px;
-  }
-
-  .btn-start {
-    background: var(--green-dim);
-    border-color: rgba(0,230,118,0.3);
-    color: var(--green);
-  }
-
-  .btn-start:hover {
-    background: rgba(0,230,118,0.2);
-    box-shadow: 0 0 20px rgba(0,230,118,0.15);
-  }
-
-  .btn-stop {
-    background: var(--red-dim);
-    border-color: rgba(255,61,87,0.3);
-    color: var(--red);
-  }
-
-  .btn-stop:hover {
-    background: rgba(255,61,87,0.2);
-  }
-
-  .btn:disabled {
-    opacity: 0.35;
-    cursor: not-allowed;
-  }
-
-  /* Commands config */
-  .command-item {
-    display: grid;
-    grid-template-columns: 120px 1fr;
-    gap: 0.75rem;
-    margin-bottom: 0.75rem;
-    align-items: center;
-  }
-
-  .cmd-trigger {
-    font-family: var(--mono);
-    font-size: 0.8rem;
-    color: var(--amber);
-    background: rgba(255,171,0,0.1);
-    border: 1px solid rgba(255,171,0,0.2);
-    border-radius: 6px;
-    padding: 0.5rem 0.75rem;
-  }
-
-  .cmd-response {
-    background: var(--bg);
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    padding: 0.5rem 0.75rem;
-    font-size: 0.85rem;
-    color: var(--text);
-    width: 100%;
-    font-family: var(--sans);
-    resize: none;
-    transition: border-color 0.2s;
-    min-height: 38px;
-  }
-
-  .cmd-response:focus {
-    outline: none;
-    border-color: var(--tg);
-  }
-
-  /* Console */
-  .console {
-    background: var(--bg);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 1rem;
-    height: 280px;
-    overflow-y: auto;
-    font-family: var(--mono);
-    font-size: 0.78rem;
-    line-height: 1.7;
-    scroll-behavior: smooth;
-  }
-
-  .console::-webkit-scrollbar { width: 4px; }
-  .console::-webkit-scrollbar-track { background: transparent; }
-  .console::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
-
-  .log { display: flex; gap: 0.75rem; }
-  .log-time { color: var(--muted); flex-shrink: 0; }
-  .log-tag {
-    flex-shrink: 0;
-    padding: 0 5px;
-    border-radius: 3px;
-    font-size: 0.7rem;
-    font-weight: 600;
-  }
-
-  .tag-sys { background: rgba(42,171,238,0.15); color: var(--tg); }
-  .tag-msg { background: rgba(0,230,118,0.15); color: var(--green); }
-  .tag-err { background: rgba(255,61,87,0.15); color: var(--red); }
-  .tag-poll { background: rgba(255,171,0,0.15); color: var(--amber); }
-
-  .log-text { color: var(--text); opacity: 0.85; flex: 1; word-break: break-word; }
-
-  /* Messages feed */
-  .messages-feed {
-    background: var(--bg);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 1rem;
-    height: 280px;
-    overflow-y: auto;
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-    scroll-behavior: smooth;
-  }
-
-  .message-bubble {
-    display: flex;
-    flex-direction: column;
-    max-width: 80%;
-    animation: slideIn 0.2s ease;
-  }
-
-  @keyframes slideIn {
-    from { opacity: 0; transform: translateY(8px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-
-  .msg-from { align-self: flex-start; }
-  .msg-reply { align-self: flex-end; }
-
-  .msg-sender {
-    font-size: 0.7rem;
-    color: var(--muted);
-    margin-bottom: 0.25rem;
-    font-family: var(--mono);
-  }
-
-  .msg-body {
-    padding: 0.6rem 0.9rem;
-    border-radius: 10px;
-    font-size: 0.875rem;
-    line-height: 1.5;
-  }
-
-  .msg-from .msg-body {
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-bottom-left-radius: 3px;
-    color: var(--text);
-  }
-
-  .msg-reply .msg-body {
-    background: var(--tg-dim);
-    border: 1px solid rgba(42,171,238,0.2);
-    border-bottom-right-radius: 3px;
-    color: var(--tg);
-  }
-
-  .msg-time {
-    font-size: 0.65rem;
-    color: var(--muted);
-    margin-top: 0.2rem;
-    font-family: var(--mono);
-  }
-
-  .msg-from .msg-time { text-align: left; }
-  .msg-reply .msg-time { text-align: right; }
-
-  /* Empty state */
-  .empty-state {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    height: 100%;
-    color: var(--muted);
-    gap: 0.5rem;
-    font-size: 0.85rem;
-  }
-
-  .empty-state svg { opacity: 0.3; }
-
-  /* Polling indicator */
-  .poll-bar {
-    height: 2px;
-    background: var(--border);
-    border-radius: 1px;
-    overflow: hidden;
-    margin-top: 1rem;
-  }
-
-  .poll-fill {
-    height: 100%;
-    background: var(--tg);
-    width: 0%;
-    transition: width 0.1s linear;
-    box-shadow: 0 0 8px var(--tg-glow);
-  }
-
-  .poll-label {
-    display: flex;
-    justify-content: space-between;
-    font-size: 0.7rem;
-    font-family: var(--mono);
-    color: var(--muted);
-    margin-top: 0.4rem;
-  }
-
-  /* Warning banner */
-  .warning {
-    display: flex;
-    gap: 0.75rem;
-    align-items: flex-start;
-    padding: 0.875rem 1rem;
-    background: rgba(255,171,0,0.08);
-    border: 1px solid rgba(255,171,0,0.2);
-    border-radius: 8px;
-    font-size: 0.82rem;
-    color: var(--amber);
-    margin-top: 1rem;
-    line-height: 1.5;
-  }
-
-  .warning strong { display: block; margin-bottom: 0.2rem; font-size: 0.85rem; }
-
-  /* Textarea style */
-  textarea.cmd-response {
-    height: auto;
-    min-height: 38px;
-    overflow: hidden;
-  }
-
-  /* Shine effect on active card */
-  .card.active-glow {
-    border-color: rgba(42,171,238,0.3);
-    box-shadow: 0 0 20px rgba(42,171,238,0.08);
-  }
+}
 </style>
 </head>
 <body>
-<div class="container">
 
-  <!-- Header -->
-  <header>
-    <div class="brand">
-      <div class="tg-icon">
-        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-          <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12L7.394 13.9l-2.967-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.537-.194 1.006.131.761.659z"/>
-        </svg>
-      </div>
-      <div class="brand-text">
-        <h1>Telegram Bot Runtime</h1>
-        <span>HTML-native polling engine · v1.0</span>
-      </div>
-    </div>
-    <div class="status-pill offline" id="status-pill">
-      <div class="dot" id="status-dot"></div>
-      <span id="status-text">OFFLINE</span>
-    </div>
-  </header>
-
-  <!-- Stats -->
-  <div class="grid-3">
-    <div class="card" id="card-msgs">
-      <div class="card-label">Messages received</div>
-      <div class="card-value green" id="stat-msgs">0</div>
-    </div>
-    <div class="card">
-      <div class="card-label">Replies sent</div>
-      <div class="card-value" id="stat-replies">0</div>
-    </div>
-    <div class="card">
-      <div class="card-label">Poll cycles</div>
-      <div class="card-value amber" id="stat-polls">0</div>
-    </div>
-  </div>
-
-  <!-- Bot info + controls -->
-  <div class="section">
-    <div class="section-title">Bot identity</div>
-
-    <div class="token-display">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+<header>
+  <div class="logo">
+    <div class="logo-icon">
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12L7.394 13.9l-2.967-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.537-.194 1.006.131.761.659z"/>
       </svg>
-      <span id="token-display">Loading…</span>
     </div>
-
-    <div class="bot-info" id="bot-info" style="display:none">
-      <div class="bot-avatar" id="bot-avatar">?</div>
-      <div>
-        <div class="bot-name" id="bot-name">—</div>
-        <div class="bot-username" id="bot-username">—</div>
-      </div>
-    </div>
-
-    <div class="controls">
-      <button class="btn btn-start" id="btn-start" onclick="startBot()">START POLLING</button>
-      <button class="btn btn-stop" id="btn-stop" onclick="stopBot()" disabled>STOP</button>
-    </div>
-
-    <div class="poll-bar"><div class="poll-fill" id="poll-fill"></div></div>
-    <div class="poll-label">
-      <span id="poll-label-left">Polling interval: 2s</span>
-      <span id="poll-label-right">Next poll in: —</span>
+    <div class="logo-text">
+      <h1>Bot Builder</h1>
+      <span>No code · Deploy instantly</span>
     </div>
   </div>
+</header>
 
-  <!-- Commands config -->
-  <div class="section">
-    <div class="section-title">Commands — edit responses live</div>
-
-    <div id="commands-list">
-      <div class="command-item">
-        <div class="cmd-trigger">/start</div>
-        <textarea class="cmd-response" data-cmd="/start" rows="1">Hello! I am your bot running 100% from a browser tab. No server needed.</textarea>
-      </div>
-      <div class="command-item">
-        <div class="cmd-trigger">/help</div>
-        <textarea class="cmd-response" data-cmd="/help" rows="1">Available commands: /start /help /ping /time /status</textarea>
-      </div>
-      <div class="command-item">
-        <div class="cmd-trigger">/ping</div>
-        <textarea class="cmd-response" data-cmd="/ping" rows="1">Pong! Latency: {latency}ms</textarea>
-      </div>
-      <div class="command-item">
-        <div class="cmd-trigger">/time</div>
-        <textarea class="cmd-response" data-cmd="/time" rows="1">Current time: {time}</textarea>
-      </div>
-      <div class="command-item">
-        <div class="cmd-trigger">/status</div>
-        <textarea class="cmd-response" data-cmd="/status" rows="1">Bot is LIVE. Messages handled: {msgs}. Running from a browser tab since {uptime}.</textarea>
-      </div>
-      <div class="command-item">
-        <div class="cmd-trigger">default</div>
-        <textarea class="cmd-response" data-cmd="default" rows="1">Got your message: "{text}". I am a browser-powered bot!</textarea>
-      </div>
-    </div>
+<div class="container">
+  <!-- Steps -->
+  <div class="steps">
+    <div class="step active" id="step-1"></div>
+    <div class="step" id="step-2"></div>
+    <div class="step" id="step-3"></div>
   </div>
 
-  <!-- Logs + Messages -->
-  <div class="grid">
-    <div class="section" style="margin:0">
-      <div class="section-title">System logs</div>
-      <div class="console" id="console-log">
-        <div class="log">
-          <span class="log-time">—</span>
-          <span class="log-tag tag-sys">SYS</span>
-          <span class="log-text">Runtime initialized. Awaiting start.</span>
-        </div>
-      </div>
-    </div>
-    <div class="section" style="margin:0">
-      <div class="section-title">Message feed</div>
-      <div class="messages-feed" id="messages-feed">
-        <div class="empty-state">
-          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
-          </svg>
-          <span>No messages yet</span>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Warning -->
-  <div class="warning">
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0;margin-top:1px">
-      <path d="m10.29 3.86-7.72 13a2 2 0 0 0 1.71 3h15.43a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+  <!-- Status -->
+  <div class="status-banner info" id="status-banner">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>
     </svg>
-    <div>
-      <strong>Browser-only limitation</strong>
-      The bot runs while this tab is open and active. Closing the browser will stop the polling loop — messages sent while offline will be queued by Telegram and processed when you reopen. This is the experiment we are validating.
+    <div>Configure your bot credentials, choose functions, then deploy to Cloudflare Workers in one click.</div>
+  </div>
+
+  <!-- Config -->
+  <div class="section">
+    <div class="section-title">Credentials</div>
+
+    <div class="field">
+      <label>Telegram Bot Token <span class="required">*</span></label>
+      <input type="password" id="telegram-token" placeholder="1234567890:ABCdefGHIjklMNOpqrsTUVwxyz">
+      <div class="hint">Get from @BotFather on Telegram</div>
     </div>
+
+    <div class="field">
+      <label>Cloudflare API Token <span class="required">*</span></label>
+      <input type="password" id="cf-token" placeholder="Your Cloudflare API token">
+      <div class="hint">Create at cloudflare.com → My Profile → API Tokens</div>
+    </div>
+
+    <div class="field">
+      <label>Cloudflare Account ID <span class="required">*</span></label>
+      <input type="text" id="cf-account" placeholder="abc123def456">
+      <div class="hint">Find in Cloudflare dashboard → Workers & Pages</div>
+    </div>
+
+    <div class="field">
+      <label>Worker Name</label>
+      <input type="text" id="worker-name" placeholder="my-telegram-bot" value="telegram-bot">
+      <div class="hint">Lowercase, no spaces</div>
+    </div>
+  </div>
+
+  <!-- Functions -->
+  <div class="section">
+    <div class="section-title">Bot Functions</div>
+
+    <!-- /start -->
+    <div class="function-card" data-func="start">
+      <div class="function-header">
+        <div class="function-name">/start command</div>
+        <label class="toggle">
+          <input type="checkbox" checked data-toggle="start">
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+      <div class="function-desc">First message users see when starting the bot</div>
+      <div class="expandable-content open">
+        <textarea id="msg-start" placeholder="Welcome message">Hello! I'm your bot. Use /help to see available commands.</textarea>
+      </div>
+    </div>
+
+    <!-- /help -->
+    <div class="function-card" data-func="help">
+      <div class="function-header">
+        <div class="function-name">/help command</div>
+        <label class="toggle">
+          <input type="checkbox" checked data-toggle="help">
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+      <div class="function-desc">Shows available commands</div>
+      <div class="expandable-content open">
+        <textarea id="msg-help" placeholder="Help message">Available commands:
+/start - Start the bot
+/help - Show this help
+/ping - Check bot status</textarea>
+      </div>
+    </div>
+
+    <!-- Welcome new members -->
+    <div class="function-card" data-func="welcome">
+      <div class="function-header">
+        <div class="function-name">Welcome new members</div>
+        <label class="toggle">
+          <input type="checkbox" data-toggle="welcome">
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+      <div class="function-desc">Auto-greet when someone joins the group</div>
+      <div class="expandable-content">
+        <textarea id="msg-welcome" placeholder="Welcome message">Welcome {name} to the group! 👋</textarea>
+        <div class="hint" style="margin-top:0.5rem">Use {name} for member's name</div>
+      </div>
+    </div>
+
+    <!-- Auto-reply -->
+    <div class="function-card" data-func="autoreply">
+      <div class="function-header">
+        <div class="function-name">Auto-reply to all messages</div>
+        <label class="toggle">
+          <input type="checkbox" data-toggle="autoreply">
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+      <div class="function-desc">Reply to non-command messages</div>
+      <div class="expandable-content">
+        <textarea id="msg-autoreply" placeholder="Auto-reply message">Got your message: "{text}"</textarea>
+        <div class="hint" style="margin-top:0.5rem">Use {text} for user's message</div>
+      </div>
+    </div>
+
+    <!-- /ping -->
+    <div class="function-card" data-func="ping">
+      <div class="function-header">
+        <div class="function-name">/ping command</div>
+        <label class="toggle">
+          <input type="checkbox" checked data-toggle="ping">
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+      <div class="function-desc">Check if bot is responsive</div>
+      <div class="expandable-content open">
+        <textarea id="msg-ping" placeholder="Ping response">Pong! Bot is alive and running.</textarea>
+      </div>
+    </div>
+  </div>
+
+  <!-- Deploy button -->
+  <button class="btn btn-primary" id="btn-deploy" onclick="deployBot()">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/>
+    </svg>
+    Deploy to Cloudflare
+  </button>
+
+  <!-- Generated code preview -->
+  <div class="section" id="code-preview" style="display:none;">
+    <div class="section-title">Generated Worker Code</div>
+    <div class="code-block" id="code-display"></div>
+    <button class="btn btn-secondary" onclick="copyCode()" style="margin-top:1rem">
+      Copy Code
+    </button>
   </div>
 
 </div>
 
 <script>
 // ================================================================
-// CONFIGURATION
-// ================================================================
-
-const TOKEN = '7998886562:AAHiSdTznBFgXFDESNpxr3SLV7x4XcFDIao';
-const API   = `https://api.telegram.org/bot${TOKEN}`;
-const POLL_INTERVAL_MS = 2000;
-
-// ================================================================
 // STATE
 // ================================================================
 
-let state = {
-  running:     false,
-  pollTimer:   null,
-  countdownTimer: null,
-  offset:      0,
-  stats: { msgs: 0, replies: 0, polls: 0 },
-  botInfo:     null,
-  startTime:   null,
-  nextPollIn:  POLL_INTERVAL_MS / 1000
+let config = {
+  telegramToken: '',
+  cfToken: '',
+  cfAccount: '',
+  workerName: 'telegram-bot',
+  functions: {}
 };
 
 // ================================================================
-// BOOT — verify token & fetch bot info
+// TOGGLE EXPANDABLES
 // ================================================================
 
-async function boot() {
-  const masked = TOKEN.slice(0, 8) + '…' + TOKEN.slice(-6);
-  document.getElementById('token-display').textContent = masked;
-
-  addLog('sys', 'Verifying token with Telegram API…');
-  try {
-    const r = await fetch(`${API}/getMe`);
-    const data = await r.json();
-
-    if (!data.ok) throw new Error(data.description);
-
-    state.botInfo = data.result;
-    const b = data.result;
-
-    document.getElementById('bot-info').style.display = 'flex';
-    document.getElementById('bot-name').textContent    = b.first_name;
-    document.getElementById('bot-username').textContent = '@' + b.username;
-    document.getElementById('bot-avatar').textContent  = b.first_name[0].toUpperCase();
-
-    addLog('sys', `Token valid. Bot: ${b.first_name} (@${b.username})`);
-    addLog('sys', `Bot ID: ${b.id} · Can join groups: ${b.can_join_groups}`);
-  } catch (e) {
-    addLog('err', `Token verification failed: ${e.message}`);
-  }
-}
-
-// ================================================================
-// POLLING
-// ================================================================
-
-async function poll() {
-  if (!state.running) return;
-
-  state.stats.polls++;
-  document.getElementById('stat-polls').textContent = state.stats.polls;
-  addLog('poll', `Polling… (offset: ${state.offset})`);
-
-  try {
-    const r = await fetch(`${API}/getUpdates?offset=${state.offset}&timeout=1`);
-    const data = await r.json();
-
-    if (!data.ok) throw new Error(data.description);
-
-    for (const update of data.result) {
-      state.offset = update.update_id + 1;
-      if (update.message) await handleMessage(update.message);
+document.querySelectorAll('[data-toggle]').forEach(toggle => {
+  toggle.addEventListener('change', (e) => {
+    const func = e.target.dataset.toggle;
+    const card = document.querySelector(`[data-func="${func}"]`);
+    const content = card.querySelector('.expandable-content');
+    
+    if (e.target.checked) {
+      content.classList.add('open');
+      card.classList.add('active');
+    } else {
+      content.classList.remove('open');
+      card.classList.remove('active');
     }
-  } catch (e) {
-    addLog('err', `Poll error: ${e.message}`);
-  }
-
-  // Schedule next poll
-  if (state.running) {
-    startCountdown();
-    state.pollTimer = setTimeout(poll, POLL_INTERVAL_MS);
-  }
-}
-
-function startCountdown() {
-  clearInterval(state.countdownTimer);
-  let remaining = POLL_INTERVAL_MS;
-  const step = 100;
-
-  state.countdownTimer = setInterval(() => {
-    remaining -= step;
-    const pct = ((POLL_INTERVAL_MS - remaining) / POLL_INTERVAL_MS) * 100;
-    document.getElementById('poll-fill').style.width = pct + '%';
-    const secs = (remaining / 1000).toFixed(1);
-    document.getElementById('poll-label-right').textContent = `Next poll in: ${secs}s`;
-
-    if (remaining <= 0) clearInterval(state.countdownTimer);
-  }, step);
-}
-
-// ================================================================
-// MESSAGE HANDLER
-// ================================================================
-
-async function handleMessage(msg) {
-  const text      = msg.text || '';
-  const chatId    = msg.chat.id;
-  const fromName  = msg.from?.first_name || 'User';
-  const fromUser  = msg.from?.username ? '@' + msg.from.username : fromName;
-
-  state.stats.msgs++;
-  document.getElementById('stat-msgs').textContent = state.stats.msgs;
-
-  addLog('msg', `From ${fromUser} [${chatId}]: ${text}`);
-  addMessageBubble(fromName, text, 'from');
-
-  // Build response
-  const reply = buildReply(text);
-  if (!reply) return;
-
-  await sendMessage(chatId, reply);
-  addMessageBubble('Bot', reply, 'reply');
-}
-
-function buildReply(text) {
-  const commands = getCommands();
-  const cmd = text.trim().split(' ')[0].toLowerCase();
-
-  const startTime = state.startTime
-    ? new Date(state.startTime).toLocaleTimeString()
-    : '—';
-
-  const uptime = state.startTime
-    ? formatUptime(Date.now() - state.startTime)
-    : '—';
-
-  const vars = {
-    '{text}':    text,
-    '{time}':    new Date().toLocaleTimeString(),
-    '{msgs}':    state.stats.msgs,
-    '{uptime}':  uptime,
-    '{latency}': Math.floor(Math.random() * 40 + 10)
-  };
-
-  let template = commands[cmd] || commands['default'] || null;
-  if (!template) return null;
-
-  for (const [k, v] of Object.entries(vars)) {
-    template = template.replaceAll(k, v);
-  }
-  return template;
-}
-
-function getCommands() {
-  const map = {};
-  document.querySelectorAll('.cmd-response').forEach(el => {
-    map[el.dataset.cmd] = el.value;
-  });
-  return map;
-}
-
-// ================================================================
-// SEND MESSAGE
-// ================================================================
-
-async function sendMessage(chatId, text) {
-  try {
-    const r = await fetch(`${API}/sendMessage`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ chat_id: chatId, text })
-    });
-    const data = await r.json();
-    if (!data.ok) throw new Error(data.description);
-
-    state.stats.replies++;
-    document.getElementById('stat-replies').textContent = state.stats.replies;
-    addLog('msg', `Reply sent to [${chatId}]: ${text.slice(0, 60)}${text.length > 60 ? '…' : ''}`);
-  } catch (e) {
-    addLog('err', `Send failed: ${e.message}`);
-  }
-}
-
-// ================================================================
-// START / STOP
-// ================================================================
-
-async function startBot() {
-  if (state.running) return;
-  state.running  = true;
-  state.startTime = Date.now();
-
-  document.getElementById('btn-start').disabled = true;
-  document.getElementById('btn-stop').disabled  = false;
-
-  setStatus('polling');
-  addLog('sys', 'Bot started. Long-polling initiated.');
-
-  await poll();
-}
-
-function stopBot() {
-  state.running = false;
-  clearTimeout(state.pollTimer);
-  clearInterval(state.countdownTimer);
-
-  document.getElementById('btn-start').disabled = false;
-  document.getElementById('btn-stop').disabled  = true;
-  document.getElementById('poll-fill').style.width = '0%';
-  document.getElementById('poll-label-right').textContent = 'Next poll in: —';
-
-  setStatus('offline');
-  addLog('sys', 'Bot stopped.');
-}
-
-// ================================================================
-// UI HELPERS
-// ================================================================
-
-function setStatus(s) {
-  const pill = document.getElementById('status-pill');
-  const dot  = document.getElementById('status-dot');
-  const txt  = document.getElementById('status-text');
-
-  pill.className = 'status-pill ' + s;
-  dot.className  = 'dot' + (s !== 'offline' ? ' pulse' : '');
-  txt.textContent = s.toUpperCase();
-}
-
-function addLog(type, text) {
-  const container = document.getElementById('console-log');
-  const now = new Date().toLocaleTimeString('en-GB', { hour12: false });
-
-  const tagClass = { sys: 'tag-sys', msg: 'tag-msg', err: 'tag-err', poll: 'tag-poll' }[type] || 'tag-sys';
-  const tagLabel = { sys: 'SYS', msg: 'MSG', err: 'ERR', poll: 'POLL' }[type] || 'SYS';
-
-  const el = document.createElement('div');
-  el.className = 'log';
-  el.innerHTML = `
-    <span class="log-time">${now}</span>
-    <span class="log-tag ${tagClass}">${tagLabel}</span>
-    <span class="log-text">${escHtml(text)}</span>
-  `;
-  container.appendChild(el);
-
-  // Keep 100 lines max
-  while (container.children.length > 100) container.removeChild(container.firstChild);
-  container.scrollTop = container.scrollHeight;
-}
-
-function addMessageBubble(sender, text, direction) {
-  const feed = document.getElementById('messages-feed');
-
-  // Remove empty state
-  const empty = feed.querySelector('.empty-state');
-  if (empty) empty.remove();
-
-  const now  = new Date().toLocaleTimeString('en-GB', { hour12: false });
-  const el   = document.createElement('div');
-  el.className = `message-bubble msg-${direction}`;
-  el.innerHTML = `
-    <div class="msg-sender">${escHtml(sender)}</div>
-    <div class="msg-body">${escHtml(text)}</div>
-    <div class="msg-time">${now}</div>
-  `;
-  feed.appendChild(el);
-
-  while (feed.children.length > 60) feed.removeChild(feed.firstChild);
-  feed.scrollTop = feed.scrollHeight;
-}
-
-function escHtml(s) {
-  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-}
-
-function formatUptime(ms) {
-  const s = Math.floor(ms / 1000);
-  if (s < 60)  return `${s}s`;
-  if (s < 3600) return `${Math.floor(s/60)}m ${s%60}s`;
-  return `${Math.floor(s/3600)}h ${Math.floor((s%3600)/60)}m`;
-}
-
-// ================================================================
-// AUTO-RESIZE TEXTAREAS
-// ================================================================
-
-document.querySelectorAll('textarea.cmd-response').forEach(el => {
-  el.addEventListener('input', () => {
-    el.style.height = 'auto';
-    el.style.height = el.scrollHeight + 'px';
   });
 });
+
+// ================================================================
+// GENERATE WORKER CODE
+// ================================================================
+
+function generateWorkerCode() {
+  const token = document.getElementById('telegram-token').value;
+  const functions = {};
+  
+  document.querySelectorAll('[data-toggle]').forEach(toggle => {
+    if (toggle.checked) {
+      const func = toggle.dataset.toggle;
+      const msgId = `msg-${func}`;
+      functions[func] = document.getElementById(msgId)?.value || '';
+    }
+  });
+
+  return `// Generated by Telegram Bot Builder
+// Deploy to Cloudflare Workers
+
+const TELEGRAM_TOKEN = '${token}';
+const API = \`https://api.telegram.org/bot\${TELEGRAM_TOKEN}\`;
+
+const FUNCTIONS = ${JSON.stringify(functions, null, 2)};
+
+export default {
+  async fetch(request) {
+    if (request.method !== 'POST') {
+      return new Response('OK', { status: 200 });
+    }
+
+    try {
+      const update = await request.json();
+      await handleUpdate(update);
+    } catch (e) {
+      console.error('Error:', e);
+    }
+
+    return new Response('OK', { status: 200 });
+  }
+};
+
+async function handleUpdate(update) {
+  const message = update.message;
+  if (!message) return;
+
+  const chatId = message.chat.id;
+  const text = message.text || '';
+  const newMember = message.new_chat_member;
+
+  // Welcome new member
+  if (newMember && FUNCTIONS.welcome) {
+    const name = newMember.first_name || 'User';
+    const msg = FUNCTIONS.welcome.replace('{name}', name);
+    await sendMessage(chatId, msg);
+    return;
+  }
+
+  // Commands
+  if (text.startsWith('/')) {
+    const cmd = text.split(' ')[0].toLowerCase().slice(1);
+    if (FUNCTIONS[cmd]) {
+      await sendMessage(chatId, FUNCTIONS[cmd]);
+      return;
+    }
+  }
+
+  // Auto-reply
+  if (FUNCTIONS.autoreply) {
+    const msg = FUNCTIONS.autoreply.replace('{text}', text);
+    await sendMessage(chatId, msg);
+  }
+}
+
+async function sendMessage(chatId, text) {
+  await fetch(\`\${API}/sendMessage\`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ chat_id: chatId, text })
+  });
+}`;
+}
+
+// ================================================================
+// DEPLOY
+// ================================================================
+
+async function deployBot() {
+  const btn = document.getElementById('btn-deploy');
+  const status = document.getElementById('status-banner');
+  
+  // Validate
+  const telegramToken = document.getElementById('telegram-token').value.trim();
+  const cfToken = document.getElementById('cf-token').value.trim();
+  const cfAccount = document.getElementById('cf-account').value.trim();
+  const workerName = document.getElementById('worker-name').value.trim();
+
+  if (!telegramToken || !cfToken || !cfAccount) {
+    showStatus('warning', 'Please fill in all required credentials.');
+    return;
+  }
+
+  // Generate code
+  const workerCode = generateWorkerCode();
+
+  // Show code preview
+  document.getElementById('code-display').textContent = workerCode;
+  document.getElementById('code-preview').style.display = 'block';
+
+  // Deploy
+  btn.disabled = true;
+  btn.innerHTML = '<div class="spinner"></div> Deploying...';
+  
+  showStatus('info', 'Deploying to Cloudflare Workers...');
+  updateStep(2);
+
+  try {
+    // Upload worker
+    const uploadRes = await fetch(
+      `https://api.cloudflare.com/client/v4/accounts/${cfAccount}/workers/scripts/${workerName}`,
+      {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${cfToken}`,
+          'Content-Type': 'application/javascript'
+        },
+        body: workerCode
+      }
+    );
+
+    if (!uploadRes.ok) {
+      const err = await uploadRes.json();
+      throw new Error(err.errors?.[0]?.message || 'Deploy failed');
+    }
+
+    updateStep(3);
+    showStatus('info', 'Setting webhook...');
+
+    // Set webhook
+    const webhookUrl = `https://${workerName}.${cfAccount}.workers.dev`;
+    const webhookRes = await fetch(
+      `https://api.telegram.org/bot${telegramToken}/setWebhook`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url: webhookUrl })
+      }
+    );
+
+    const webhookData = await webhookRes.json();
+    if (!webhookData.ok) {
+      throw new Error(webhookData.description || 'Webhook failed');
+    }
+
+    // Success
+    showStatus('success', `✅ Bot deployed! Live at: ${webhookUrl}`);
+    btn.innerHTML = '✅ Deployed Successfully';
+    
+  } catch (e) {
+    showStatus('warning', `Deployment failed: ${e.message}`);
+    btn.disabled = false;
+    btn.innerHTML = 'Retry Deploy';
+  }
+}
+
+function showStatus(type, message) {
+  const banner = document.getElementById('status-banner');
+  banner.className = `status-banner ${type}`;
+  banner.innerHTML = `
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      ${type === 'success' ? '<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>' :
+        type === 'warning' ? '<path d="m10.29 3.86-7.72 13a2 2 0 0 0 1.71 3h15.43a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>' :
+        '<circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>'}
+    </svg>
+    <div>${message}</div>
+  `;
+}
+
+function updateStep(n) {
+  for (let i = 1; i <= 3; i++) {
+    document.getElementById(`step-${i}`).classList.toggle('active', i <= n);
+  }
+}
+
+function copyCode() {
+  const code = document.getElementById('code-display').textContent;
+  navigator.clipboard.writeText(code);
+  alert('Code copied to clipboard!');
+}
 
 // ================================================================
 // INIT
 // ================================================================
 
-boot();
+showStatus('info', 'Configure your bot credentials, choose functions, then deploy to Cloudflare Workers in one click.');
 </script>
+
 </body>
 </html>

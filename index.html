@@ -1,656 +1,974 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cosmic P2P - Phase Mesh Autonome</title>
-    <script src="https://cdn.jsdelivr.net/npm/lucide@latest/dist/umd/lucide.min.js"></script>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        body { 
-            background: #020617; 
-            color: #2dd4bf; 
-            font-family: 'ui-monospace', 'SFMono-Regular', monospace; 
-        }
-        .cosmic-card { 
-            border: 1px solid #134e4a; 
-            background: rgba(0,0,0,0.8); 
-            box-shadow: 0 0 20px rgba(45, 212, 191, 0.1); 
-        }
-        .status-pulse { 
-            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; 
-        }
-        @keyframes pulse { 
-            0%, 100% { opacity: 1; } 
-            50% { opacity: .3; } 
-        }
-        .message-bubble {
-            max-width: 70%;
-            word-wrap: break-word;
-        }
-        .message-sent {
-            background: linear-gradient(135deg, #134e4a 0%, #0f766e 100%);
-            margin-left: auto;
-        }
-        .message-received {
-            background: rgba(45, 212, 191, 0.1);
-            border: 1px solid #134e4a;
-        }
-        .peer-online {
-            border-left: 3px solid #10b981;
-        }
-        .peer-offline {
-            border-left: 3px solid #6b7280;
-            opacity: 0.5;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Telegram Bot — Live</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;600&family=Space+Grotesk:wght@300;500;700&display=swap');
+
+  :root {
+    --bg: #0d0f14;
+    --surface: #13161e;
+    --surface2: #1a1e29;
+    --border: #232735;
+    --tg: #2AABEE;
+    --tg-dim: rgba(42,171,238,0.12);
+    --tg-glow: rgba(42,171,238,0.35);
+    --green: #00e676;
+    --green-dim: rgba(0,230,118,0.12);
+    --red: #ff3d57;
+    --red-dim: rgba(255,61,87,0.12);
+    --amber: #ffab00;
+    --text: #e8eaf0;
+    --muted: #5a6075;
+    --mono: 'IBM Plex Mono', monospace;
+    --sans: 'Space Grotesk', sans-serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    overflow-x: hidden;
+  }
+
+  /* Grid background */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(42,171,238,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(42,171,238,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    width: 100%;
+    max-width: 900px;
+    padding: 2rem 1.5rem;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Header */
+  header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 2.5rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .tg-icon {
+    width: 44px;
+    height: 44px;
+    background: var(--tg-dim);
+    border: 1px solid rgba(42,171,238,0.3);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .tg-icon svg { width: 24px; height: 24px; fill: var(--tg); }
+
+  .brand-text h1 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    letter-spacing: -0.3px;
+  }
+
+  .brand-text span {
+    font-size: 0.75rem;
+    color: var(--muted);
+    font-family: var(--mono);
+  }
+
+  /* Status pill */
+  .status-pill {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.4rem 1rem;
+    border-radius: 99px;
+    font-size: 0.8rem;
+    font-family: var(--mono);
+    font-weight: 600;
+    transition: all 0.3s;
+    border: 1px solid transparent;
+  }
+
+  .status-pill.offline {
+    background: var(--red-dim);
+    border-color: rgba(255,61,87,0.2);
+    color: var(--red);
+  }
+
+  .status-pill.online {
+    background: var(--green-dim);
+    border-color: rgba(0,230,118,0.2);
+    color: var(--green);
+  }
+
+  .status-pill.polling {
+    background: var(--tg-dim);
+    border-color: rgba(42,171,238,0.2);
+    color: var(--tg);
+  }
+
+  .dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: currentColor;
+  }
+
+  .dot.pulse {
+    animation: pulse 1.5s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.4; transform: scale(0.85); }
+  }
+
+  /* Grid layout */
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  .grid-3 {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  /* Cards */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.25rem;
+  }
+
+  .card-label {
+    font-size: 0.7rem;
+    font-family: var(--mono);
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 0.5rem;
+  }
+
+  .card-value {
+    font-size: 2rem;
+    font-weight: 700;
+    font-family: var(--mono);
+    color: var(--tg);
+    line-height: 1;
+  }
+
+  .card-value.green { color: var(--green); }
+  .card-value.amber { color: var(--amber); }
+
+  /* Config section */
+  .section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .section-title {
+    font-size: 0.7rem;
+    font-family: var(--mono);
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .section-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  /* Token display */
+  .token-display {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    font-family: var(--mono);
+    font-size: 0.85rem;
+    color: var(--tg);
+    margin-bottom: 1rem;
+  }
+
+  .token-display span {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    letter-spacing: 0.5px;
+  }
+
+  /* Bot info bar */
+  .bot-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.75rem 1rem;
+    background: var(--tg-dim);
+    border: 1px solid rgba(42,171,238,0.2);
+    border-radius: 8px;
+    margin-bottom: 1.25rem;
+    font-size: 0.875rem;
+  }
+
+  .bot-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: var(--tg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.9rem;
+    color: white;
+    flex-shrink: 0;
+  }
+
+  .bot-name { font-weight: 600; }
+  .bot-username { color: var(--tg); font-family: var(--mono); font-size: 0.8rem; }
+
+  /* Controls */
+  .controls {
+    display: flex;
+    gap: 0.75rem;
+  }
+
+  .btn {
+    flex: 1;
+    padding: 0.875rem 1.5rem;
+    border-radius: 8px;
+    font-family: var(--mono);
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: all 0.2s;
+    letter-spacing: 0.3px;
+  }
+
+  .btn-start {
+    background: var(--green-dim);
+    border-color: rgba(0,230,118,0.3);
+    color: var(--green);
+  }
+
+  .btn-start:hover {
+    background: rgba(0,230,118,0.2);
+    box-shadow: 0 0 20px rgba(0,230,118,0.15);
+  }
+
+  .btn-stop {
+    background: var(--red-dim);
+    border-color: rgba(255,61,87,0.3);
+    color: var(--red);
+  }
+
+  .btn-stop:hover {
+    background: rgba(255,61,87,0.2);
+  }
+
+  .btn:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+  }
+
+  /* Commands config */
+  .command-item {
+    display: grid;
+    grid-template-columns: 120px 1fr;
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+    align-items: center;
+  }
+
+  .cmd-trigger {
+    font-family: var(--mono);
+    font-size: 0.8rem;
+    color: var(--amber);
+    background: rgba(255,171,0,0.1);
+    border: 1px solid rgba(255,171,0,0.2);
+    border-radius: 6px;
+    padding: 0.5rem 0.75rem;
+  }
+
+  .cmd-response {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.85rem;
+    color: var(--text);
+    width: 100%;
+    font-family: var(--sans);
+    resize: none;
+    transition: border-color 0.2s;
+    min-height: 38px;
+  }
+
+  .cmd-response:focus {
+    outline: none;
+    border-color: var(--tg);
+  }
+
+  /* Console */
+  .console {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1rem;
+    height: 280px;
+    overflow-y: auto;
+    font-family: var(--mono);
+    font-size: 0.78rem;
+    line-height: 1.7;
+    scroll-behavior: smooth;
+  }
+
+  .console::-webkit-scrollbar { width: 4px; }
+  .console::-webkit-scrollbar-track { background: transparent; }
+  .console::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  .log { display: flex; gap: 0.75rem; }
+  .log-time { color: var(--muted); flex-shrink: 0; }
+  .log-tag {
+    flex-shrink: 0;
+    padding: 0 5px;
+    border-radius: 3px;
+    font-size: 0.7rem;
+    font-weight: 600;
+  }
+
+  .tag-sys { background: rgba(42,171,238,0.15); color: var(--tg); }
+  .tag-msg { background: rgba(0,230,118,0.15); color: var(--green); }
+  .tag-err { background: rgba(255,61,87,0.15); color: var(--red); }
+  .tag-poll { background: rgba(255,171,0,0.15); color: var(--amber); }
+
+  .log-text { color: var(--text); opacity: 0.85; flex: 1; word-break: break-word; }
+
+  /* Messages feed */
+  .messages-feed {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1rem;
+    height: 280px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    scroll-behavior: smooth;
+  }
+
+  .message-bubble {
+    display: flex;
+    flex-direction: column;
+    max-width: 80%;
+    animation: slideIn 0.2s ease;
+  }
+
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .msg-from { align-self: flex-start; }
+  .msg-reply { align-self: flex-end; }
+
+  .msg-sender {
+    font-size: 0.7rem;
+    color: var(--muted);
+    margin-bottom: 0.25rem;
+    font-family: var(--mono);
+  }
+
+  .msg-body {
+    padding: 0.6rem 0.9rem;
+    border-radius: 10px;
+    font-size: 0.875rem;
+    line-height: 1.5;
+  }
+
+  .msg-from .msg-body {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-bottom-left-radius: 3px;
+    color: var(--text);
+  }
+
+  .msg-reply .msg-body {
+    background: var(--tg-dim);
+    border: 1px solid rgba(42,171,238,0.2);
+    border-bottom-right-radius: 3px;
+    color: var(--tg);
+  }
+
+  .msg-time {
+    font-size: 0.65rem;
+    color: var(--muted);
+    margin-top: 0.2rem;
+    font-family: var(--mono);
+  }
+
+  .msg-from .msg-time { text-align: left; }
+  .msg-reply .msg-time { text-align: right; }
+
+  /* Empty state */
+  .empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    color: var(--muted);
+    gap: 0.5rem;
+    font-size: 0.85rem;
+  }
+
+  .empty-state svg { opacity: 0.3; }
+
+  /* Polling indicator */
+  .poll-bar {
+    height: 2px;
+    background: var(--border);
+    border-radius: 1px;
+    overflow: hidden;
+    margin-top: 1rem;
+  }
+
+  .poll-fill {
+    height: 100%;
+    background: var(--tg);
+    width: 0%;
+    transition: width 0.1s linear;
+    box-shadow: 0 0 8px var(--tg-glow);
+  }
+
+  .poll-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.7rem;
+    font-family: var(--mono);
+    color: var(--muted);
+    margin-top: 0.4rem;
+  }
+
+  /* Warning banner */
+  .warning {
+    display: flex;
+    gap: 0.75rem;
+    align-items: flex-start;
+    padding: 0.875rem 1rem;
+    background: rgba(255,171,0,0.08);
+    border: 1px solid rgba(255,171,0,0.2);
+    border-radius: 8px;
+    font-size: 0.82rem;
+    color: var(--amber);
+    margin-top: 1rem;
+    line-height: 1.5;
+  }
+
+  .warning strong { display: block; margin-bottom: 0.2rem; font-size: 0.85rem; }
+
+  /* Textarea style */
+  textarea.cmd-response {
+    height: auto;
+    min-height: 38px;
+    overflow: hidden;
+  }
+
+  /* Shine effect on active card */
+  .card.active-glow {
+    border-color: rgba(42,171,238,0.3);
+    box-shadow: 0 0 20px rgba(42,171,238,0.08);
+  }
+</style>
 </head>
-<body class="p-4 min-h-screen flex flex-col items-center">
-    <div class="w-full max-w-7xl">
-        <!-- Header -->
-        <header class="text-center mb-10">
-            <h1 class="text-4xl font-black tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-teal-400 to-emerald-500">
-                COSMIC P2P MESH
-            </h1>
-            <p class="text-teal-900 text-sm mt-2 uppercase tracking-widest">Réseau Intranet Décentralisé - Backend Distribué</p>
-        </header>
+<body>
+<div class="container">
 
-        <!-- Status Bar -->
-        <div class="cosmic-card rounded-2xl p-4 mb-6">
-            <div class="flex items-center justify-between">
-                <div class="flex items-center gap-4">
-                    <div class="flex items-center gap-2">
-                        <div id="status-indicator" class="w-3 h-3 rounded-full bg-red-500"></div>
-                        <span id="status-text" class="text-xs font-bold uppercase">Déconnecté</span>
-                    </div>
-                    <div class="flex items-center gap-2 text-xs">
-                        <i data-lucide="users" class="w-4 h-4"></i>
-                        <span id="peer-count">0</span>
-                        <span class="text-teal-900">peers</span>
-                    </div>
-                    <div class="flex items-center gap-2 text-xs">
-                        <i data-lucide="database" class="w-4 h-4"></i>
-                        <span id="cache-size">0 KB</span>
-                    </div>
-                    <div class="flex items-center gap-2 text-xs">
-                        <i data-lucide="activity" class="w-4 h-4"></i>
-                        <span id="mesh-latency">-- ms</span>
-                    </div>
-                </div>
-                <div id="offline-badge" class="hidden flex items-center gap-2 px-3 py-1 bg-teal-950/30 rounded-full">
-                    <i data-lucide="wifi-off" class="w-4 h-4 text-teal-500"></i>
-                    <span class="text-xs font-bold text-teal-500">MODE OFFLINE</span>
-                </div>
-            </div>
-        </div>
+  <!-- Header -->
+  <header>
+    <div class="brand">
+      <div class="tg-icon">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12L7.394 13.9l-2.967-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.537-.194 1.006.131.761.659z"/>
+        </svg>
+      </div>
+      <div class="brand-text">
+        <h1>Telegram Bot Runtime</h1>
+        <span>HTML-native polling engine · v1.0</span>
+      </div>
+    </div>
+    <div class="status-pill offline" id="status-pill">
+      <div class="dot" id="status-dot"></div>
+      <span id="status-text">OFFLINE</span>
+    </div>
+  </header>
 
-        <!-- Main Grid -->
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <!-- Sidebar: Control + Peers -->
-            <div class="space-y-6">
-                <!-- Activation -->
-                <div class="cosmic-card p-6 rounded-2xl border-teal-500/30">
-                    <h2 class="text-xs font-bold mb-4 text-teal-500 uppercase flex items-center gap-2">
-                        <i data-lucide="shield-check" class="w-4 h-4"></i>
-                        Activation Nœud
-                    </h2>
-                    <input 
-                        id="phone" 
-                        type="text" 
-                        placeholder="+33 6..." 
-                        class="w-full p-3 bg-black/50 border border-teal-900 rounded-xl mb-3 focus:outline-none focus:border-teal-400 transition-all"
-                    >
-                    <button 
-                        onclick="activateNode()" 
-                        id="btn-activate" 
-                        class="w-full bg-teal-600 hover:bg-teal-500 text-black font-bold p-3 rounded-xl transition-all active:scale-95 flex items-center justify-center gap-2"
-                    >
-                        <i data-lucide="power" class="w-4 h-4"></i>
-                        ACTIVER MESH
-                    </button>
-                    <div id="node-info" class="hidden mt-4 p-3 bg-teal-950/30 rounded-lg border border-teal-900/50">
-                        <p class="text-[10px] text-teal-600 uppercase mb-1">Hash Mesh (Identité)</p>
-                        <p id="display-id" class="text-xs break-all font-bold text-teal-300"></p>
-                    </div>
-                </div>
+  <!-- Stats -->
+  <div class="grid-3">
+    <div class="card" id="card-msgs">
+      <div class="card-label">Messages received</div>
+      <div class="card-value green" id="stat-msgs">0</div>
+    </div>
+    <div class="card">
+      <div class="card-label">Replies sent</div>
+      <div class="card-value" id="stat-replies">0</div>
+    </div>
+    <div class="card">
+      <div class="card-label">Poll cycles</div>
+      <div class="card-value amber" id="stat-polls">0</div>
+    </div>
+  </div>
 
-                <!-- Peers List -->
-                <div class="cosmic-card p-6 rounded-2xl border-teal-500/30">
-                    <div class="flex items-center justify-between mb-4">
-                        <h2 class="text-xs font-bold text-teal-500 uppercase flex items-center gap-2">
-                            <i data-lucide="radio" class="w-4 h-4"></i>
-                            Peers Actifs
-                        </h2>
-                        <button 
-                            onclick="discoverPeers()" 
-                            id="btn-discover"
-                            class="p-2 bg-teal-950/50 hover:bg-teal-900/50 rounded-lg transition-all disabled:opacity-30"
-                            disabled
-                        >
-                            <i data-lucide="refresh-cw" class="w-4 h-4"></i>
-                        </button>
-                    </div>
-                    <div id="peers-list" class="space-y-2 max-h-96 overflow-y-auto">
-                        <div class="text-xs text-teal-700 text-center py-8 flex flex-col items-center gap-2">
-                            <i data-lucide="satellite" class="w-8 h-8 opacity-30"></i>
-                            <span>Aucun peer détecté</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
+  <!-- Bot info + controls -->
+  <div class="section">
+    <div class="section-title">Bot identity</div>
 
-            <!-- Main: Chat Community -->
-            <div class="lg:col-span-2 cosmic-card rounded-2xl overflow-hidden">
-                <!-- Chat Header -->
-                <div class="border-b border-teal-900/50 p-4 bg-black/30">
-                    <h2 class="text-sm font-bold text-teal-500 uppercase flex items-center gap-2">
-                        <i data-lucide="messages-square" class="w-5 h-5"></i>
-                        Communauté Mesh Intranet
-                    </h2>
-                    <p class="text-xs text-teal-900 mt-1">Communication décentralisée peer-to-peer</p>
-                </div>
-
-                <!-- Messages Area -->
-                <div id="messages-area" class="h-[500px] overflow-y-auto p-6 space-y-4">
-                    <div class="text-center text-xs text-teal-700 py-12 flex flex-col items-center gap-3">
-                        <i data-lucide="message-circle" class="w-12 h-12 opacity-20"></i>
-                        <p>Activez votre nœud mesh pour rejoindre la communauté</p>
-                    </div>
-                </div>
-
-                <!-- Message Input -->
-                <div class="border-t border-teal-900/50 p-4 bg-black/30">
-                    <div class="flex gap-3">
-                        <input 
-                            id="message-input" 
-                            type="text" 
-                            placeholder="Message à la communauté mesh..." 
-                            class="flex-1 p-3 bg-black/50 border border-teal-900 rounded-xl focus:outline-none focus:border-teal-400 transition-all disabled:opacity-50"
-                            disabled
-                        >
-                        <button 
-                            onclick="sendMessage()" 
-                            id="btn-send"
-                            class="px-6 bg-teal-600 hover:bg-teal-500 text-black font-bold rounded-xl transition-all active:scale-95 disabled:opacity-30 flex items-center gap-2"
-                            disabled
-                        >
-                            <i data-lucide="send" class="w-4 h-4"></i>
-                            Envoyer
-                        </button>
-                    </div>
-                    <div class="flex items-center gap-4 mt-3 text-xs text-teal-900">
-                        <div class="flex items-center gap-2">
-                            <i data-lucide="lock" class="w-3 h-3"></i>
-                            <span>Chiffré E2E</span>
-                        </div>
-                        <div class="flex items-center gap-2">
-                            <i data-lucide="hard-drive" class="w-3 h-3"></i>
-                            <span>Stockage local</span>
-                        </div>
-                        <div class="flex items-center gap-2">
-                            <i data-lucide="share-2" class="w-3 h-3"></i>
-                            <span>Propagation P2P</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- System Logs -->
-        <div class="cosmic-card rounded-2xl p-6 mt-6">
-            <div class="flex items-center justify-between mb-4">
-                <h2 class="text-xs font-bold text-teal-500 uppercase flex items-center gap-2">
-                    <i data-lucide="terminal" class="w-4 h-4"></i>
-                    Logs Système
-                </h2>
-                <button onclick="clearLogs()" class="text-xs text-teal-700 hover:text-teal-500">
-                    Effacer
-                </button>
-            </div>
-            <div id="logs" class="h-32 overflow-y-auto text-[10px] leading-relaxed font-mono text-teal-700"></div>
-        </div>
+    <div class="token-display">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+      </svg>
+      <span id="token-display">Loading…</span>
     </div>
 
-    <script>
-        // =============================================================================
-        // COSMIC MESH - Service Worker + IndexedDB + Community
-        // =============================================================================
-
-        let myNodeId = null;
-        let meshDB = null;
-        let activePeers = new Map();
-        let serviceWorkerReady = false;
-
-        // Initialize Lucide icons
-        lucide.createIcons();
-
-        // =============================================================================
-        // 1. SERVICE WORKER
-        // =============================================================================
-
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('cosmic-worker.js')
-                .then(registration => {
-                    addLog('Service Worker enregistré - Backend distribué actif', 'success');
-                    serviceWorkerReady = true;
-                    updateStatus('online', 'Service Worker Actif');
-                    navigator.serviceWorker.addEventListener('message', handleWorkerMessage);
-                })
-                .catch(err => {
-                    addLog(`Erreur Service Worker: ${err.message}`, 'error');
-                });
-        }
-
-        function handleWorkerMessage(event) {
-            const { type, data } = event.data;
-            
-            switch(type) {
-                case 'PEER_DISCOVERED':
-                    addPeerToList(data.peerId, data.method);
-                    break;
-                case 'MESSAGE_RECEIVED':
-                    displayMessage(data.message, false);
-                    break;
-                case 'SYNC_UPDATE':
-                    addLog(`Synchronisation: ${data.count} messages`, 'info');
-                    break;
-            }
-        }
-
-        // =============================================================================
-        // 2. INDEXEDDB
-        // =============================================================================
-
-        async function initIndexedDB() {
-            return new Promise((resolve, reject) => {
-                const request = indexedDB.open('CosmicMeshDB', 1);
-
-                request.onerror = () => reject(request.error);
-                request.onsuccess = () => {
-                    meshDB = request.result;
-                    addLog('IndexedDB initialisé - Stockage persistant OK', 'success');
-                    resolve(meshDB);
-                };
-
-                request.onupgradeneeded = (event) => {
-                    const db = event.target.result;
-
-                    if (!db.objectStoreNames.contains('peers')) {
-                        const peerStore = db.createObjectStore('peers', { keyPath: 'id' });
-                        peerStore.createIndex('lastSeen', 'lastSeen', { unique: false });
-                    }
-
-                    if (!db.objectStoreNames.contains('messages')) {
-                        const msgStore = db.createObjectStore('messages', { keyPath: 'id', autoIncrement: true });
-                        msgStore.createIndex('from', 'from', { unique: false });
-                        msgStore.createIndex('timestamp', 'timestamp', { unique: false });
-                    }
-
-                    if (!db.objectStoreNames.contains('keys')) {
-                        db.createObjectStore('keys', { keyPath: 'nodeId' });
-                    }
-                };
-            });
-        }
-
-        async function dbSave(storeName, data) {
-            return new Promise((resolve, reject) => {
-                const transaction = meshDB.transaction([storeName], 'readwrite');
-                const store = transaction.objectStore(storeName);
-                const request = store.put(data);
-                request.onsuccess = () => resolve(request.result);
-                request.onerror = () => reject(request.error);
-            });
-        }
-
-        async function dbGetAll(storeName) {
-            return new Promise((resolve, reject) => {
-                const transaction = meshDB.transaction([storeName], 'readonly');
-                const store = transaction.objectStore(storeName);
-                const request = store.getAll();
-                request.onsuccess = () => resolve(request.result);
-                request.onerror = () => reject(request.error);
-            });
-        }
-
-        // =============================================================================
-        // 3. IDENTITY
-        // =============================================================================
-
-        async function hashPhone(phone) {
-            const normalized = phone.replace(/\s+/g, '').replace(/[-.()]/g, '');
-            const msgUint8 = new TextEncoder().encode(normalized);
-            const hashBuffer = await crypto.subtle.digest('SHA-256', msgUint8);
-            return Array.from(new Uint8Array(hashBuffer))
-                .map(b => b.toString(16).padStart(2, '0'))
-                .join('');
-        }
-
-        async function generateCryptoKeys(nodeId) {
-            addLog('Génération clés cryptographiques RSA-2048...', 'info');
-            
-            const keyPair = await crypto.subtle.generateKey(
-                {
-                    name: "RSA-OAEP",
-                    modulusLength: 2048,
-                    publicExponent: new Uint8Array([1, 0, 1]),
-                    hash: "SHA-256"
-                },
-                true,
-                ["encrypt", "decrypt"]
-            );
-
-            const publicKeyExported = await crypto.subtle.exportKey('jwk', keyPair.publicKey);
-            
-            await dbSave('keys', {
-                nodeId: nodeId,
-                publicKey: publicKeyExported,
-                privateKey: keyPair.privateKey,
-                createdAt: Date.now()
-            });
-
-            addLog('Clés générées et stockées localement', 'success');
-            return { publicKey: publicKeyExported, privateKey: keyPair.privateKey };
-        }
-
-        // =============================================================================
-        // 4. NODE ACTIVATION
-        // =============================================================================
-
-        async function activateNode() {
-            const phone = document.getElementById('phone').value;
-            if (!phone) {
-                alert('Entrez votre numéro de téléphone');
-                return;
-            }
-
-            addLog('Activation du nœud mesh...', 'info');
-            
-            myNodeId = await hashPhone(phone);
-            addLog(`Node ID: ${myNodeId.substring(0, 16)}...`, 'info');
-
-            document.getElementById('node-info').classList.remove('hidden');
-            document.getElementById('display-id').textContent = myNodeId;
-
-            const keys = await generateCryptoKeys(myNodeId);
-
-            await dbSave('peers', {
-                id: myNodeId,
-                phone: phone,
-                publicKey: keys.publicKey,
-                lastSeen: Date.now(),
-                trustScore: 1.0,
-                isSelf: true
-            });
-
-            if (serviceWorkerReady) {
-                navigator.serviceWorker.controller.postMessage({
-                    type: 'NODE_ACTIVATED',
-                    nodeId: myNodeId,
-                    publicKey: keys.publicKey
-                });
-            }
-
-            addLog('Nœud mesh activé avec succès', 'success');
-            updateStatus('online', 'Mesh Actif');
-            
-            document.getElementById('btn-discover').disabled = false;
-            document.getElementById('btn-activate').disabled = true;
-            document.getElementById('message-input').disabled = false;
-            document.getElementById('btn-send').disabled = false;
-
-            // Charger messages existants
-            await loadMessages();
-        }
-
-        // =============================================================================
-        // 5. PEER DISCOVERY
-        // =============================================================================
-
-        async function discoverPeers() {
-            addLog('Scan du mesh network...', 'info');
-
-            // BroadcastChannel pour découverte locale
-            const channel = new BroadcastChannel('cosmic-mesh-discovery');
-            channel.postMessage({
-                type: 'PEER_ANNOUNCE',
-                nodeId: myNodeId,
-                timestamp: Date.now()
-            });
-
-            channel.onmessage = async (event) => {
-                if (event.data.type === 'PEER_ANNOUNCE' && event.data.nodeId !== myNodeId) {
-                    addLog(`Peer découvert: ${event.data.nodeId.substring(0,8)}...`, 'success');
-                    
-                    await dbSave('peers', {
-                        id: event.data.nodeId,
-                        lastSeen: Date.now(),
-                        trustScore: 0.5,
-                        method: 'broadcast',
-                        isSelf: false
-                    });
-
-                    addPeerToList(event.data.nodeId, 'local');
-                }
-            };
-
-            // Charger peers en cache
-            const cachedPeers = await dbGetAll('peers');
-            addLog(`${cachedPeers.length} peers en cache`, 'info');
-            
-            cachedPeers.forEach(peer => {
-                if (!peer.isSelf) {
-                    addPeerToList(peer.id, 'cached');
-                }
-            });
-        }
-
-        function addPeerToList(peerId, method) {
-            if (activePeers.has(peerId)) return;
-
-            activePeers.set(peerId, {
-                id: peerId,
-                method: method,
-                online: method === 'local'
-            });
-
-            const peersList = document.getElementById('peers-list');
-            
-            if (peersList.children[0]?.textContent.includes('Aucun peer')) {
-                peersList.innerHTML = '';
-            }
-
-            const peerCard = document.createElement('div');
-            peerCard.className = `p-3 rounded-lg ${method === 'local' ? 'peer-online' : 'peer-offline'} bg-teal-950/20`;
-            peerCard.innerHTML = `
-                <div class="flex items-center justify-between">
-                    <div class="flex items-center gap-2">
-                        <i data-lucide="${method === 'local' ? 'circle-dot' : 'circle'}" class="w-3 h-3 ${method === 'local' ? 'text-green-500' : 'text-gray-500'}"></i>
-                        <div>
-                            <div class="font-bold text-xs text-teal-400">${peerId.substring(0, 16)}...</div>
-                            <div class="text-[10px] text-teal-700 mt-1">${method === 'local' ? 'En ligne' : 'Hors ligne'}</div>
-                        </div>
-                    </div>
-                </div>
-            `;
-
-            peersList.appendChild(peerCard);
-            lucide.createIcons();
-            updatePeerCount();
-        }
-
-        function updatePeerCount() {
-            document.getElementById('peer-count').textContent = activePeers.size;
-        }
-
-        // =============================================================================
-        // 6. MESSAGING
-        // =============================================================================
-
-        async function sendMessage() {
-            const input = document.getElementById('message-input');
-            const text = input.value.trim();
-            
-            if (!text || !myNodeId) return;
-
-            const message = {
-                from: myNodeId,
-                fromShort: myNodeId.substring(0, 8),
-                content: text,
-                timestamp: Date.now()
-            };
-
-            // Sauvegarder localement
-            await dbSave('messages', message);
-
-            // Afficher
-            displayMessage(message, true);
-
-            // Propager via Service Worker
-            if (serviceWorkerReady) {
-                navigator.serviceWorker.controller.postMessage({
-                    type: 'SEND_MESSAGE',
-                    message: message
-                });
-            }
-
-            // Broadcast local
-            const channel = new BroadcastChannel('cosmic-mesh-messages');
-            channel.postMessage({
-                type: 'MESSAGE_PROPAGATE',
-                message: message
-            });
-
-            input.value = '';
-            addLog(`Message envoyé à ${activePeers.size} peers`, 'success');
-        }
-
-        function displayMessage(message, isSent) {
-            const messagesArea = document.getElementById('messages-area');
-            
-            // Nettoyer message placeholder
-            if (messagesArea.children[0]?.textContent.includes('Activez votre nœud')) {
-                messagesArea.innerHTML = '';
-            }
-
-            const messageDiv = document.createElement('div');
-            messageDiv.className = `flex ${isSent ? 'justify-end' : 'justify-start'}`;
-            
-            messageDiv.innerHTML = `
-                <div class="message-bubble ${isSent ? 'message-sent' : 'message-received'} p-3 rounded-2xl">
-                    <div class="flex items-center gap-2 mb-1">
-                        <i data-lucide="user" class="w-3 h-3"></i>
-                        <span class="text-[10px] font-bold opacity-70">${message.fromShort || message.from.substring(0,8)}</span>
-                    </div>
-                    <div class="text-sm">${message.content}</div>
-                    <div class="text-[9px] opacity-50 mt-1 flex items-center gap-1">
-                        <i data-lucide="clock" class="w-3 h-3"></i>
-                        ${new Date(message.timestamp).toLocaleTimeString()}
-                    </div>
-                </div>
-            `;
-
-            messagesArea.appendChild(messageDiv);
-            messagesArea.scrollTop = messagesArea.scrollHeight;
-            lucide.createIcons();
-        }
-
-        async function loadMessages() {
-            const messages = await dbGetAll('messages');
-            messages.sort((a, b) => a.timestamp - b.timestamp);
-            
-            messages.forEach(msg => {
-                displayMessage(msg, msg.from === myNodeId);
-            });
-
-            addLog(`${messages.length} messages chargés depuis cache`, 'info');
-        }
-
-        // Listen for messages from other tabs
-        const meshChannel = new BroadcastChannel('cosmic-mesh-messages');
-        meshChannel.onmessage = async (event) => {
-            if (event.data.type === 'MESSAGE_PROPAGATE' && event.data.message.from !== myNodeId) {
-                await dbSave('messages', event.data.message);
-                displayMessage(event.data.message, false);
-                addLog(`Message reçu de ${event.data.message.fromShort}`, 'info');
-            }
-        };
-
-        // =============================================================================
-        // 7. UI HELPERS
-        // =============================================================================
-
-        function updateStatus(status, text) {
-            const indicator = document.getElementById('status-indicator');
-            const statusText = document.getElementById('status-text');
-            
-            const colors = {
-                'offline': 'bg-red-500',
-                'online': 'bg-green-500 status-pulse',
-                'syncing': 'bg-yellow-500 status-pulse'
-            };
-
-            indicator.className = `w-3 h-3 rounded-full ${colors[status] || 'bg-gray-500'}`;
-            statusText.textContent = text;
-        }
-
-        function addLog(message, level = 'info') {
-            const logs = document.getElementById('logs');
-            const logLine = document.createElement('div');
-            
-            const colors = {
-                'info': 'text-teal-500',
-                'success': 'text-green-500',
-                'error': 'text-red-500'
-            };
-
-            logLine.className = colors[level] || 'text-teal-700';
-            logLine.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
-            
-            logs.appendChild(logLine);
-            logs.scrollTop = logs.scrollHeight;
-        }
-
-        function clearLogs() {
-            document.getElementById('logs').innerHTML = '';
-        }
-
-        // =============================================================================
-        // 8. INITIALIZATION
-        // =============================================================================
-
-        window.addEventListener('load', async () => {
-            addLog('Cosmic Mesh Network - Initialisation', 'success');
-            
-            try {
-                await initIndexedDB();
-                
-                const cachedData = await dbGetAll('messages');
-                const cacheSize = JSON.stringify(cachedData).length;
-                document.getElementById('cache-size').textContent = `${(cacheSize / 1024).toFixed(1)} KB`;
-                
-            } catch (error) {
-                addLog(`Erreur init DB: ${error.message}`, 'error');
-            }
-
-            window.addEventListener('online', () => {
-                addLog('Connexion Internet restaurée', 'success');
-                document.getElementById('offline-badge').classList.add('hidden');
-            });
-
-            window.addEventListener('offline', () => {
-                addLog('Mode offline - Fonctionnement local actif', 'info');
-                document.getElementById('offline-badge').classList.remove('hidden');
-            });
-
-            // Message input Enter key
-            document.getElementById('message-input').addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') sendMessage();
-            });
-
-            addLog('Système prêt - Mode offline supporté', 'success');
-            lucide.createIcons();
-        });
-    </script>
+    <div class="bot-info" id="bot-info" style="display:none">
+      <div class="bot-avatar" id="bot-avatar">?</div>
+      <div>
+        <div class="bot-name" id="bot-name">—</div>
+        <div class="bot-username" id="bot-username">—</div>
+      </div>
+    </div>
+
+    <div class="controls">
+      <button class="btn btn-start" id="btn-start" onclick="startBot()">START POLLING</button>
+      <button class="btn btn-stop" id="btn-stop" onclick="stopBot()" disabled>STOP</button>
+    </div>
+
+    <div class="poll-bar"><div class="poll-fill" id="poll-fill"></div></div>
+    <div class="poll-label">
+      <span id="poll-label-left">Polling interval: 2s</span>
+      <span id="poll-label-right">Next poll in: —</span>
+    </div>
+  </div>
+
+  <!-- Commands config -->
+  <div class="section">
+    <div class="section-title">Commands — edit responses live</div>
+
+    <div id="commands-list">
+      <div class="command-item">
+        <div class="cmd-trigger">/start</div>
+        <textarea class="cmd-response" data-cmd="/start" rows="1">Hello! I am your bot running 100% from a browser tab. No server needed.</textarea>
+      </div>
+      <div class="command-item">
+        <div class="cmd-trigger">/help</div>
+        <textarea class="cmd-response" data-cmd="/help" rows="1">Available commands: /start /help /ping /time /status</textarea>
+      </div>
+      <div class="command-item">
+        <div class="cmd-trigger">/ping</div>
+        <textarea class="cmd-response" data-cmd="/ping" rows="1">Pong! Latency: {latency}ms</textarea>
+      </div>
+      <div class="command-item">
+        <div class="cmd-trigger">/time</div>
+        <textarea class="cmd-response" data-cmd="/time" rows="1">Current time: {time}</textarea>
+      </div>
+      <div class="command-item">
+        <div class="cmd-trigger">/status</div>
+        <textarea class="cmd-response" data-cmd="/status" rows="1">Bot is LIVE. Messages handled: {msgs}. Running from a browser tab since {uptime}.</textarea>
+      </div>
+      <div class="command-item">
+        <div class="cmd-trigger">default</div>
+        <textarea class="cmd-response" data-cmd="default" rows="1">Got your message: "{text}". I am a browser-powered bot!</textarea>
+      </div>
+    </div>
+  </div>
+
+  <!-- Logs + Messages -->
+  <div class="grid">
+    <div class="section" style="margin:0">
+      <div class="section-title">System logs</div>
+      <div class="console" id="console-log">
+        <div class="log">
+          <span class="log-time">—</span>
+          <span class="log-tag tag-sys">SYS</span>
+          <span class="log-text">Runtime initialized. Awaiting start.</span>
+        </div>
+      </div>
+    </div>
+    <div class="section" style="margin:0">
+      <div class="section-title">Message feed</div>
+      <div class="messages-feed" id="messages-feed">
+        <div class="empty-state">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+          </svg>
+          <span>No messages yet</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Warning -->
+  <div class="warning">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0;margin-top:1px">
+      <path d="m10.29 3.86-7.72 13a2 2 0 0 0 1.71 3h15.43a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+    </svg>
+    <div>
+      <strong>Browser-only limitation</strong>
+      The bot runs while this tab is open and active. Closing the browser will stop the polling loop — messages sent while offline will be queued by Telegram and processed when you reopen. This is the experiment we are validating.
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ================================================================
+// CONFIGURATION
+// ================================================================
+
+const TOKEN = '7998886562:AAHiSdTznBFgXFDESNpxr3SLV7x4XcFDIao';
+const API   = `https://api.telegram.org/bot${TOKEN}`;
+const POLL_INTERVAL_MS = 2000;
+
+// ================================================================
+// STATE
+// ================================================================
+
+let state = {
+  running:     false,
+  pollTimer:   null,
+  countdownTimer: null,
+  offset:      0,
+  stats: { msgs: 0, replies: 0, polls: 0 },
+  botInfo:     null,
+  startTime:   null,
+  nextPollIn:  POLL_INTERVAL_MS / 1000
+};
+
+// ================================================================
+// BOOT — verify token & fetch bot info
+// ================================================================
+
+async function boot() {
+  const masked = TOKEN.slice(0, 8) + '…' + TOKEN.slice(-6);
+  document.getElementById('token-display').textContent = masked;
+
+  addLog('sys', 'Verifying token with Telegram API…');
+  try {
+    const r = await fetch(`${API}/getMe`);
+    const data = await r.json();
+
+    if (!data.ok) throw new Error(data.description);
+
+    state.botInfo = data.result;
+    const b = data.result;
+
+    document.getElementById('bot-info').style.display = 'flex';
+    document.getElementById('bot-name').textContent    = b.first_name;
+    document.getElementById('bot-username').textContent = '@' + b.username;
+    document.getElementById('bot-avatar').textContent  = b.first_name[0].toUpperCase();
+
+    addLog('sys', `Token valid. Bot: ${b.first_name} (@${b.username})`);
+    addLog('sys', `Bot ID: ${b.id} · Can join groups: ${b.can_join_groups}`);
+  } catch (e) {
+    addLog('err', `Token verification failed: ${e.message}`);
+  }
+}
+
+// ================================================================
+// POLLING
+// ================================================================
+
+async function poll() {
+  if (!state.running) return;
+
+  state.stats.polls++;
+  document.getElementById('stat-polls').textContent = state.stats.polls;
+  addLog('poll', `Polling… (offset: ${state.offset})`);
+
+  try {
+    const r = await fetch(`${API}/getUpdates?offset=${state.offset}&timeout=1`);
+    const data = await r.json();
+
+    if (!data.ok) throw new Error(data.description);
+
+    for (const update of data.result) {
+      state.offset = update.update_id + 1;
+      if (update.message) await handleMessage(update.message);
+    }
+  } catch (e) {
+    addLog('err', `Poll error: ${e.message}`);
+  }
+
+  // Schedule next poll
+  if (state.running) {
+    startCountdown();
+    state.pollTimer = setTimeout(poll, POLL_INTERVAL_MS);
+  }
+}
+
+function startCountdown() {
+  clearInterval(state.countdownTimer);
+  let remaining = POLL_INTERVAL_MS;
+  const step = 100;
+
+  state.countdownTimer = setInterval(() => {
+    remaining -= step;
+    const pct = ((POLL_INTERVAL_MS - remaining) / POLL_INTERVAL_MS) * 100;
+    document.getElementById('poll-fill').style.width = pct + '%';
+    const secs = (remaining / 1000).toFixed(1);
+    document.getElementById('poll-label-right').textContent = `Next poll in: ${secs}s`;
+
+    if (remaining <= 0) clearInterval(state.countdownTimer);
+  }, step);
+}
+
+// ================================================================
+// MESSAGE HANDLER
+// ================================================================
+
+async function handleMessage(msg) {
+  const text      = msg.text || '';
+  const chatId    = msg.chat.id;
+  const fromName  = msg.from?.first_name || 'User';
+  const fromUser  = msg.from?.username ? '@' + msg.from.username : fromName;
+
+  state.stats.msgs++;
+  document.getElementById('stat-msgs').textContent = state.stats.msgs;
+
+  addLog('msg', `From ${fromUser} [${chatId}]: ${text}`);
+  addMessageBubble(fromName, text, 'from');
+
+  // Build response
+  const reply = buildReply(text);
+  if (!reply) return;
+
+  await sendMessage(chatId, reply);
+  addMessageBubble('Bot', reply, 'reply');
+}
+
+function buildReply(text) {
+  const commands = getCommands();
+  const cmd = text.trim().split(' ')[0].toLowerCase();
+
+  const startTime = state.startTime
+    ? new Date(state.startTime).toLocaleTimeString()
+    : '—';
+
+  const uptime = state.startTime
+    ? formatUptime(Date.now() - state.startTime)
+    : '—';
+
+  const vars = {
+    '{text}':    text,
+    '{time}':    new Date().toLocaleTimeString(),
+    '{msgs}':    state.stats.msgs,
+    '{uptime}':  uptime,
+    '{latency}': Math.floor(Math.random() * 40 + 10)
+  };
+
+  let template = commands[cmd] || commands['default'] || null;
+  if (!template) return null;
+
+  for (const [k, v] of Object.entries(vars)) {
+    template = template.replaceAll(k, v);
+  }
+  return template;
+}
+
+function getCommands() {
+  const map = {};
+  document.querySelectorAll('.cmd-response').forEach(el => {
+    map[el.dataset.cmd] = el.value;
+  });
+  return map;
+}
+
+// ================================================================
+// SEND MESSAGE
+// ================================================================
+
+async function sendMessage(chatId, text) {
+  try {
+    const r = await fetch(`${API}/sendMessage`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ chat_id: chatId, text })
+    });
+    const data = await r.json();
+    if (!data.ok) throw new Error(data.description);
+
+    state.stats.replies++;
+    document.getElementById('stat-replies').textContent = state.stats.replies;
+    addLog('msg', `Reply sent to [${chatId}]: ${text.slice(0, 60)}${text.length > 60 ? '…' : ''}`);
+  } catch (e) {
+    addLog('err', `Send failed: ${e.message}`);
+  }
+}
+
+// ================================================================
+// START / STOP
+// ================================================================
+
+async function startBot() {
+  if (state.running) return;
+  state.running  = true;
+  state.startTime = Date.now();
+
+  document.getElementById('btn-start').disabled = true;
+  document.getElementById('btn-stop').disabled  = false;
+
+  setStatus('polling');
+  addLog('sys', 'Bot started. Long-polling initiated.');
+
+  await poll();
+}
+
+function stopBot() {
+  state.running = false;
+  clearTimeout(state.pollTimer);
+  clearInterval(state.countdownTimer);
+
+  document.getElementById('btn-start').disabled = false;
+  document.getElementById('btn-stop').disabled  = true;
+  document.getElementById('poll-fill').style.width = '0%';
+  document.getElementById('poll-label-right').textContent = 'Next poll in: —';
+
+  setStatus('offline');
+  addLog('sys', 'Bot stopped.');
+}
+
+// ================================================================
+// UI HELPERS
+// ================================================================
+
+function setStatus(s) {
+  const pill = document.getElementById('status-pill');
+  const dot  = document.getElementById('status-dot');
+  const txt  = document.getElementById('status-text');
+
+  pill.className = 'status-pill ' + s;
+  dot.className  = 'dot' + (s !== 'offline' ? ' pulse' : '');
+  txt.textContent = s.toUpperCase();
+}
+
+function addLog(type, text) {
+  const container = document.getElementById('console-log');
+  const now = new Date().toLocaleTimeString('en-GB', { hour12: false });
+
+  const tagClass = { sys: 'tag-sys', msg: 'tag-msg', err: 'tag-err', poll: 'tag-poll' }[type] || 'tag-sys';
+  const tagLabel = { sys: 'SYS', msg: 'MSG', err: 'ERR', poll: 'POLL' }[type] || 'SYS';
+
+  const el = document.createElement('div');
+  el.className = 'log';
+  el.innerHTML = `
+    <span class="log-time">${now}</span>
+    <span class="log-tag ${tagClass}">${tagLabel}</span>
+    <span class="log-text">${escHtml(text)}</span>
+  `;
+  container.appendChild(el);
+
+  // Keep 100 lines max
+  while (container.children.length > 100) container.removeChild(container.firstChild);
+  container.scrollTop = container.scrollHeight;
+}
+
+function addMessageBubble(sender, text, direction) {
+  const feed = document.getElementById('messages-feed');
+
+  // Remove empty state
+  const empty = feed.querySelector('.empty-state');
+  if (empty) empty.remove();
+
+  const now  = new Date().toLocaleTimeString('en-GB', { hour12: false });
+  const el   = document.createElement('div');
+  el.className = `message-bubble msg-${direction}`;
+  el.innerHTML = `
+    <div class="msg-sender">${escHtml(sender)}</div>
+    <div class="msg-body">${escHtml(text)}</div>
+    <div class="msg-time">${now}</div>
+  `;
+  feed.appendChild(el);
+
+  while (feed.children.length > 60) feed.removeChild(feed.firstChild);
+  feed.scrollTop = feed.scrollHeight;
+}
+
+function escHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function formatUptime(ms) {
+  const s = Math.floor(ms / 1000);
+  if (s < 60)  return `${s}s`;
+  if (s < 3600) return `${Math.floor(s/60)}m ${s%60}s`;
+  return `${Math.floor(s/3600)}h ${Math.floor((s%3600)/60)}m`;
+}
+
+// ================================================================
+// AUTO-RESIZE TEXTAREAS
+// ================================================================
+
+document.querySelectorAll('textarea.cmd-response').forEach(el => {
+  el.addEventListener('input', () => {
+    el.style.height = 'auto';
+    el.style.height = el.scrollHeight + 'px';
+  });
+});
+
+// ================================================================
+// INIT
+// ================================================================
+
+boot();
+</script>
 </body>
 </html>

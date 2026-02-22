@@ -1,1501 +1,1226 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="en">
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>ZOMBIE HACKING — Security Audit</title>
-<link rel="preconnect" href="https://fonts.googleapis.com"/>
-<link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,400&family=Bebas+Neue&display=swap" rel="stylesheet"/>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Zombie Hacking</title>
+<script src="https://cdn.jsdelivr.net/npm/lucide@latest/dist/umd/lucide.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Bebas+Neue&display=swap" rel="stylesheet">
 <style>
-:root {
-  --bg:      #050708;
-  --surf:    #0c0f13;
-  --surf2:   #111519;
-  --border:  #1c2530;
-  --border2: #243040;
-  --acc:     #00e5ff;
-  --acc2:    #00ff99;
-  --red:     #ff2d55;
-  --orange:  #ff9500;
-  --purple:  #bf5af2;
-  --muted:   #3d5060;
-  --text:    #b8ccd8;
-  --text2:   #6a8090;
-  --mono:    'DM Mono', monospace;
-  --display: 'Bebas Neue', sans-serif;
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#050709;
+  --s1:#0b0e13;
+  --s2:#111619;
+  --b1:#1a2530;
+  --b2:#243040;
+  --g:#00e5ff;
+  --g2:#00ff99;
+  --r:#ff2d55;
+  --o:#ff9f0a;
+  --p:#bf5af2;
+  --t:#b8ccd8;
+  --t2:#5a7080;
+  --mono:'JetBrains Mono',monospace;
+  --disp:'Bebas Neue',sans-serif;
 }
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--t);font-family:var(--mono)}
+body::before{
+  content:'';position:fixed;inset:0;
+  background:repeating-linear-gradient(0deg,transparent,transparent 39px,rgba(0,229,255,0.03) 40px);
+  pointer-events:none;z-index:0;
+}
+.app{display:flex;height:100vh;position:relative;z-index:1}
 
-html,body{height:100%;overflow:hidden}
+/* SIDEBAR */
+.sb{width:200px;flex-shrink:0;background:var(--s1);border-right:1px solid var(--b1);display:flex;flex-direction:column}
+.sb-logo{padding:20px 16px;border-bottom:1px solid var(--b1)}
+.sb-logo h1{font-family:var(--disp);font-size:1.6rem;color:var(--g);letter-spacing:.05em;text-shadow:0 0 20px rgba(0,229,255,.4);line-height:1}
+.sb-logo p{font-size:.55rem;color:var(--t2);letter-spacing:.18em;margin-top:4px}
+.sb-logo span{display:inline-block;margin-top:8px;font-size:.6rem;color:var(--g);background:rgba(0,229,255,.08);border:1px solid rgba(0,229,255,.2);padding:2px 8px;border-radius:3px;letter-spacing:.1em}
+nav{flex:1;padding:10px 0}
+.ni{display:flex;align-items:center;gap:10px;padding:10px 16px;font-size:.73rem;color:var(--t2);cursor:pointer;border-left:2px solid transparent;transition:.15s;letter-spacing:.04em}
+.ni:hover{color:var(--t);background:rgba(255,255,255,.03)}
+.ni.on{color:var(--g);border-left-color:var(--g);background:rgba(0,229,255,.05)}
+.ni svg{width:15px;height:15px;flex-shrink:0}
+.nb{margin-left:auto;background:rgba(255,45,85,.15);border:1px solid rgba(255,45,85,.3);color:var(--r);padding:1px 6px;border-radius:10px;font-size:.6rem;display:none}
+.sb-foot{padding:12px 16px;border-top:1px solid var(--b1);font-size:.62rem;color:var(--t2);display:flex;align-items:center;gap:6px}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--t2);flex-shrink:0;transition:.3s}
+.dot.ok{background:var(--g2);box-shadow:0 0 6px var(--g2)}
 
-body{
-  background:var(--bg);
-  color:var(--text);
-  font-family:var(--mono);
-  display:flex;
-  flex-direction:column;
-}
-
-/* ── Scanline overlay ── */
-body::after{
-  content:'';
-  position:fixed;inset:0;
-  background:repeating-linear-gradient(180deg,transparent,transparent 2px,rgba(0,229,255,.012) 3px);
-  pointer-events:none;z-index:9999;
-}
-
-/* ── Layout ── */
-.layout{display:flex;flex:1;overflow:hidden}
-
-/* ── Sidebar ── */
-.sidebar{
-  width:220px;flex-shrink:0;
-  background:var(--surf);
-  border-right:1px solid var(--border);
-  display:flex;flex-direction:column;
-  overflow:hidden;
-}
-.sidebar-header{
-  padding:20px 16px 16px;
-  border-bottom:1px solid var(--border);
-}
-.brand{
-  font-family:var(--display);
-  font-size:1.5rem;letter-spacing:.06em;
-  color:var(--acc);
-  text-shadow:0 0 24px rgba(0,229,255,.4);
-  line-height:1;
-}
-.brand-sub{
-  font-size:.6rem;color:var(--muted);
-  letter-spacing:.15em;margin-top:6px;
-}
-.version-tag{
-  display:inline-block;margin-top:8px;
-  background:rgba(0,229,255,.08);border:1px solid rgba(0,229,255,.2);
-  color:var(--acc);padding:2px 8px;border-radius:3px;font-size:.62rem;letter-spacing:.1em;
-}
-
-.nav{flex:1;padding:12px 0;overflow-y:auto}
-.nav-item{
-  display:flex;align-items:center;gap:10px;
-  padding:10px 16px;cursor:pointer;
-  font-size:.75rem;letter-spacing:.06em;color:var(--text2);
-  border-left:2px solid transparent;
-  transition:all .15s;
-}
-.nav-item:hover{color:var(--text);background:rgba(255,255,255,.03)}
-.nav-item.active{color:var(--acc);border-left-color:var(--acc);background:rgba(0,229,255,.05)}
-.nav-icon{font-size:.9rem;width:16px;text-align:center}
-.nav-badge{
-  margin-left:auto;background:rgba(255,45,85,.15);
-  border:1px solid rgba(255,45,85,.3);color:var(--red);
-  padding:1px 6px;border-radius:10px;font-size:.62rem;
-}
-
-.sidebar-footer{
-  padding:12px 16px;border-top:1px solid var(--border);
-  font-size:.65rem;color:var(--muted);
-}
-.status-dot{
-  display:inline-block;width:6px;height:6px;border-radius:50%;
-  background:var(--muted);margin-right:6px;
-  transition:background .3s;
-}
-.status-dot.online{background:var(--acc2);box-shadow:0 0 6px var(--acc2)}
-
-/* ── Main ── */
+/* MAIN */
 .main{flex:1;overflow-y:auto;overflow-x:hidden}
-.main::-webkit-scrollbar{width:4px}
-.main::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
+.main::-webkit-scrollbar{width:3px}
+.main::-webkit-scrollbar-thumb{background:var(--b2)}
+.pg{display:none;padding:28px 28px 60px;max-width:960px}
+.pg.on{display:block}
+.pg-title{font-family:var(--disp);font-size:1.8rem;letter-spacing:.05em;color:var(--t);margin-bottom:4px}
+.pg-sub{font-size:.62rem;color:var(--t2);letter-spacing:.12em;margin-bottom:24px}
 
-.page{display:none;padding:28px 32px 60px;max-width:1000px}
-.page.active{display:block}
+/* CARDS */
+.card{background:var(--s1);border:1px solid var(--b1);border-radius:8px;padding:18px;margin-bottom:14px}
+.card-title{font-size:.62rem;color:var(--t2);letter-spacing:.14em;text-transform:uppercase;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.card-title::after{content:'';flex:1;height:1px;background:var(--b1)}
+.row{display:flex;gap:14px;margin-bottom:14px}
+.row .card{flex:1;margin-bottom:0}
 
-/* ── Page header ── */
-.page-title{
-  font-family:var(--display);font-size:2rem;letter-spacing:.06em;
-  color:var(--text);margin-bottom:6px;
-}
-.page-desc{font-size:.75rem;color:var(--muted);margin-bottom:28px;letter-spacing:.06em}
+/* FORM */
+.f-label{display:block;font-size:.65rem;color:var(--t2);letter-spacing:.1em;margin-bottom:5px}
+.f-input{width:100%;background:rgba(0,0,0,.4);border:1px solid var(--b2);border-radius:4px;color:var(--t);font-family:var(--mono);font-size:.8rem;padding:8px 11px;outline:none;margin-bottom:12px;transition:border-color .2s}
+.f-input:focus{border-color:var(--g)}
+select.f-input{cursor:pointer}
 
-/* ── Cards ── */
-.card{
-  background:var(--surf);border:1px solid var(--border);
-  border-radius:8px;padding:20px;margin-bottom:16px;
-}
-.card-title{
-  font-size:.65rem;color:var(--muted);letter-spacing:.14em;
-  text-transform:uppercase;margin-bottom:14px;
-  display:flex;align-items:center;gap:8px;
-}
-.card-title::after{content:'';flex:1;height:1px;background:var(--border)}
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:7px;padding:8px 16px;border-radius:4px;border:none;font-family:var(--mono);font-size:.75rem;cursor:pointer;transition:.18s;letter-spacing:.04em;white-space:nowrap}
+.btn svg{width:14px;height:14px}
+.bp{background:var(--g);color:#000;font-weight:700;box-shadow:0 0 14px rgba(0,229,255,.2)}
+.bp:hover:not(:disabled){box-shadow:0 0 28px rgba(0,229,255,.5);transform:translateY(-1px)}
+.bp:disabled{opacity:.35;cursor:not-allowed;transform:none}
+.bd{background:rgba(255,45,85,.1);color:var(--r);border:1px solid rgba(255,45,85,.2)}
+.bd:hover{background:rgba(255,45,85,.2)}
+.bg{background:rgba(255,255,255,.04);color:var(--t);border:1px solid var(--b2)}
+.bg:hover{border-color:var(--g);color:var(--g)}
+.sm{padding:5px 11px;font-size:.7rem}
 
-.card-row{display:flex;gap:16px;margin-bottom:16px}
-.card-row .card{flex:1;margin-bottom:0}
+/* BADGES */
+.badge{display:inline-block;padding:2px 8px;border-radius:20px;font-size:.62rem;letter-spacing:.07em;font-weight:500}
+.bok{background:rgba(0,255,153,.1);color:var(--g2);border:1px solid rgba(0,255,153,.25)}
+.berr{background:rgba(255,45,85,.1);color:var(--r);border:1px solid rgba(255,45,85,.25)}
+.bwarn{background:rgba(255,159,10,.1);color:var(--o);border:1px solid rgba(255,159,10,.25)}
+.binfo{background:rgba(0,229,255,.1);color:var(--g);border:1px solid rgba(0,229,255,.25)}
+.bpurp{background:rgba(191,90,242,.1);color:var(--p);border:1px solid rgba(191,90,242,.25)}
 
-/* ── Form ── */
-.field{margin-bottom:14px}
-.field label{display:block;font-size:.68rem;color:var(--muted);letter-spacing:.1em;margin-bottom:6px}
-.field input,.field select,.field textarea{
-  width:100%;background:rgba(0,0,0,.3);
-  border:1px solid var(--border2);border-radius:5px;
-  color:var(--text);font-family:var(--mono);font-size:.82rem;
-  padding:9px 12px;outline:none;transition:border-color .2s;
-}
-.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--acc)}
-.field textarea{resize:vertical;min-height:70px}
+/* STATS */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:18px}
+.stat{background:var(--s1);border:1px solid var(--b1);border-radius:7px;padding:14px;text-align:center}
+.stat-n{font-family:var(--disp);font-size:2rem;line-height:1;letter-spacing:.04em}
+.stat-l{font-size:.6rem;color:var(--t2);margin-top:4px;letter-spacing:.1em}
 
-/* ── Buttons ── */
-.btn{
-  display:inline-flex;align-items:center;gap:7px;
-  padding:9px 18px;border-radius:5px;border:none;
-  font-family:var(--mono);font-size:.78rem;letter-spacing:.05em;
-  cursor:pointer;transition:all .18s;white-space:nowrap;
-}
-.btn-primary{background:var(--acc);color:#000;font-weight:500;box-shadow:0 0 16px rgba(0,229,255,.2)}
-.btn-primary:hover:not(:disabled){box-shadow:0 0 28px rgba(0,229,255,.45);transform:translateY(-1px)}
-.btn-primary:disabled{opacity:.35;cursor:not-allowed;transform:none}
-.btn-danger{background:rgba(255,45,85,.12);color:var(--red);border:1px solid rgba(255,45,85,.25)}
-.btn-danger:hover{background:rgba(255,45,85,.2)}
-.btn-ghost{background:rgba(255,255,255,.04);color:var(--text);border:1px solid var(--border2)}
-.btn-ghost:hover{border-color:var(--acc);color:var(--acc)}
-.btn-sm{padding:6px 12px;font-size:.72rem}
-
-/* ── Badges ── */
-.badge{
-  display:inline-block;padding:2px 9px;border-radius:20px;
-  font-size:.65rem;letter-spacing:.07em;font-weight:500;
-}
-.badge-ok    {background:rgba(0,255,153,.1);color:var(--acc2);border:1px solid rgba(0,255,153,.25)}
-.badge-err   {background:rgba(255,45,85,.1);color:var(--red);border:1px solid rgba(255,45,85,.25)}
-.badge-warn  {background:rgba(255,149,0,.1);color:var(--orange);border:1px solid rgba(255,149,0,.25)}
-.badge-info  {background:rgba(0,229,255,.1);color:var(--acc);border:1px solid rgba(0,229,255,.25)}
-.badge-purple{background:rgba(191,90,242,.1);color:var(--purple);border:1px solid rgba(191,90,242,.25)}
-
-/* ── Stats row ── */
-.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px}
-.stat{
-  background:var(--surf);border:1px solid var(--border);
-  border-radius:7px;padding:16px;text-align:center;
-}
-.stat-n{font-family:var(--display);font-size:2.2rem;line-height:1;letter-spacing:.04em}
-.stat-l{font-size:.62rem;color:var(--muted);margin-top:4px;letter-spacing:.1em}
-
-/* ── Terminal ── */
-.terminal{
-  background:#020406;border:1px solid var(--border);
-  border-radius:6px;padding:14px;font-size:.74rem;line-height:1.75;
-  max-height:320px;overflow-y:auto;font-family:var(--mono);
-}
-.terminal::-webkit-scrollbar{width:3px}
-.terminal::-webkit-scrollbar-thumb{background:var(--border2)}
+/* TERMINAL */
+.term{background:#020406;border:1px solid var(--b1);border-radius:5px;padding:12px;font-size:.72rem;line-height:1.75;max-height:300px;overflow-y:auto;font-family:var(--mono)}
+.term::-webkit-scrollbar{width:3px}
+.term::-webkit-scrollbar-thumb{background:var(--b2)}
 .tl{display:block}
-.t-ok{color:var(--acc2)}.t-err{color:var(--red)}.t-warn{color:var(--orange)}
-.t-info{color:var(--acc)}.t-dim{color:var(--muted)}.t-purple{color:var(--purple)}
+.tok{color:var(--g2)}.terr{color:var(--r)}.twarn{color:var(--o)}.tinfo{color:var(--g)}.tdim{color:var(--t2)}.tpurp{color:var(--p)}
 
-/* ── Progress ── */
-.prog-wrap{background:var(--border);border-radius:3px;height:3px;margin:10px 0;overflow:hidden}
-.prog-bar{height:100%;background:linear-gradient(90deg,var(--acc),var(--acc2));border-radius:3px;transition:width .4s;width:0;box-shadow:0 0 8px var(--acc)}
+/* PROGRESS */
+.pw{background:var(--b1);border-radius:3px;height:3px;margin:8px 0;overflow:hidden}
+.pb{height:100%;background:linear-gradient(90deg,var(--g),var(--g2));border-radius:3px;transition:width .4s;width:0;box-shadow:0 0 6px var(--g)}
 
-/* ── Table ── */
-.tbl{width:100%;border-collapse:collapse;font-size:.74rem}
-.tbl th{text-align:left;padding:8px 12px;border-bottom:1px solid var(--border);color:var(--muted);font-weight:400;letter-spacing:.08em;font-size:.65rem}
-.tbl td{padding:9px 12px;border-bottom:1px solid rgba(28,37,48,.7);vertical-align:top}
+/* TABLE */
+.tbl{width:100%;border-collapse:collapse;font-size:.72rem}
+.tbl th{text-align:left;padding:7px 10px;border-bottom:1px solid var(--b1);color:var(--t2);font-weight:400;letter-spacing:.08em;font-size:.62rem}
+.tbl td{padding:8px 10px;border-bottom:1px solid rgba(26,37,48,.6);vertical-align:top}
 .tbl tr:hover td{background:rgba(255,255,255,.015)}
-.td-payload{color:var(--orange);word-break:break-all;max-width:240px;font-size:.71rem}
-.td-url{color:var(--acc);font-size:.68rem;word-break:break-all;max-width:200px}
 
-/* ── Project item ── */
-.proj-item{
-  display:flex;align-items:center;gap:12px;
-  padding:12px 14px;border:1px solid var(--border);border-radius:7px;
-  margin-bottom:8px;cursor:pointer;transition:all .18s;
-}
-.proj-item:hover{border-color:var(--border2);background:rgba(255,255,255,.02)}
-.proj-item.selected{border-color:var(--acc);background:rgba(0,229,255,.04)}
-.proj-domain{font-size:.85rem;flex:1}
-.proj-meta{font-size:.67rem;color:var(--muted)}
+/* PROJ ITEMS */
+.pi{display:flex;align-items:center;gap:10px;padding:11px 13px;border:1px solid var(--b1);border-radius:7px;margin-bottom:7px;cursor:pointer;transition:.18s}
+.pi:hover{border-color:var(--b2);background:rgba(255,255,255,.02)}
+.pi.sel{border-color:var(--g);background:rgba(0,229,255,.04)}
+.pi-name{font-size:.82rem;flex:1}
+.pi-meta{font-size:.64rem;color:var(--t2)}
 
-/* ── Steps ── */
-.step{display:flex;gap:14px;padding:14px 0;border-bottom:1px solid var(--border)}
+/* STEPS */
+.step{display:flex;gap:13px;padding:13px 0;border-bottom:1px solid var(--b1)}
 .step:last-child{border-bottom:none}
-.step-n{
-  width:26px;height:26px;border-radius:50%;flex-shrink:0;margin-top:2px;
-  display:flex;align-items:center;justify-content:center;font-size:.72rem;
-  background:rgba(0,229,255,.08);border:1px solid rgba(0,229,255,.25);color:var(--acc);
-}
-.step-n.done{background:rgba(0,255,153,.1);border-color:rgba(0,255,153,.3);color:var(--acc2)}
-.step-body h4{font-size:.82rem;color:var(--text);margin-bottom:5px}
-.step-body p{font-size:.73rem;color:var(--text2);line-height:1.6}
-code{
-  background:rgba(0,229,255,.07);border:1px solid rgba(0,229,255,.18);
-  color:var(--acc);padding:1px 6px;border-radius:3px;font-size:.85em;
-}
+.sn{width:24px;height:24px;border-radius:50%;flex-shrink:0;margin-top:2px;display:flex;align-items:center;justify-content:center;font-size:.7rem;background:rgba(0,229,255,.08);border:1px solid rgba(0,229,255,.2);color:var(--g)}
+.sn.done{background:rgba(0,255,153,.1);border-color:rgba(0,255,153,.3);color:var(--g2)}
+.sb2 h4{font-size:.8rem;color:var(--t);margin-bottom:4px}
+.sb2 p{font-size:.7rem;color:var(--t2);line-height:1.6}
+code{background:rgba(0,229,255,.07);border:1px solid rgba(0,229,255,.18);color:var(--g);padding:1px 5px;border-radius:3px;font-size:.85em}
 
-/* ── PP file box ── */
-.pp-box{
-  background:#010305;border:1px solid rgba(0,229,255,.2);border-radius:6px;
-  padding:14px;font-size:.72rem;color:var(--acc);
-  white-space:pre;overflow-x:auto;margin:12px 0;max-height:220px;overflow-y:auto;
-  box-shadow:inset 0 0 24px rgba(0,229,255,.04);
-}
+/* PP BOX */
+.ppb{background:#010305;border:1px solid rgba(0,229,255,.2);border-radius:5px;padding:12px;font-size:.7rem;color:var(--g);white-space:pre;overflow:auto;max-height:200px;margin:10px 0}
 
-/* ── DNA grid ── */
-.dna-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px;margin-top:10px}
-.dna-card{
-  border:1px solid var(--border2);border-radius:6px;padding:11px 13px;
-  background:rgba(0,0,0,.2);transition:border-color .2s;
-}
-.dna-card:hover{border-color:var(--border2)}
-.dna-id{font-size:.68rem;letter-spacing:.12em;margin-bottom:4px}
-.dna-name{font-size:.73rem;color:var(--text)}
-.dna-meta{font-size:.65rem;color:var(--muted);margin-top:4px}
+/* DNA GRID */
+.dna-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:7px;margin-top:10px}
+.dc{border:1px solid var(--b2);border-radius:6px;padding:10px 12px;background:rgba(0,0,0,.2)}
+.dc-id{font-size:.65rem;letter-spacing:.12em;margin-bottom:3px}
+.dc-name{font-size:.71rem;color:var(--t)}
+.dc-meta{font-size:.62rem;color:var(--t2);margin-top:3px}
 
-/* ── Stack chip ── */
-.stack-chip{
-  display:inline-flex;align-items:center;gap:5px;
-  padding:3px 10px;border-radius:4px;font-size:.68rem;
-  background:rgba(191,90,242,.1);border:1px solid rgba(191,90,242,.2);color:var(--purple);
-}
+/* TOGGLE */
+.tgg{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-bottom:12px}
+.tg{display:flex;align-items:center;gap:6px;padding:7px 9px;border:1px solid var(--b1);border-radius:5px;cursor:pointer;font-size:.71rem;transition:.15s}
+.tg.on{border-color:var(--b2);background:rgba(255,255,255,.03)}
+.tg input{accent-color:var(--g);cursor:pointer}
 
-/* ── Toggles ── */
-.toggle-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
-.toggle-item{
-  display:flex;align-items:center;gap:7px;padding:8px 10px;
-  border:1px solid var(--border);border-radius:5px;cursor:pointer;
-  transition:all .15s;font-size:.74rem;
-}
-.toggle-item.on{border-color:var(--border2);background:rgba(255,255,255,.03)}
-.toggle-item input{accent-color:var(--acc);cursor:pointer;width:13px;height:13px}
+/* SPIN */
+.spin{display:inline-block;width:12px;height:12px;border:2px solid rgba(0,229,255,.15);border-top-color:var(--g);border-radius:50%;animation:sp .65s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
 
-/* ── Spinner ── */
-.spin{
-  display:inline-block;width:12px;height:12px;
-  border:2px solid rgba(0,229,255,.15);border-top-color:var(--acc);
-  border-radius:50%;animation:rot .65s linear infinite;
-}
-@keyframes rot{to{transform:rotate(360deg)}}
-
-/* ── Toast ── */
-#toast{
-  position:fixed;bottom:20px;right:20px;
-  background:var(--surf);border:1px solid var(--border2);
-  border-radius:6px;padding:10px 16px;font-size:.76rem;
-  max-width:300px;z-index:9998;
-  transform:translateY(60px);opacity:0;transition:all .25s;
-  box-shadow:0 8px 24px rgba(0,0,0,.6);
-}
+/* TOAST */
+#toast{position:fixed;bottom:18px;right:18px;background:var(--s1);border:1px solid var(--b2);border-radius:6px;padding:10px 15px;font-size:.74rem;max-width:280px;z-index:9999;transform:translateY(50px);opacity:0;transition:.25s;box-shadow:0 8px 24px rgba(0,0,0,.6)}
 #toast.show{transform:translateY(0);opacity:1}
 </style>
 </head>
 <body>
+<div class="app">
 
-<div class="layout">
-
-  <!-- ── SIDEBAR ── -->
-  <aside class="sidebar">
-    <div class="sidebar-header">
-      <div class="brand">ZOMBIE</div>
-      <div class="brand" style="color:var(--acc2)">HACKING</div>
-      <div class="brand-sub">AUTONOMOUS SECURITY AUDIT</div>
-      <div class="version-tag">v4.0 · ATTACK DNA</div>
+<aside class="sb">
+  <div class="sb-logo">
+    <h1>ZOMBIE</h1>
+    <h1 style="color:var(--g2)">HACKING</h1>
+    <p>AUTONOMOUS SECURITY AUDIT</p>
+    <span>v5.0 ATTACK DNA</span>
+  </div>
+  <nav>
+    <div class="ni on" data-page="projects">
+      <i data-lucide="folder"></i> Projects
     </div>
-
-    <nav class="nav">
-      <div class="nav-item active" data-page="projects">
-        <span class="nav-icon">📁</span> Projets
-      </div>
-      <div class="nav-item" data-page="verify">
-        <span class="nav-icon">🔐</span> Vérification
-      </div>
-      <div class="nav-item" data-page="scan">
-        <span class="nav-icon">🔬</span> Scanner
-      </div>
-      <div class="nav-item" data-page="findings">
-        <span class="nav-icon">💥</span> Failles
-        <span class="nav-badge" id="nav-findings-count" style="display:none">0</span>
-      </div>
-      <div class="nav-item" data-page="dna">
-        <span class="nav-icon">🧬</span> Attack DNA
-      </div>
-      <div class="nav-item" data-page="memory">
-        <span class="nav-icon">🧠</span> Mémoire
-      </div>
-    </nav>
-
-    <div class="sidebar-footer">
-      <span class="status-dot" id="db-dot"></span>
-      <span id="db-status">IndexedDB...</span>
+    <div class="ni" data-page="verify">
+      <i data-lucide="shield-check"></i> Verify
     </div>
-  </aside>
-
-  <!-- ── MAIN ── -->
-  <main class="main">
-
-    <!-- PAGE: PROJECTS -->
-    <div class="page active" id="page-projects">
-      <div class="page-title">Projets</div>
-      <div class="page-desc">GÉREZ VOS CIBLES D'AUDIT · MULTI-PROJET · MÉMOIRE PARTAGÉE</div>
-
-      <div class="card-row">
-        <div class="card" style="flex:1.2">
-          <div class="card-title">Nouveau projet</div>
-          <div class="field">
-            <label>URL du projet à auditer</label>
-            <input type="url" id="new-url" placeholder="https://monprojet.com"/>
-          </div>
-          <div class="field">
-            <label>Nom du projet</label>
-            <input type="text" id="new-name" placeholder="Mon App"/>
-          </div>
-          <button class="btn btn-primary" id="btn-create">
-            ➕ Créer &amp; générer zombiehack.pp
-          </button>
-        </div>
-
-        <div class="card" style="flex:2">
-          <div class="card-title">Projets enregistrés</div>
-          <div id="project-list">
-            <p style="color:var(--muted);font-size:.78rem">Aucun projet — créez-en un.</p>
-          </div>
-        </div>
-      </div>
+    <div class="ni" data-page="scan">
+      <i data-lucide="radar"></i> Scanner
     </div>
-
-    <!-- PAGE: VERIFY -->
-    <div class="page" id="page-verify">
-      <div class="page-title">Vérification</div>
-      <div class="page-desc">PREUVE DE PROPRIÉTÉ · SIGNATURE CRYPTOGRAPHIQUE RSA-2048</div>
-
-      <div id="verify-no-proj" class="card" style="color:var(--muted);font-size:.82rem">
-        Sélectionnez d'abord un projet dans l'onglet Projets.
-      </div>
-
-      <div id="verify-content" style="display:none">
-        <div class="card">
-          <div class="card-title">Comment ça fonctionne</div>
-          <p style="font-size:.78rem;color:var(--text2);margin-bottom:16px;line-height:1.7">
-            Le fichier <code>zombiehack.pp</code> contient votre domaine, votre clé publique RSA-2048
-            et une signature cryptographique unique. Sans votre clé privée (stockée localement dans IndexedDB,
-            jamais transmise), ce fichier est impossible à forger pour un domaine que vous ne contrôlez pas.
-          </p>
-          <div class="step">
-            <div class="step-n" id="step1-n">1</div>
-            <div class="step-body">
-              <h4>Téléchargez votre zombiehack.pp</h4>
-              <p>Fichier signé avec votre clé privée locale. Unique par domaine et par instance HTML.</p>
-              <br/>
-              <button class="btn btn-primary btn-sm" id="btn-download-pp">⬇ Télécharger zombiehack.pp</button>
-            </div>
-          </div>
-          <div class="step">
-            <div class="step-n" id="step2-n">2</div>
-            <div class="step-body">
-              <h4>Placez-le sur votre serveur</h4>
-              <p>Chemin exact : <code id="pp-path-display"></code></p>
-            </div>
-          </div>
-          <div class="step">
-            <div class="step-n" id="step3-n">3</div>
-            <div class="step-body">
-              <h4>Vérifiez la propriété</h4>
-              <p>On va fetch le fichier, vérifier la signature RSA, l'origine HTML et le domaine.</p>
-              <br/>
-              <button class="btn btn-primary btn-sm" id="btn-verify">🔍 Vérifier</button>
-              <span id="verify-result" style="margin-left:12px;font-size:.76rem"></span>
-            </div>
-          </div>
-        </div>
-
-        <div class="card">
-          <div class="card-title">Aperçu zombiehack.pp</div>
-          <div class="pp-box" id="pp-preview"></div>
-        </div>
-      </div>
+    <div class="ni" data-page="findings">
+      <i data-lucide="bug"></i> Findings
+      <span class="nb" id="nb-findings">0</span>
     </div>
-
-    <!-- PAGE: SCAN -->
-    <div class="page" id="page-scan">
-      <div class="page-title">Scanner</div>
-      <div class="page-desc">DNA ATTACK ENGINE · MUTATIONS TYPE-AWARE · HYBRIDES SURFACE-AWARE · PRIORISATION PAR STACK</div>
-
-      <div id="scan-no-proj" class="card" style="color:var(--muted);font-size:.82rem">
-        Sélectionnez un projet vérifié pour lancer un scan.
-      </div>
-
-      <div id="scan-content" style="display:none">
-
-        <!-- Stack detected -->
-        <div class="card" id="stack-card" style="display:none">
-          <div class="card-title">Stack détecté</div>
-          <div id="stack-display"></div>
-        </div>
-
-        <div class="card-row">
-          <div class="card" style="flex:1">
-            <div class="card-title">Configuration</div>
-            <div class="field">
-              <label>Profondeur d'attaque</label>
-              <select id="scan-depth">
-                <option value="seeds">Seeds seulement (rapide)</option>
-                <option value="mutations" selected>Seeds + Mutations DNA</option>
-                <option value="full">Seeds + Mutations + Hybrides</option>
-              </select>
-            </div>
-            <div class="field">
-              <label>Délai entre requêtes (ms)</label>
-              <input type="text" id="scan-delay" value="300"/>
-            </div>
-          </div>
-
-          <div class="card" style="flex:1.6">
-            <div class="card-title">Familles actives</div>
-            <div class="toggle-grid" id="family-toggles"></div>
-          </div>
-        </div>
-
-        <div style="display:flex;gap:10px;align-items:center">
-          <button class="btn btn-primary" id="btn-start-scan">🔬 Lancer le scan</button>
-          <button class="btn btn-danger btn-sm" id="btn-stop-scan" style="display:none">⏹ Stopper</button>
-          <span id="scan-summary" style="font-size:.76rem;color:var(--muted)"></span>
-        </div>
-      </div>
-
-      <!-- Running panel -->
-      <div class="card" id="running-card" style="display:none;margin-top:16px">
-        <div class="card-title">Scan en cours</div>
-        <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
-          <div class="spin" id="scan-spin"></div>
-          <span id="scan-status" style="font-size:.78rem"></span>
-        </div>
-        <div class="prog-wrap"><div class="prog-bar" id="prog"></div></div>
-        <div class="terminal" id="scan-log"></div>
-      </div>
+    <div class="ni" data-page="dna">
+      <i data-lucide="dna"></i> Attack DNA
     </div>
-
-    <!-- PAGE: FINDINGS -->
-    <div class="page" id="page-findings">
-      <div class="page-title">Failles détectées</div>
-      <div class="page-desc">INDEXEDDB · PERSISTANT · MULTI-PROJETS</div>
-
-      <div class="stats-row">
-        <div class="stat">
-          <div class="stat-n" style="color:var(--acc2)" id="s-total">0</div>
-          <div class="stat-l">TOTAL FAILLES</div>
-        </div>
-        <div class="stat">
-          <div class="stat-n" style="color:var(--red)" id="s-crit">0</div>
-          <div class="stat-l">CRITIQUES</div>
-        </div>
-        <div class="stat">
-          <div class="stat-n" style="color:var(--purple)" id="s-hybrid">0</div>
-          <div class="stat-l">HYBRIDES</div>
-        </div>
-        <div class="stat">
-          <div class="stat-n" style="color:var(--acc)" id="s-explored">0</div>
-          <div class="stat-l">EXPLORÉS</div>
-        </div>
-      </div>
-
-      <div class="card">
-        <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
-          <div class="card-title" style="margin:0;flex:1">Résultats</div>
-          <button class="btn btn-ghost btn-sm" id="btn-export">📥 JSON</button>
-          <button class="btn btn-danger btn-sm" id="btn-clear-findings">🗑 Vider</button>
-        </div>
-        <div style="overflow-x:auto">
-          <table class="tbl">
-            <thead>
-              <tr>
-                <th>FAMILLE</th><th>PAYLOAD</th><th>SIGNATURE</th>
-                <th>URL</th><th>ORIGINE</th><th>DATE</th>
-              </tr>
-            </thead>
-            <tbody id="findings-body"></tbody>
-          </table>
-        </div>
-      </div>
+    <div class="ni" data-page="memory">
+      <i data-lucide="brain"></i> Memory
     </div>
+  </nav>
+  <div class="sb-foot">
+    <div class="dot" id="db-dot"></div>
+    <span id="db-label">IndexedDB...</span>
+  </div>
+</aside>
 
-    <!-- PAGE: DNA -->
-    <div class="page" id="page-dna">
-      <div class="page-title">Attack DNA</div>
-      <div class="page-desc">RÈGLES GÉNÉRALES · MUTATIONS TYPE-AWARE · COMBOS CALCULÉS AUTOMATIQUEMENT</div>
+<main class="main">
 
-      <div class="card">
-        <div class="card-title">Familles d'attaque</div>
-        <div class="dna-grid" id="dna-grid"></div>
-      </div>
-
-      <div class="card">
-        <div class="card-title">Combos valides (calculés par intersection de surfaces)</div>
-        <div id="combos-display" style="font-size:.78rem;line-height:2.2"></div>
-      </div>
-
-      <div class="card">
-        <div class="card-title">Règles de mutation par type de données</div>
-        <div id="mutation-display"></div>
-      </div>
+<!-- PROJECTS -->
+<div class="pg on" id="pg-projects">
+  <div class="pg-title">Projects</div>
+  <div class="pg-sub">MANAGE AUDIT TARGETS - MULTI-PROJECT - SHARED MEMORY</div>
+  <div class="row">
+    <div class="card" style="flex:1.2">
+      <div class="card-title">New project</div>
+      <label class="f-label">Target URL</label>
+      <input class="f-input" type="url" id="new-url" placeholder="https://myproject.com">
+      <label class="f-label">Project name</label>
+      <input class="f-input" type="text" id="new-name" placeholder="My App">
+      <button class="btn bp" id="btn-create">
+        <i data-lucide="plus-circle"></i> Create and generate .pp
+      </button>
     </div>
-
-    <!-- PAGE: MEMORY -->
-    <div class="page" id="page-memory">
-      <div class="page-title">Mémoire partagée</div>
-      <div class="page-desc">INDEXEDDB · MULTI-PROJETS · DNA ÉVOLUTIF · PATTERNS APPRIS</div>
-
-      <div class="stats-row" style="grid-template-columns:repeat(3,1fr)">
-        <div class="stat">
-          <div class="stat-n" style="color:var(--acc2)" id="m-findings">0</div>
-          <div class="stat-l">FAILLES</div>
-        </div>
-        <div class="stat">
-          <div class="stat-n" style="color:var(--acc)" id="m-explored">0</div>
-          <div class="stat-l">VECTEURS EXPLORÉS</div>
-        </div>
-        <div class="stat">
-          <div class="stat-n" style="color:var(--purple)" id="m-learned">0</div>
-          <div class="stat-l">PATTERNS APPRIS</div>
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="card-title">Patterns appris par stack (DNA évolutif)</div>
-        <div id="learned-display" style="font-size:.78rem;color:var(--muted)">
-          Aucun pattern appris — lancez des scans.
-        </div>
-      </div>
-
-      <div style="display:flex;gap:10px">
-        <button class="btn btn-ghost btn-sm" id="btn-refresh-mem">🔄 Rafraîchir</button>
-        <button class="btn btn-danger btn-sm" id="btn-clear-all">🗑 Vider toute la mémoire</button>
-      </div>
+    <div class="card" style="flex:2">
+      <div class="card-title">Registered projects</div>
+      <div id="project-list"><p style="color:var(--t2);font-size:.78rem">No project yet.</p></div>
     </div>
-
-  </main>
+  </div>
 </div>
 
+<!-- VERIFY -->
+<div class="pg" id="pg-verify">
+  <div class="pg-title">Verification</div>
+  <div class="pg-sub">DOMAIN OWNERSHIP - RSA-2048 CRYPTOGRAPHIC SIGNATURE</div>
+  <div id="vno" class="card" style="color:var(--t2);font-size:.8rem">Select a project first.</div>
+  <div id="vcont" style="display:none">
+    <div class="card">
+      <div class="card-title">How it works</div>
+      <p style="font-size:.76rem;color:var(--t2);margin-bottom:14px;line-height:1.7">
+        The <code>zombiehack.pp</code> file contains your domain, your RSA-2048 public key
+        and a unique cryptographic signature. Without your private key (stored locally in
+        IndexedDB, never transmitted), this file cannot be forged.
+      </p>
+      <div class="step">
+        <div class="sn" id="s1n">1</div>
+        <div class="sb2">
+          <h4>Download zombiehack.pp</h4>
+          <p>Signed with your local private key. Unique per domain and per HTML instance.</p>
+          <br>
+          <button class="btn bp sm" id="btn-dlpp">
+            <i data-lucide="download"></i> Download zombiehack.pp
+          </button>
+        </div>
+      </div>
+      <div class="step">
+        <div class="sn" id="s2n">2</div>
+        <div class="sb2">
+          <h4>Place it on your server</h4>
+          <p>Exact path: <code id="pp-path"></code></p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="sn" id="s3n">3</div>
+        <div class="sb2">
+          <h4>Verify ownership</h4>
+          <p>We fetch the file, verify the RSA signature, HTML origin and domain.</p>
+          <br>
+          <button class="btn bp sm" id="btn-verify">
+            <i data-lucide="search"></i> Verify now
+          </button>
+          <span id="verify-result" style="margin-left:10px;font-size:.74rem"></span>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">zombiehack.pp preview</div>
+      <div class="ppb" id="pp-preview"></div>
+    </div>
+  </div>
+</div>
+
+<!-- SCAN -->
+<div class="pg" id="pg-scan">
+  <div class="pg-title">Scanner</div>
+  <div class="pg-sub">DNA ENGINE - TYPE-AWARE MUTATIONS - SURFACE-AWARE COMBOS - STACK DETECTION</div>
+  <div id="sno" class="card" style="color:var(--t2);font-size:.8rem">Select a verified project to start.</div>
+  <div id="scont" style="display:none">
+    <div class="card" id="stack-card" style="display:none">
+      <div class="card-title">Detected stack</div>
+      <div id="stack-info"></div>
+    </div>
+    <div class="row">
+      <div class="card" style="flex:1">
+        <div class="card-title">Configuration</div>
+        <label class="f-label">Attack depth</label>
+        <select class="f-input" id="scan-depth">
+          <option value="seeds">Seeds only (fast)</option>
+          <option value="mutations" selected>Seeds + DNA Mutations</option>
+          <option value="full">Seeds + Mutations + Hybrids</option>
+        </select>
+        <label class="f-label">Delay between requests (ms)</label>
+        <input class="f-input" type="text" id="scan-delay" value="300">
+      </div>
+      <div class="card" style="flex:1.5">
+        <div class="card-title">Active families</div>
+        <div class="tgg" id="fam-toggles"></div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px">
+      <button class="btn bp" id="btn-scan">
+        <i data-lucide="play"></i> Start scan
+      </button>
+      <button class="btn bd sm" id="btn-stop" style="display:none">
+        <i data-lucide="square"></i> Stop
+      </button>
+      <span id="scan-sum" style="font-size:.74rem;color:var(--t2)"></span>
+    </div>
+  </div>
+  <div class="card" id="run-card" style="display:none;margin-top:14px">
+    <div class="card-title">Scan running</div>
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+      <div class="spin" id="scan-spin"></div>
+      <span id="scan-status" style="font-size:.76rem"></span>
+    </div>
+    <div class="pw"><div class="pb" id="prog"></div></div>
+    <div class="term" id="scan-log"></div>
+  </div>
+</div>
+
+<!-- FINDINGS -->
+<div class="pg" id="pg-findings">
+  <div class="pg-title">Findings</div>
+  <div class="pg-sub">INDEXEDDB - PERSISTENT - MULTI-PROJECT</div>
+  <div class="stats">
+    <div class="stat"><div class="stat-n" style="color:var(--g2)" id="s-total">0</div><div class="stat-l">TOTAL</div></div>
+    <div class="stat"><div class="stat-n" style="color:var(--r)" id="s-crit">0</div><div class="stat-l">CRITICAL</div></div>
+    <div class="stat"><div class="stat-n" style="color:var(--p)" id="s-hyb">0</div><div class="stat-l">HYBRID</div></div>
+    <div class="stat"><div class="stat-n" style="color:var(--g)" id="s-expl">0</div><div class="stat-l">EXPLORED</div></div>
+  </div>
+  <div class="card">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+      <div class="card-title" style="margin:0;flex:1">Results</div>
+      <button class="btn bg sm" id="btn-export">
+        <i data-lucide="download"></i> JSON
+      </button>
+      <button class="btn bd sm" id="btn-clr-f">
+        <i data-lucide="trash-2"></i> Clear
+      </button>
+    </div>
+    <div style="overflow-x:auto">
+      <table class="tbl">
+        <thead>
+          <tr>
+            <th>FAMILY</th><th>PAYLOAD</th><th>SIGNATURE</th>
+            <th>URL</th><th>ORIGIN</th><th>TIME</th>
+          </tr>
+        </thead>
+        <tbody id="findings-body"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- DNA -->
+<div class="pg" id="pg-dna">
+  <div class="pg-title">Attack DNA</div>
+  <div class="pg-sub">GENERAL RULES - TYPE-AWARE MUTATIONS - AUTO-COMPUTED COMBOS</div>
+  <div class="card">
+    <div class="card-title">Attack families</div>
+    <div class="dna-grid" id="dna-grid"></div>
+  </div>
+  <div class="card">
+    <div class="card-title">Valid combos (computed by surface intersection)</div>
+    <div id="combos-out" style="font-size:.76rem;line-height:2.2"></div>
+  </div>
+  <div class="card">
+    <div class="card-title">Mutation rules by data type</div>
+    <div id="mut-out"></div>
+  </div>
+</div>
+
+<!-- MEMORY -->
+<div class="pg" id="pg-memory">
+  <div class="pg-title">Shared Memory</div>
+  <div class="pg-sub">INDEXEDDB - MULTI-PROJECT - EVOLUTIONARY DNA - LEARNED PATTERNS</div>
+  <div class="stats" style="grid-template-columns:repeat(3,1fr)">
+    <div class="stat"><div class="stat-n" style="color:var(--g2)" id="m-f">0</div><div class="stat-l">FINDINGS</div></div>
+    <div class="stat"><div class="stat-n" style="color:var(--g)" id="m-e">0</div><div class="stat-l">EXPLORED</div></div>
+    <div class="stat"><div class="stat-n" style="color:var(--p)" id="m-l">0</div><div class="stat-l">PATTERNS LEARNED</div></div>
+  </div>
+  <div class="card">
+    <div class="card-title">Learned patterns by stack</div>
+    <div id="learned-out" style="font-size:.76rem;color:var(--t2)">No patterns yet - run some scans.</div>
+  </div>
+  <div style="display:flex;gap:10px;margin-top:4px">
+    <button class="btn bg sm" id="btn-ref-mem">
+      <i data-lucide="refresh-cw"></i> Refresh
+    </button>
+    <button class="btn bd sm" id="btn-clr-all">
+      <i data-lucide="trash-2"></i> Clear all memory
+    </button>
+  </div>
+</div>
+
+</main>
+</div>
 <div id="toast"></div>
 
 <script>
-// ???????????????????????????????????????????????????????????
-//  NOTE: Script classique (pas type=module) pour que les
-//  fonctions soient accessibles partout sans binding manuel
-//  Toute la logique est dans un IIFE pour eviter pollution
-//  globale tout en permettant les event listeners inline.
-// ???????????????????????????????????????????????????????????
-(async function() {
+var DB, PROJ = null, SCANNING = false, STOP = false, STACK = null;
 
-// ?? IndexedDB ?????????????????????????????????????????????
-const DB_NAME = 'ZombieHackingV4';
-let db;
-
-async function openDB() {
-  return new Promise((resolve, reject) => {
-    const req = indexedDB.open(DB_NAME, 1);
-    req.onupgradeneeded = e => {
-      const d = e.target.result;
-      ['projects','findings','explored','keys','dna_learned']
-        .forEach(s => { if (!d.objectStoreNames.contains(s)) d.createObjectStore(s, {keyPath:'id'}) });
+// -- IndexedDB --------------------------------------------------------------
+function openDB() {
+  return new Promise(function(res, rej) {
+    var r = indexedDB.open('ZHv5', 1);
+    r.onupgradeneeded = function(e) {
+      var d = e.target.result;
+      ['projects','findings','explored','keys','learned'].forEach(function(s) {
+        if (!d.objectStoreNames.contains(s)) d.createObjectStore(s, {keyPath:'id'});
+      });
     };
-    req.onsuccess = e => resolve(e.target.result);
-    req.onerror   = e => reject(e.target.error);
+    r.onsuccess = function(e) { res(e.target.result); };
+    r.onerror = function(e) { rej(e.target.error); };
   });
 }
-function idb(store, mode, fn) {
-  return new Promise((res, rej) => {
-    const tx = db.transaction(store, mode);
-    tx.onerror = e => rej(e.target.error);
-    fn(tx.objectStore(store), res, rej);
+function tx(store, mode, fn) {
+  return new Promise(function(res, rej) {
+    var t = DB.transaction(store, mode);
+    t.onerror = function(e) { rej(e.target.error); };
+    fn(t.objectStore(store), res, rej);
   });
 }
-const dbPut    = (s,v)   => idb(s,'readwrite',(st,r)=>{st.put(v).onsuccess=r});
-const dbGet    = (s,k)   => idb(s,'readonly', (st,r)=>{const q=st.get(k);q.onsuccess=()=>r(q.result)});
-const dbGetAll = (s)     => idb(s,'readonly', (st,r)=>{const q=st.getAll();q.onsuccess=()=>r(q.result)});
-const dbClear  = (s)     => idb(s,'readwrite',(st,r)=>{st.clear().onsuccess=r});
+function put(s, v)  { return tx(s,'readwrite',function(st,r){st.put(v).onsuccess=r;}); }
+function get(s, k)  { return tx(s,'readonly', function(st,r){var q=st.get(k);q.onsuccess=function(){r(q.result);};}); }
+function all(s)     { return tx(s,'readonly', function(st,r){var q=st.getAll();q.onsuccess=function(){r(q.result);};}); }
+function clr(s)     { return tx(s,'readwrite',function(st,r){st.clear().onsuccess=r;}); }
 
-// ?? Web Crypto ????????????????????????????????????????????
-async function genKeyPair() {
+// -- Crypto ----------------------------------------------------------------
+function genKeys() {
   return crypto.subtle.generateKey(
     {name:'RSASSA-PKCS1-v1_5',modulusLength:2048,publicExponent:new Uint8Array([1,0,1]),hash:'SHA-256'},
     true, ['sign','verify']
   );
 }
-async function exportPub(key) {
-  const raw = await crypto.subtle.exportKey('spki', key);
-  const b64 = btoa(String.fromCharCode(...new Uint8Array(raw)));
-  return '-----BEGIN PUBLIC KEY-----\n'+b64.match(/.{1,64}/g).join('\n')+'\n-----END PUBLIC KEY-----';
+function exportPub(k) {
+  return crypto.subtle.exportKey('spki', k).then(function(raw) {
+    var b64 = btoa(String.fromCharCode.apply(null, new Uint8Array(raw)));
+    return '-----BEGIN PUBLIC KEY-----\n' + b64.match(/.{1,64}/g).join('\n') + '\n-----END PUBLIC KEY-----';
+  });
 }
-async function sign(privKey, data) {
-  const enc = new TextEncoder().encode(data);
-  const sig = await crypto.subtle.sign('RSASSA-PKCS1-v1_5', privKey, enc);
-  return btoa(String.fromCharCode(...new Uint8Array(sig)));
+function signData(pk, data) {
+  var enc = new TextEncoder().encode(data);
+  return crypto.subtle.sign('RSASSA-PKCS1-v1_5', pk, enc).then(function(sig) {
+    return btoa(String.fromCharCode.apply(null, new Uint8Array(sig)));
+  });
 }
-async function verify(pubPem, data, sig64) {
+function verifyData(pubPem, data, sig64) {
   try {
-    const b64 = pubPem.replace(/-----[^-]+-----/g,'').replace(/\s/g,'');
-    const raw = Uint8Array.from(atob(b64),c=>c.charCodeAt(0));
-    const key = await crypto.subtle.importKey('spki',raw.buffer,
-      {name:'RSASSA-PKCS1-v1_5',hash:'SHA-256'},false,['verify']);
-    const enc = new TextEncoder().encode(data);
-    const sig = Uint8Array.from(atob(sig64),c=>c.charCodeAt(0));
-    return crypto.subtle.verify('RSASSA-PKCS1-v1_5',key,sig,enc);
-  } catch { return false; }
-}
-async function importPriv(b64) {
-  const raw = Uint8Array.from(atob(b64),c=>c.charCodeAt(0));
-  return crypto.subtle.importKey('pkcs8',raw.buffer,
-    {name:'RSASSA-PKCS1-v1_5',hash:'SHA-256'},false,['sign']);
+    var b64 = pubPem.replace(/-----[^-]+-----/g,'').replace(/\s/g,'');
+    var raw = Uint8Array.from(atob(b64), function(c){return c.charCodeAt(0);});
+    return crypto.subtle.importKey('spki', raw.buffer,
+      {name:'RSASSA-PKCS1-v1_5',hash:'SHA-256'}, false, ['verify']
+    ).then(function(k) {
+      var enc = new TextEncoder().encode(data);
+      var sig = Uint8Array.from(atob(sig64), function(c){return c.charCodeAt(0);});
+      return crypto.subtle.verify('RSASSA-PKCS1-v1_5', k, sig, enc);
+    });
+  } catch(e) { return Promise.resolve(false); }
 }
 
-// ?? ATTACK DNA ????????????????????????????????????????????
-const MUTATION_RULES = {
+// -- Attack DNA ------------------------------------------------------------
+var MUT = {
   string_unfiltered: [
-    {name:'sql_comment',   fn:p=>p.replace(/ /g,'/**/')},
-    {name:'case_flip',     fn:p=>p.split('').map((c,i)=>i%2?c.toUpperCase():c.toLowerCase()).join('')},
-    {name:'null_byte',     fn:p=>p+'%00'},
-    {name:'comment_alt',   fn:p=>p+' -- -'},
-    {name:'double_encode', fn:p=>p.replace(/'/g,'%2527')},
-    {name:'hex_encode',    fn:p=>p.replace(/'/g,'0x27')},
+    {n:'sql_comment',  f:function(p){return p.replace(/ /g,'/**/');}},
+    {n:'case_flip',    f:function(p){return p.split('').map(function(c,i){return i%2?c.toUpperCase():c.toLowerCase();}).join('');}},
+    {n:'null_byte',    f:function(p){return p+'%00';}},
+    {n:'comment_alt',  f:function(p){return p+' -- -';}},
+    {n:'double_enc',   f:function(p){return p.replace(/'/g,'%2527');}},
   ],
   file_path: [
-    {name:'url_encode',    fn:p=>p.replace(/\//g,'%2f')},
-    {name:'double_dots',   fn:p=>p.replace(/\.\.\//g,'....///')},
-    {name:'null_byte',     fn:p=>p+'%00'},
-    {name:'double_enc',    fn:p=>p.replace(/\//g,'%252f')},
-    {name:'win_sep',       fn:p=>p.replace(/\//g,'\\')},
+    {n:'url_encode',   f:function(p){return p.replace(/\//g,'%2f');}},
+    {n:'double_dots',  f:function(p){return p.replace(/\.\.\//g,'....///');}},
+    {n:'null_byte',    f:function(p){return p+'%00';}},
+    {n:'double_enc',   f:function(p){return p.replace(/\//g,'%252f');}},
   ],
   html_content: [
-    {name:'tag_upper',     fn:p=>p.replace(/<(\w+)/g,(_,t)=>'<'+t.toUpperCase())},
-    {name:'attr_encode',   fn:p=>p.replace(/=/g,'&#61;')},
-    {name:'svg_wrap',      fn:p=>`<svg><desc>${p}</desc></svg>`},
-    {name:'tmpl_curly',    fn:p=>`{{${p}}}`},
-    {name:'img_err',       fn:p=>`<img src=x onerror="${p}">`},
-    {name:'event_alt',     fn:p=>p.replace('onerror','onmouseover')},
+    {n:'tag_upper',    f:function(p){return p.replace(/<(\w+)/g,function(_,t){return '<'+t.toUpperCase();});}},
+    {n:'attr_enc',     f:function(p){return p.replace(/=/g,'&#61;');}},
+    {n:'svg_wrap',     f:function(p){return '<svg><desc>'+p+'</desc></svg>';}},
+    {n:'tmpl_curly',   f:function(p){return '{{'+p+'}}';}},
+    {n:'img_err',      f:function(p){return '<img src=x onerror="'+p+'">';}},
   ],
   shell_argument: [
-    {name:'semicolon',     fn:p=>p.replace('&&',';')},
-    {name:'backtick',      fn:p=>'`'+p.trim().split(' ').pop()+'`'},
-    {name:'dollar_exec',   fn:p=>'$('+p.trim().split(' ').pop()+')'},
-    {name:'newline',       fn:p=>p+'\nid'},
-    {name:'tab_sep',       fn:p=>p.replace(/ /g,'\t')},
+    {n:'semicolon',    f:function(p){return p.replace('&&',';');}},
+    {n:'backtick',     f:function(p){var t='\x60'; return t+p.trim().split(' ').pop()+t;}},
+    {n:'dollar_exec',  f:function(p){return '$('+p.trim().split(' ').pop()+')';}},
+    {n:'newline',      f:function(p){return p+'\nid';}},
   ],
   integer: [
-    {name:'negative',      fn:p=>'-'+p},
-    {name:'overflow',      fn:_=>'2147483648'},
-    {name:'zero',          fn:_=>'0'},
-    {name:'float',         fn:p=>p+'.0'},
-    // < Pas de commentaires SQL ici - invalide pour un entier
-  ],
-  regex_input: [
-    {name:'redos_basic',   fn:_=>'a'.repeat(30)+'X'},
-    {name:'redos_nested',  fn:_=>'(a+)+'.repeat(4)+'b'},
-    {name:'catastrophic',  fn:_=>'a?'.repeat(20)+'a'.repeat(20)},
+    {n:'negative',     f:function(p){return '-'+p;}},
+    {n:'overflow',     f:function(){return '2147483648';}},
+    {n:'zero',         f:function(){return '0';}},
   ],
 };
 
-// Stack signatures pour prioriser les familles
-const STACK_SIGNATURES = {
-  php:    {headers:['x-powered-by: php'],      cookies:['phpsessid'], priority:['sqli','traversal','cmdi','xxe']},
-  node:   {headers:['x-powered-by: express'],  cookies:['connect.sid'],priority:['xss','ssti','prototype_pollution','redos']},
-  python: {headers:['server: gunicorn','server: waitress','server: werkzeug'], cookies:[], priority:['ssti','sqli','cmdi','deserialization']},
-  java:   {headers:['x-powered-by: servlet'],  cookies:['jsessionid'], priority:['xxe','sqli','deserialization','ldap']},
-  ruby:   {headers:['server: thin','x-powered-by: phusion'],cookies:['_session_id'],priority:['sqli','deserialization','ssti']},
-  nginx:  {headers:['server: nginx'],           cookies:[],             priority:['sqli','xss','traversal','cmdi']},
-  apache: {headers:['server: apache'],          cookies:[],             priority:['sqli','traversal','xss','cmdi']},
-};
-
-const ATTACK_DNA = {
+var DNA = {
   sqli: {
-    name:'SQL Injection', color:'#ff2d55', severity:'critical',
-    targets:['string_unfiltered'],
-    surfaces:['get_param','post_param','json_body'],
-    mutation_pool:'string_unfiltered',
-    signatures:['data_leak','error_crash','auth_bypass'],
-    incompatible:['integer','file_path','html_content'],
-    affinity:['idor','ssti'],
+    name:'SQL Injection', col:'#ff2d55', sev:'critical',
+    targets:['string_unfiltered'], surfaces:['get_param','post_param'],
+    pool:'string_unfiltered', sigs:['data_leak','error_crash','auth_bypass'],
+    bad:['integer','file_path','html_content'],
     seeds:[
-      {value:"' OR 1=1--",                 param:'username', endpoint:'/login'},
-      {value:"admin'--",                   param:'username', endpoint:'/login'},
-      {value:"' UNION SELECT null,null--",  param:'username', endpoint:'/login'},
-      {value:"'; DROP TABLE users--",       param:'username', endpoint:'/login'},
-      {value:"' AND SLEEP(3)--",            param:'username', endpoint:'/login'},
-    ],
+      {value:"' OR 1=1--",               param:'username', ep:'/login'},
+      {value:"admin'--",                  param:'username', ep:'/login'},
+      {value:"' UNION SELECT null,null--",param:'username', ep:'/login'},
+      {value:"'; DROP TABLE users--",     param:'username', ep:'/login'},
+      {value:"' AND SLEEP(3)--",          param:'username', ep:'/login'},
+    ]
   },
   xss: {
-    name:'Cross-Site Scripting', color:'#ff9500', severity:'high',
-    targets:['html_content','string_unfiltered'],
-    surfaces:['get_param','post_param'],
-    mutation_pool:'html_content',
-    signatures:['reflection'],
-    incompatible:['integer','file_path','shell_argument'],
-    affinity:['ssti'],
+    name:'XSS', col:'#ff9f0a', sev:'high',
+    targets:['html_content','string_unfiltered'], surfaces:['get_param','post_param'],
+    pool:'html_content', sigs:['reflection'],
+    bad:['integer','file_path','shell_argument'],
     seeds:[
-      {value:'<script>alert(1)</script>',    param:'q', endpoint:'/search'},
-      {value:'<img src=x onerror=alert(1)>', param:'q', endpoint:'/search'},
-      {value:'<svg onload=alert(1)>',        param:'q', endpoint:'/search'},
-      {value:'javascript:alert(1)',          param:'q', endpoint:'/search'},
-    ],
+      {value:'<scr'+'ipt>alert(1)</'+'script>',    param:'q', ep:'/search'},
+      {value:'<img src=x onerror=alert(1)>', param:'q', ep:'/search'},
+      {value:'<svg onload=alert(1)>',        param:'q', ep:'/search'},
+      {value:'javascript:alert(1)',          param:'q', ep:'/search'},
+    ]
   },
   traversal: {
-    name:'Path Traversal', color:'#00e5ff', severity:'high',
-    targets:['file_path'],
-    surfaces:['get_param','post_param'],
-    mutation_pool:'file_path',
-    signatures:['data_leak','size_anomaly'],
-    incompatible:['string_unfiltered','html_content','shell_argument','integer'],
-    affinity:['cmdi','lfi'],
+    name:'Path Traversal', col:'#00e5ff', sev:'high',
+    targets:['file_path'], surfaces:['get_param'],
+    pool:'file_path', sigs:['data_leak','size_anomaly'],
+    bad:['string_unfiltered','html_content','shell_argument','integer'],
     seeds:[
-      {value:'../secret.txt',          param:'name', endpoint:'/file'},
-      {value:'../../secret.txt',       param:'name', endpoint:'/file'},
-      {value:'../../../etc/passwd',    param:'name', endpoint:'/file'},
-      {value:'....//....//etc/passwd', param:'name', endpoint:'/file'},
-    ],
+      {value:'../secret.txt',         param:'name', ep:'/file'},
+      {value:'../../secret.txt',      param:'name', ep:'/file'},
+      {value:'../../../etc/passwd',   param:'name', ep:'/file'},
+      {value:'....//....//etc/passwd',param:'name', ep:'/file'},
+    ]
   },
   cmdi: {
-    name:'Command Injection', color:'#ff2d55', severity:'critical',
-    targets:['shell_argument'],
-    surfaces:['get_param','post_param'],
-    mutation_pool:'shell_argument',
-    signatures:['data_leak','error_crash'],
-    incompatible:['html_content','integer','file_path'],
-    affinity:['traversal'],
+    name:'Command Injection', col:'#ff2d55', sev:'critical',
+    targets:['shell_argument'], surfaces:['get_param'],
+    pool:'shell_argument', sigs:['data_leak','error_crash'],
+    bad:['html_content','integer','file_path'],
     seeds:[
-      {value:'127.0.0.1; id',               param:'host', endpoint:'/ping'},
-      {value:'127.0.0.1 && whoami',          param:'host', endpoint:'/ping'},
-      {value:'127.0.0.1 | cat /etc/passwd',  param:'host', endpoint:'/ping'},
-      {value:'`id`',                         param:'host', endpoint:'/ping'},
-      {value:'$(whoami)',                    param:'host', endpoint:'/ping'},
-    ],
+      {value:'127.0.0.1; id',              param:'host', ep:'/ping'},
+      {value:'127.0.0.1 && whoami',        param:'host', ep:'/ping'},
+      {value:'127.0.0.1 | cat /etc/passwd',param:'host', ep:'/ping'},
+      {value:'\x60id\x60',                       param:'host', ep:'/ping'},
+    ]
   },
   idor: {
-    name:'IDOR', color:'#00ff99', severity:'high',
-    targets:['integer'],
-    surfaces:['get_param','path_segment'],
-    mutation_pool:'integer',
-    signatures:['data_leak','auth_bypass'],
-    incompatible:['html_content','shell_argument','file_path'],
-    affinity:['sqli'],
+    name:'IDOR', col:'#00ff99', sev:'high',
+    targets:['integer'], surfaces:['get_param','path_segment'],
+    pool:'integer', sigs:['data_leak','auth_bypass'],
+    bad:['html_content','shell_argument','file_path'],
     seeds:[
-      {value:'1',  param:'id', endpoint:'/user/1'},
-      {value:'2',  param:'id', endpoint:'/user/2'},
-      {value:'0',  param:'id', endpoint:'/user/0'},
-      {value:'-1', param:'id', endpoint:'/user/-1'},
-    ],
+      {value:'1',  param:'id', ep:'/user/1'},
+      {value:'2',  param:'id', ep:'/user/2'},
+      {value:'0',  param:'id', ep:'/user/0'},
+      {value:'-1', param:'id', ep:'/user/-1'},
+    ]
   },
   ssti: {
-    name:'Template Injection', color:'#bf5af2', severity:'critical',
-    targets:['string_unfiltered','html_content'],
-    surfaces:['get_param','post_param'],
-    mutation_pool:'html_content',
-    signatures:['reflection','error_crash','data_leak'],
-    incompatible:['integer','file_path','shell_argument'],
-    affinity:['xss','cmdi'],
+    name:'Template Injection', col:'#bf5af2', sev:'critical',
+    targets:['string_unfiltered','html_content'], surfaces:['get_param','post_param'],
+    pool:'html_content', sigs:['reflection','error_crash','data_leak'],
+    bad:['integer','file_path','shell_argument'],
     seeds:[
-      {value:'{{7*7}}',    param:'q', endpoint:'/search'},
-      {value:'${7*7}',     param:'q', endpoint:'/search'},
-      {value:'#{7*7}',     param:'q', endpoint:'/search'},
-      {value:'<%= 7*7 %>', param:'q', endpoint:'/search'},
-      {value:'{{config}}', param:'q', endpoint:'/search'},
-    ],
+      {value:'{{7*7}}',    param:'q', ep:'/search'},
+      {value:'${7*7}',     param:'q', ep:'/search'},
+      {value:'#{7*7}',     param:'q', ep:'/search'},
+      {value:'<%= 7*7 %>',param:'q', ep:'/search'},
+    ]
   },
   redos: {
-    name:'ReDoS', color:'#ff9500', severity:'medium',
-    targets:['regex_input','string_unfiltered'],
-    surfaces:['get_param','post_param'],
-    mutation_pool:'regex_input',
-    signatures:['timing_anomaly','error_crash'],
-    incompatible:['html_content','file_path','shell_argument'],
-    affinity:[],
+    name:'ReDoS', col:'#ff9f0a', sev:'medium',
+    targets:['regex_input','string_unfiltered'], surfaces:['get_param','post_param'],
+    pool:'string_unfiltered', sigs:['timing_anomaly','error_crash'],
+    bad:['html_content','file_path','shell_argument'],
     seeds:[
-      {value:'a'.repeat(40)+'X',        param:'q', endpoint:'/search'},
-      {value:'(a+)+'.repeat(4)+'b',     param:'q', endpoint:'/search'},
-      {value:'a?'.repeat(25)+'a'.repeat(25), param:'q', endpoint:'/search'},
-    ],
+      {value:'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaX',param:'q',ep:'/search'},
+      {value:'((a+)+)((a+)+)b',param:'q',ep:'/search'},
+    ]
   },
 };
 
-// ?? Compute combos automatically ??????????????????????????
-function computeCombos() {
-  const ids = Object.keys(ATTACK_DNA);
-  const combos = [];
-  for (let i=0; i<ids.length; i++) {
-    for (let j=i+1; j<ids.length; j++) {
-      const a1=ATTACK_DNA[ids[i]], a2=ATTACK_DNA[ids[j]];
-      const shared=a1.surfaces.filter(s=>a2.surfaces.includes(s));
-      if (!shared.length) continue;
-      const cross = a1.incompatible?.some(t=>a2.targets.includes(t)) ||
-                    a2.incompatible?.some(t=>a1.targets.includes(t));
-      if (!cross) combos.push({a1:ids[i], a2:ids[j], shared});
-    }
-  }
-  return combos;
-}
-
-// ?? Success signatures ????????????????????????????????????
-const SIG_CHECKS = {
-  data_leak:     (text,_,__)  => ['admin','root:','password','secret','CONFIDENTIEL','username','daemon:','bin/bash'].some(k=>text.includes(k)),
-  error_crash:   (_,status,__) => status>=500,
-  reflection:    (text,_,pay) => pay.length>3 && text.includes(pay.slice(0,10)),
-  auth_bypass:   (text,status,__)=> status===200 && text.length>20,
-  size_anomaly:  (text,status,__)=> status===200 && text.length>50,
-  timing_anomaly:(_,__,___,ms) => ms>2500,
+// Stack signatures
+var STACKS = {
+  php:    {h:['x-powered-by: php'],      ck:['phpsessid'], pri:['sqli','traversal','cmdi','ssti']},
+  node:   {h:['x-powered-by: express'],  ck:['connect.sid'],pri:['xss','ssti','redos']},
+  python: {h:['server: gunicorn','server: werkzeug'], ck:[], pri:['ssti','sqli','cmdi']},
+  java:   {h:['x-powered-by: servlet'],  ck:['jsessionid'], pri:['sqli','ssti','idor']},
+  nginx:  {h:['server: nginx'],           ck:[],             pri:['sqli','xss','traversal','cmdi']},
+  apache: {h:['server: apache'],          ck:[],             pri:['sqli','traversal','xss','cmdi']},
 };
 
-function evalSigs(sigs, text, status, payload, ms=0) {
-  return sigs.filter(s=>SIG_CHECKS[s]?.(text,status,payload,ms));
+// Success signatures
+var SIGS = {
+  data_leak:    function(t){ return ['admin','root:','password','secret','CONFIDENTIEL','username','daemon:'].some(function(k){return t.indexOf(k)>=0;}); },
+  error_crash:  function(t,s){ return s>=500; },
+  reflection:   function(t,s,p){ return p.length>3 && t.indexOf(p.slice(0,10))>=0; },
+  auth_bypass:  function(t,s){ return s===200 && t.length>20; },
+  size_anomaly: function(t,s){ return s===200 && t.length>50; },
+  timing_anomaly: function(t,s,p,ms){ return ms>2500; },
+};
+
+function evalSigs(sigs, text, status, payload, ms) {
+  return sigs.filter(function(s) {
+    return SIGS[s] && SIGS[s](text, status, payload, ms||0);
+  });
 }
 
-// ?? Stack detection ???????????????????????????????????????
-async function detectStack(baseUrl) {
-  try {
-    const t0  = Date.now();
-    const res = await fetchSafe(baseUrl);
-    const ms  = Date.now()-t0;
-    if (!res) return {name:'unknown', priority:Object.keys(ATTACK_DNA), headers:{}, ms};
-
-    const headers = {};
-    res.headers.forEach((v,k)=>{ headers[k.toLowerCase()]=v.toLowerCase(); });
-
-    for (const [stack, sig] of Object.entries(STACK_SIGNATURES)) {
-      const headerMatch = sig.headers.some(h=>{
-        const [k,v] = h.split(': ');
-        return headers[k]?.includes(v);
-      });
-      const cookieMatch = sig.cookies.some(c=>
-        (headers['set-cookie']||'').toLowerCase().includes(c)
-      );
-      if (headerMatch || cookieMatch) {
-        return {name:stack, priority:sig.priority, headers, ms};
-      }
+// Compute combos
+function getCombos() {
+  var ids = Object.keys(DNA);
+  var out = [];
+  for (var i=0; i<ids.length; i++) {
+    for (var j=i+1; j<ids.length; j++) {
+      var a1 = DNA[ids[i]], a2 = DNA[ids[j]];
+      var shared = a1.surfaces.filter(function(s){return a2.surfaces.indexOf(s)>=0;});
+      if (!shared.length) continue;
+      var cross = (a1.bad||[]).some(function(t){return a2.targets.indexOf(t)>=0;}) ||
+                  (a2.bad||[]).some(function(t){return a1.targets.indexOf(t)>=0;});
+      if (!cross) out.push({a1:ids[i], a2:ids[j], shared:shared});
     }
-    return {name:'unknown', priority:Object.keys(ATTACK_DNA), headers, ms};
-  } catch {
-    return {name:'unknown', priority:Object.keys(ATTACK_DNA), headers:{}, ms:0};
   }
+  return out;
 }
 
-// ?? HTTP helpers ??????????????????????????????????????????
-async function fetchSafe(url, opts={}, timeoutMs=5000) {
-  const ctrl = new AbortController();
-  const tid  = setTimeout(()=>ctrl.abort(), timeoutMs);
-  try {
-    const r = await fetch(url, {...opts, signal:ctrl.signal});
-    clearTimeout(tid);
-    return r;
-  } catch {
-    clearTimeout(tid);
-    return null;
+// -- HTTP ------------------------------------------------------------------
+function fetchSafe(url, opts, ms) {
+  var ctrl = new AbortController();
+  var tid  = setTimeout(function(){ctrl.abort();}, ms||5000);
+  return fetch(url, Object.assign({signal:ctrl.signal}, opts||{}))
+    .then(function(r){clearTimeout(tid);return r;})
+    .catch(function(){clearTimeout(tid);return null;});
+}
+
+function probe(base, seed) {
+  var url = new URL(seed.ep, base);
+  var isPath = /\/[\-\d]+$/.test(seed.ep);
+  if (!isPath) url.searchParams.set(seed.param, seed.value);
+  var t0 = Date.now();
+  return fetchSafe(url.toString(), {mode:'cors'}, 6000).then(function(r) {
+    if (!r) return null;
+    var ms = Date.now()-t0;
+    return r.text().then(function(text) {
+      return {text:text, status:r.status, ms:ms, url:url.toString()};
+    });
+  });
+}
+
+async function detectStack(base) {
+  var r = await fetchSafe(base, {}, 5000);
+  if (!r) return {name:'unknown', pri:Object.keys(DNA), headers:{}};
+  var h = {};
+  r.headers.forEach(function(v,k){h[k.toLowerCase()]=v.toLowerCase();});
+  var keys = Object.keys(STACKS);
+  for (var i=0; i<keys.length; i++) {
+    var name = keys[i], sig = STACKS[name];
+    var hMatch = sig.h.some(function(hh){
+      var parts = hh.split(': ');
+      return h[parts[0]] && h[parts[0]].indexOf(parts[1])>=0;
+    });
+    var ckMatch = sig.ck.some(function(c){return (h['set-cookie']||'').indexOf(c)>=0;});
+    if (hMatch || ckMatch) return {name:name, pri:sig.pri, headers:h};
   }
+  return {name:'unknown', pri:Object.keys(DNA), headers:h};
 }
 
-async function probe(baseUrl, seed) {
-  const url = new URL(seed.endpoint, baseUrl);
-  // For path-based endpoints (IDOR): value already in the path (e.g. /user/1)
-  // For param-based endpoints: inject via searchParams
-  const isPathBased = seed.endpoint.match(/\/\d+$|\/[^/]*\d[^/]*$/) !== null;
-  if (!isPathBased) {
-    url.searchParams.set(seed.param, seed.value);
-  }
-  const t0  = Date.now();
-  const res = await fetchSafe(url.toString(), {mode:'cors'}, 6000);
-  const ms  = Date.now()-t0;
-  if (!res) return null;
-  let text='';
-  try { text = await res.text(); } catch {}
-  return {res, text, ms, url:url.toString()};
+// -- UI helpers ------------------------------------------------------------
+function esc(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }
-
-// ?? State ?????????????????????????????????????????????????
-let currentProj = null;
-let scanning    = false;
-let stopFlag    = false;
-let detectedStack = null;
-
-// ?? Navigation ????????????????????????????????????????????
-function navigate(page) {
-  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
-  document.getElementById('page-'+page).classList.add('active');
-  document.querySelector(`.nav-item[data-page="${page}"]`).classList.add('active');
+function hsh(s) {
+  var h=0;
+  for (var i=0;i<s.length;i++) h=(Math.imul(31,h)+s.charCodeAt(i))|0;
+  return 'h'+Math.abs(h);
 }
+function sleep(ms) { return new Promise(function(r){setTimeout(r,ms);}); }
 
-// ?? Toast ?????????????????????????????????????????????????
-function toast(msg, type='ok') {
-  const el=document.getElementById('toast');
-  el.textContent=msg;
-  const colors={ok:'var(--acc2)',err:'var(--red)',warn:'var(--orange)'};
-  el.style.borderColor=colors[type]||colors.ok;
+function toast(msg, type) {
+  var el = document.getElementById('toast');
+  el.textContent = msg;
+  var c = type==='err'?'var(--r)':type==='warn'?'var(--o)':'var(--g2)';
+  el.style.borderColor = c;
   el.classList.add('show');
-  setTimeout(()=>el.classList.remove('show'),3000);
+  setTimeout(function(){el.classList.remove('show');}, 3000);
 }
 
-// ?? Terminal log ??????????????????????????????????????????
-function log(msg, type='info') {
-  const el=document.getElementById('scan-log');
+function log(msg, type) {
+  var el = document.getElementById('scan-log');
   if (!el) return;
-  const ts = new Date().toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
-  const sp = document.createElement('span');
-  sp.className=`tl t-${type}`;
-  sp.textContent=`[${ts}] ${msg}`;
+  var d = new Date();
+  var ts = ('0'+d.getHours()).slice(-2)+':'+('0'+d.getMinutes()).slice(-2)+':'+('0'+d.getSeconds()).slice(-2);
+  var sp = document.createElement('span');
+  sp.className = 'tl t'+(type||'info');
+  sp.textContent = '['+ts+'] '+msg;
   el.appendChild(sp);
-  el.scrollTop=el.scrollHeight;
+  el.scrollTop = el.scrollHeight;
 }
 
 function setProgress(pct) {
-  const el=document.getElementById('prog');
-  if (el) el.style.width=Math.min(100,pct)+'%';
+  var el = document.getElementById('prog');
+  if (el) el.style.width = Math.min(100,pct)+'%';
 }
 
-// ?? Projects ??????????????????????????????????????????????
+function navigate(page) {
+  document.querySelectorAll('.pg').forEach(function(p){p.classList.remove('on');});
+  document.querySelectorAll('.ni').forEach(function(n){n.classList.remove('on');});
+  var pg = document.getElementById('pg-'+page);
+  var ni = document.querySelector('.ni[data-page="'+page+'"]');
+  if (pg) pg.classList.add('on');
+  if (ni) ni.classList.add('on');
+}
+
+// -- Projects --------------------------------------------------------------
 async function createProject() {
-  const url  = document.getElementById('new-url').value.trim();
-  const name = document.getElementById('new-name').value.trim();
-  if (!url) { toast('URL requise','warn'); return; }
-  let domain;
+  var url  = document.getElementById('new-url').value.trim();
+  var name = document.getElementById('new-name').value.trim();
+  if (!url) { toast('URL required','warn'); return; }
+  var domain;
   try { domain = new URL(url).hostname; }
-  catch { toast('URL invalide','err'); return; }
+  catch(e) { toast('Invalid URL','err'); return; }
 
-  // Generate RSA keypair
-  const kp      = await genKeyPair();
-  const pubPem  = await exportPub(kp.publicKey);
-  const issued  = new Date().toISOString();
-  const origin  = window.location.origin||'file://';
-  const sigData = `${domain}|${issued}|${origin}`;
-  const sig64   = await sign(kp.privateKey, sigData);
+  var kp     = await genKeys();
+  var pubPem = await exportPub(kp.publicKey);
+  var issued = new Date().toISOString();
+  var origin = window.location.origin || 'file://';
+  var sigD   = domain+'|'+issued+'|'+origin;
+  var sig64  = await signData(kp.privateKey, sigD);
+  var privRaw= await crypto.subtle.exportKey('pkcs8', kp.privateKey);
+  var privB64= btoa(String.fromCharCode.apply(null, new Uint8Array(privRaw)));
 
-  // Store private key
-  const privRaw = await crypto.subtle.exportKey('pkcs8', kp.privateKey);
-  const privB64 = btoa(String.fromCharCode(...new Uint8Array(privRaw)));
-
-  const pp = {
-    version:'1.0', domain, issued_at:issued,
+  var pp = {
+    version:'1.0', domain:domain, issued_at:issued,
     expires_at:new Date(Date.now()+365*86400000).toISOString(),
     html_origin:origin, pubkey:pubPem, signature:sig64,
-    scan_config:{rate_limit_ms:300, excluded_paths:[]},
+    scan_config:{rate_limit_ms:300}
   };
-
-  const proj = {
+  var proj = {
     id:'proj_'+Date.now(),
-    url, domain, name:name||domain,
-    pp, verified:false,
-    created:issued, scan_count:0,
+    url:url, domain:domain, name:name||domain,
+    pp:pp, verified:false, created:issued, scan_count:0
   };
 
-  await dbPut('keys',    {id:domain, privKey:privB64});
-  await dbPut('projects', proj);
-
-  toast('Projet cree');
+  await put('keys', {id:domain, privKey:privB64});
+  await put('projects', proj);
+  toast('Project created');
   await renderProjects();
-  selectProject(proj.id);
+  await selectProject(proj.id);
   navigate('verify');
 }
 
 async function renderProjects() {
-  const projects = await dbGetAll('projects');
-  const el = document.getElementById('project-list');
+  var projects = await all('projects');
+  var el = document.getElementById('project-list');
   if (!projects.length) {
-    el.innerHTML='<p style="color:var(--muted);font-size:.78rem">Aucun projet - creez-en un.</p>';
+    el.innerHTML = '<p style="color:var(--t2);font-size:.76rem">No project yet.</p>';
     return;
   }
-  el.innerHTML = projects.map(p=>`
-    <div class="proj-item ${currentProj?.id===p.id?'selected':''}"
-         data-id="${p.id}" style="cursor:pointer">
-      <span>${p.verified?'[OK]':'[lock]'}</span>
-      <div style="flex:1">
-        <div class="proj-domain">${esc(p.name)}</div>
-        <div class="proj-meta">${esc(p.domain)} ? Scans: ${p.scan_count}</div>
-      </div>
-      <span class="badge ${p.verified?'badge-ok':'badge-warn'}">${p.verified?'VERIFIE':'EN ATTENTE'}</span>
-    </div>
-  `).join('');
-
-  // Bind clicks
-  el.querySelectorAll('.proj-item').forEach(item=>{
-    item.addEventListener('click', ()=>selectProject(item.dataset.id));
+  el.innerHTML = '';
+  projects.forEach(function(p) {
+    var d = document.createElement('div');
+    d.className = 'pi' + (PROJ && PROJ.id===p.id ? ' sel' : '');
+    d.setAttribute('data-id', p.id);
+    d.innerHTML =
+      '<i data-lucide="'+(p.verified?'shield-check':'lock')+'"></i>' +
+      '<div style="flex:1">' +
+        '<div class="pi-name">'+esc(p.name)+'</div>' +
+        '<div class="pi-meta">'+esc(p.domain)+' - Scans: '+p.scan_count+'</div>' +
+      '</div>' +
+      '<span class="badge '+(p.verified?'bok':'bwarn')+'">'+(p.verified?'VERIFIED':'PENDING')+'</span>';
+    d.addEventListener('click', function(){selectProject(p.id);});
+    el.appendChild(d);
   });
+  lucide.createIcons();
 }
 
 async function selectProject(id) {
-  currentProj = await dbGet('projects', id);
+  PROJ = await get('projects', id);
   await renderProjects();
   updateVerifyUI();
   updateScanUI();
 }
 
-// ?? Verify ????????????????????????????????????????????????
+// -- Verify ----------------------------------------------------------------
 function updateVerifyUI() {
-  const p = currentProj;
-  document.getElementById('verify-no-proj').style.display  = p?'none':'block';
-  document.getElementById('verify-content').style.display  = p?'block':'none';
-  if (!p) return;
-  const ppPath = `${p.url}/.well-known/zombiehack.pp`;
-  document.getElementById('pp-path-display').textContent = ppPath;
-  document.getElementById('pp-preview').textContent = JSON.stringify(p.pp,null,2);
-  // Update step indicators
-  document.getElementById('step1-n').className = 'step-n';
-  document.getElementById('step2-n').className = 'step-n';
-  document.getElementById('step3-n').className = p.verified?'step-n done':'step-n';
+  document.getElementById('vno').style.display  = PROJ ? 'none' : 'block';
+  document.getElementById('vcont').style.display = PROJ ? 'block' : 'none';
+  if (!PROJ) return;
+  document.getElementById('pp-path').textContent = PROJ.url+'/.well-known/zombiehack.pp';
+  document.getElementById('pp-preview').textContent = JSON.stringify(PROJ.pp, null, 2);
+  document.getElementById('s3n').className = PROJ.verified ? 'sn done' : 'sn';
 }
 
 function downloadPP() {
-  if (!currentProj) return;
-  const blob=new Blob([JSON.stringify(currentProj.pp,null,2)],{type:'application/json'});
-  const a=document.createElement('a');
-  a.href=URL.createObjectURL(blob); a.download='zombiehack.pp'; a.click();
-  document.getElementById('step1-n').className='step-n done';
+  if (!PROJ) return;
+  var blob = new Blob([JSON.stringify(PROJ.pp,null,2)], {type:'application/json'});
+  var a    = document.createElement('a');
+  a.href   = URL.createObjectURL(blob);
+  a.download= 'zombiehack.pp';
+  a.click();
+  document.getElementById('s1n').className = 'sn done';
 }
 
 async function verifyOwnership() {
-  if (!currentProj) return;
-  const result=document.getElementById('verify-result');
-  result.innerHTML='<span class="spin"></span>';
+  if (!PROJ) return;
+  var res = document.getElementById('verify-result');
+  res.innerHTML = '<span class="spin"></span>';
 
-  // Dev/local mode bypass
-  const isLocal = ['localhost','127.0.0.1',''].includes(location.hostname) || location.protocol==='file:';
+  var isLocal = location.hostname==='localhost' || location.hostname==='127.0.0.1' || location.protocol==='file:';
   if (isLocal) {
-    currentProj.verified=true;
-    await dbPut('projects',currentProj);
-    result.innerHTML='<span class="badge badge-warn">[!] MODE LOCAL - verifie automatiquement</span>';
-    document.getElementById('step3-n').className='step-n done';
+    PROJ.verified = true;
+    await put('projects', PROJ);
+    res.innerHTML = '<span class="badge bwarn">LOCAL MODE - auto-verified</span>';
+    document.getElementById('s3n').className = 'sn done';
     await renderProjects();
     updateScanUI();
-    toast('Mode local - scan autorise','warn');
+    toast('Local mode - scan authorized','warn');
     return;
   }
 
-  const ppUrl=`${currentProj.url}/.well-known/zombiehack.pp`;
   try {
-    const res=await fetchSafe(ppUrl,{},8000);
-    if (!res||!res.ok) throw new Error('HTTP '+(res?.status||'unreachable'));
-    const fetched=await res.json();
-
-    const sigData=`${fetched.domain}|${fetched.issued_at}|${fetched.html_origin}`;
-    const sigOk     = await verify(fetched.pubkey, sigData, fetched.signature);
-    const originOk  = fetched.html_origin===(window.location.origin||'file://');
-    const domainOk  = fetched.domain===currentProj.domain;
-
-    if (sigOk && originOk && domainOk) {
-      currentProj.verified=true;
-      await dbPut('projects',currentProj);
-      result.innerHTML='<span class="badge badge-ok">[OK] PROPRIETE CONFIRMEE</span>';
-      document.getElementById('step3-n').className='step-n done';
+    var r = await fetchSafe(PROJ.url+'/.well-known/zombiehack.pp', {}, 8000);
+    if (!r || !r.ok) throw new Error('HTTP '+(r?r.status:'unreachable'));
+    var fetched  = await r.json();
+    var sigData  = fetched.domain+'|'+fetched.issued_at+'|'+fetched.html_origin;
+    var sigOk    = await verifyData(fetched.pubkey, sigData, fetched.signature);
+    var originOk = fetched.html_origin === (window.location.origin||'file://');
+    var domOk    = fetched.domain === PROJ.domain;
+    if (sigOk && originOk && domOk) {
+      PROJ.verified = true;
+      await put('projects', PROJ);
+      res.innerHTML = '<span class="badge bok">OWNERSHIP CONFIRMED</span>';
+      document.getElementById('s3n').className = 'sn done';
       await renderProjects();
       updateScanUI();
-      toast('Domaine verifie');
+      toast('Domain verified');
     } else {
-      const why=!sigOk?'Signature invalide':!originOk?'html_origin mismatch':'Domaine mismatch';
-      result.innerHTML=`<span class="badge badge-err">[X] ECHEC - ${why}</span>`;
+      var why = !sigOk?'Invalid signature':!originOk?'html_origin mismatch':'Domain mismatch';
+      res.innerHTML = '<span class="badge berr">FAILED - '+esc(why)+'</span>';
     }
   } catch(e) {
-    result.innerHTML=`<span class="badge badge-err">[X] ${esc(e.message)}</span>`;
-    toast('Impossible de verifier - placez d\'abord le fichier sur votre serveur','err');
+    res.innerHTML = '<span class="badge berr">'+esc(e.message)+'</span>';
+    toast('Cannot verify - place the file on your server first','err');
   }
 }
 
-// ?? Scan UI ???????????????????????????????????????????????
+// -- Scan ------------------------------------------------------------------
 function updateScanUI() {
-  const p=currentProj;
-  const noProj=document.getElementById('scan-no-proj');
-  const content=document.getElementById('scan-content');
-  if (!p||!p.verified) {
-    noProj.style.display='block';
-    noProj.textContent=p&&!p.verified
-      ?'[lock] Projet non verifie - allez dans Verification.'
-      :'Selectionnez un projet verifie.';
-    content.style.display='none';
-    return;
+  var no = document.getElementById('sno');
+  var co = document.getElementById('scont');
+  if (!PROJ || !PROJ.verified) {
+    no.style.display = 'block';
+    no.textContent = PROJ && !PROJ.verified ? 'Project not verified - go to Verify tab.' : 'Select a verified project.';
+    co.style.display = 'none';
+  } else {
+    no.style.display = 'none';
+    co.style.display = 'block';
+    renderToggles();
   }
-  noProj.style.display='none';
-  content.style.display='block';
-  renderFamilyToggles();
 }
 
-function renderFamilyToggles() {
-  const el=document.getElementById('family-toggles');
-  el.innerHTML=Object.entries(ATTACK_DNA).map(([id,dna])=>`
-    <label class="toggle-item on" id="toggle-wrap-${id}">
-      <input type="checkbox" id="toggle-${id}" checked/>
-      <span style="color:${dna.color}">${id.toUpperCase()}</span>
-      <span style="color:var(--muted);font-size:.65rem;margin-left:auto">${dna.severity}</span>
-    </label>
-  `).join('');
-
-  el.querySelectorAll('input[type=checkbox]').forEach(cb=>{
-    cb.addEventListener('change', ()=>{
-      const wrap=cb.closest('.toggle-item');
-      wrap.classList.toggle('on',cb.checked);
+function renderToggles() {
+  var el = document.getElementById('fam-toggles');
+  el.innerHTML = '';
+  Object.keys(DNA).forEach(function(id) {
+    var dna = DNA[id];
+    var label = document.createElement('label');
+    label.className = 'tg on';
+    label.id = 'tg-wrap-'+id;
+    var cb = document.createElement('input');
+    cb.type = 'checkbox';
+    cb.id   = 'tg-'+id;
+    cb.checked = true;
+    cb.addEventListener('change', function(){
+      label.classList.toggle('on', cb.checked);
     });
+    label.appendChild(cb);
+    var sp = document.createElement('span');
+    sp.style.color = dna.col;
+    sp.textContent = id.toUpperCase();
+    label.appendChild(sp);
+    var sv = document.createElement('span');
+    sv.style.cssText = 'color:var(--t2);font-size:.6rem;margin-left:auto';
+    sv.textContent = dna.sev;
+    label.appendChild(sv);
+    el.appendChild(label);
   });
 }
 
-// ?? Stack detection UI ????????????????????????????????????
-function showStack(stack) {
-  const card=document.getElementById('stack-card');
-  const el=document.getElementById('stack-display');
-  if (!stack||stack.name==='unknown') { card.style.display='none'; return; }
-  card.style.display='block';
-  const serverHeader=Object.entries(stack.headers).find(([k])=>k==='server');
-  el.innerHTML=`
-    <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
-      <span class="stack-chip">[..] ${stack.name.toUpperCase()} detecte</span>
-      ${serverHeader?`<span class="badge badge-info">server: ${esc(serverHeader[1])}</span>`:''}
-      <span style="font-size:.72rem;color:var(--muted)">Familles prioritaires > </span>
-      ${stack.priority.slice(0,4).map(f=>
-        `<span class="badge" style="background:rgba(255,255,255,.05);color:${ATTACK_DNA[f]?.color||'var(--text)'};border-color:var(--border2)">${f.toUpperCase()}</span>`
-      ).join('')}
-    </div>
-    <p style="font-size:.7rem;color:var(--muted);margin-top:8px">
-      Ces familles seront testees en priorite. Les autres suivront.
-    </p>
-  `;
-}
-
-// ?? Core scanner ??????????????????????????????????????????
 async function startScan() {
-  if (!currentProj?.verified) { toast('Projet non verifie','err'); return; }
-  if (scanning) return;
+  if (!PROJ || !PROJ.verified || SCANNING) return;
+  SCANNING = true; STOP = false;
 
-  scanning=true; stopFlag=false;
-  document.getElementById('btn-start-scan').disabled=true;
-  document.getElementById('btn-stop-scan').style.display='inline-flex';
-  document.getElementById('running-card').style.display='block';
-  document.getElementById('scan-log').innerHTML='';
+  document.getElementById('btn-scan').disabled = true;
+  document.getElementById('btn-stop').style.display = 'inline-flex';
+  document.getElementById('run-card').style.display = 'block';
+  document.getElementById('scan-log').innerHTML = '';
+  document.getElementById('scan-spin').style.display = 'inline-block';
   setProgress(0);
 
-  const baseUrl = currentProj.url;
-  const depth   = document.getElementById('scan-depth').value;
-  const delay   = Math.max(50, parseInt(document.getElementById('scan-delay').value)||300);
-  const enabled = Object.keys(ATTACK_DNA).filter(id=>{
-    const cb=document.getElementById('toggle-'+id);
-    return cb?.checked;
+  var base  = PROJ.url;
+  var depth = document.getElementById('scan-depth').value;
+  var delay = Math.max(50, parseInt(document.getElementById('scan-delay').value)||300);
+  var enabled = Object.keys(DNA).filter(function(id){
+    var cb = document.getElementById('tg-'+id);
+    return cb && cb.checked;
   });
 
-  log(`[ZMB] Zombie Hacking V4 DNA - ${baseUrl}`,'ok');
-  log(`[..] Detection du stack...`,'info');
+  log('Zombie Hacking v5 DNA - target: '+base, 'ok');
+  log('Detecting stack...', 'info');
 
-  // Detect stack and reorder enabled families by priority
-  detectedStack = await detectStack(baseUrl);
-  showStack(detectedStack);
+  STACK = await detectStack(base);
+  showStack(STACK);
 
-  if (detectedStack.name !== 'unknown') {
-    log(`[>>] Stack detecte: ${detectedStack.name.toUpperCase()}`,'purple');
-    // Reorder enabled by priority
-    const priority = detectedStack.priority.filter(f=>enabled.includes(f));
-    const rest     = enabled.filter(f=>!priority.includes(f));
-    enabled.length=0;
-    enabled.push(...priority,...rest);
-    log(`[**] Ordre d'attaque optimise: ${enabled.join(' > ')}`,'purple');
+  if (STACK.name !== 'unknown') {
+    log('Stack detected: '+STACK.name.toUpperCase(), 'purp');
+    var pri  = STACK.pri.filter(function(f){return enabled.indexOf(f)>=0;});
+    var rest = enabled.filter(function(f){return pri.indexOf(f)<0;});
+    enabled  = pri.concat(rest);
+    log('Optimized order: '+enabled.join(' > '), 'purp');
   }
 
-  log(`[--] Familles: ${enabled.join(', ')}`,'info');
+  var combos = getCombos().filter(function(c){
+    return enabled.indexOf(c.a1)>=0 && enabled.indexOf(c.a2)>=0;
+  });
+  log('Families: '+enabled.join(', '),'info');
+  log('Combos: '+combos.length,'info');
 
-  const combos  = computeCombos().filter(c=>enabled.includes(c.a1)&&enabled.includes(c.a2));
-  log(`[~~] Combos calcules: ${combos.length}`,'info');
-
-  // Build vector list
-  const vectors = [];
-
-  for (const id of enabled) {
-    const dna=ATTACK_DNA[id];
-    for (const seed of dna.seeds) {
-      vectors.push({type:'seed', id, dna, seed});
-    }
-  }
+  // Build vectors
+  var vectors = [];
+  enabled.forEach(function(id) {
+    DNA[id].seeds.forEach(function(s) {
+      vectors.push({type:'seed',id:id,dna:DNA[id],seed:s});
+    });
+  });
 
   if (depth==='mutations'||depth==='full') {
-    for (const id of enabled) {
-      const dna=ATTACK_DNA[id];
-      const rules=MUTATION_RULES[dna.mutation_pool]||[];
-      for (const seed of dna.seeds) {
-        for (const rule of rules) {
+    enabled.forEach(function(id) {
+      var dna   = DNA[id];
+      var rules = MUT[dna.pool]||[];
+      dna.seeds.forEach(function(s) {
+        rules.forEach(function(r) {
           try {
-            const mut=rule.fn(seed.value);
-            if (mut!==seed.value)
-              vectors.push({type:'mutation', id, dna, seed:{...seed,value:mut}, mutName:rule.name});
-          } catch {}
-        }
-      }
-    }
+            var mut = r.f(s.value);
+            if (mut!==s.value) vectors.push({type:'mutation',id:id,dna:dna,seed:Object.assign({},s,{value:mut}),mutN:r.n});
+          } catch(e){}
+        });
+      });
+    });
   }
 
   if (depth==='full') {
-    for (const combo of combos) {
-      const dna1=ATTACK_DNA[combo.a1], dna2=ATTACK_DNA[combo.a2];
-      for (const s of dna1.seeds)
-        vectors.push({type:'hybrid', id:`${combo.a1}+${combo.a2}`, dna:dna1, seed:s, subId:combo.a1});
-      for (const s of dna2.seeds)
-        vectors.push({type:'hybrid', id:`${combo.a1}+${combo.a2}`, dna:dna2, seed:s, subId:combo.a2});
-    }
+    combos.forEach(function(c) {
+      var d1=DNA[c.a1], d2=DNA[c.a2];
+      d1.seeds.forEach(function(s){vectors.push({type:'hybrid',id:c.a1+'+'+c.a2,dna:d1,seed:s,sub:c.a1});});
+      d2.seeds.forEach(function(s){vectors.push({type:'hybrid',id:c.a1+'+'+c.a2,dna:d2,seed:s,sub:c.a2});});
+    });
   }
 
-  log(`[>>] ${vectors.length} vecteurs a tester`,'info');
-  document.getElementById('scan-status').textContent=`0 / ${vectors.length}`;
+  log(vectors.length+' vectors to test','info');
+  document.getElementById('scan-status').textContent = '0 / '+vectors.length;
 
-  const findings=[];
-  let tested=0;
+  var findings = [];
+  var tested   = 0;
 
-  for (const vec of vectors) {
-    if (stopFlag) { log('[stop] Scan interrompu par l\'utilisateur','warn'); break; }
+  for (var i=0; i<vectors.length; i++) {
+    if (STOP) { log('Scan stopped by user','warn'); break; }
 
+    var vec = vectors[i];
     tested++;
     setProgress(tested/vectors.length*100);
-    document.getElementById('scan-status').textContent=`${tested} / ${vectors.length} - ${findings.length} failles`;
-    document.getElementById('scan-summary').textContent=`${findings.length} failles`;
+    document.getElementById('scan-status').textContent = tested+' / '+vectors.length+' - '+findings.length+' findings';
+    document.getElementById('scan-sum').textContent = findings.length+' findings';
 
-    // Check explored cache
-    const eid = hashStr(vec.id+'|'+vec.seed.value+'|'+baseUrl);
-    const seen = await dbGet('explored', eid);
+    var eid = hsh(vec.id+'|'+vec.seed.value+'|'+base);
+    var seen = await get('explored', eid);
     if (seen) continue;
 
-    const result = await probe(baseUrl, vec.seed);
-    await dbPut('explored',{id:eid, ts:Date.now()});
-
+    var result = await probe(base, vec.seed);
+    await put('explored', {id:eid, ts:Date.now()});
     if (!result) continue;
-    const {text, status, ms, url} = result;
 
-    const triggered = evalSigs(vec.dna.signatures||[], text, status, vec.seed.value, ms);
-
+    var triggered = evalSigs(vec.dna.sigs||[], result.text, result.status, vec.seed.value, result.ms);
     if (triggered.length) {
-      const finding = {
-        id:        'f_'+Date.now()+'_'+Math.random().toString(36).slice(2,6),
-        project:   currentProj.domain,
-        family:    vec.id,
-        subFamily: vec.subId||vec.id,
-        payload:   vec.seed.value,
-        url, status, triggered,
-        is_mutation: vec.type==='mutation',
-        is_hybrid:   vec.type==='hybrid',
-        mutName:     vec.mutName||null,
-        snippet:     text.slice(0,120),
-        ts:          Date.now(),
+      var f = {
+        id:    'f_'+Date.now()+'_'+Math.random().toString(36).slice(2,6),
+        proj:  PROJ.domain,
+        fam:   vec.id,
+        sub:   vec.sub||vec.id,
+        pay:   vec.seed.value,
+        url:   result.url,
+        st:    result.status,
+        trig:  triggered,
+        isMut: vec.type==='mutation',
+        isHyb: vec.type==='hybrid',
+        mutN:  vec.mutN||null,
+        ts:    Date.now()
       };
-      findings.push(finding);
-      await dbPut('findings', finding);
-      await learnPattern(detectedStack?.name||'unknown', vec.id, vec.seed.value);
-
-      const icon=vec.type==='hybrid'?'[HYB]':vec.type==='mutation'?'[MUT]':'[SED]';
-      const sigStr=triggered.join(', ');
-      log(`[HIT] ${icon} [${vec.id}] ${vec.seed.value.slice(0,38)} > ${sigStr}`,'err');
+      findings.push(f);
+      await put('findings', f);
+      await learnPattern(STACK?STACK.name:'unknown', vec.id, vec.seed.value);
+      var icon = vec.type==='hybrid'?'[HYB]':vec.type==='mutation'?'[MUT]':'[SED]';
+      log('[VULN] '+icon+' ['+vec.id+'] '+vec.seed.value.slice(0,35)+' => '+triggered.join(', '),'err');
     }
 
     await sleep(delay);
   }
 
-  // Done
-  scanning=false;
-  document.getElementById('btn-start-scan').disabled=false;
-  document.getElementById('btn-stop-scan').style.display='none';
-  document.getElementById('scan-status').textContent=`[OK] Termine - ${findings.length} failles / ${tested} testes`;
-  document.getElementById('scan-spin').style.display='none';
+  SCANNING = false;
+  document.getElementById('btn-scan').disabled = false;
+  document.getElementById('btn-stop').style.display = 'none';
+  document.getElementById('scan-spin').style.display = 'none';
+  document.getElementById('scan-status').textContent = 'Done - '+findings.length+' findings / '+tested+' tested';
   setProgress(100);
-  log(`\n[OK] Scan termine. ${findings.length} failles confirmees sur ${tested} vecteurs.`,'ok');
+  log('Scan complete. '+findings.length+' findings on '+tested+' vectors.','ok');
 
-  currentProj.scan_count=(currentProj.scan_count||0)+1;
-  await dbPut('projects',currentProj);
-
+  PROJ.scan_count = (PROJ.scan_count||0)+1;
+  await put('projects', PROJ);
   await renderFindings();
-  await updateMemoryStats();
-  updateNavBadge();
-  toast(`${findings.length} faille(s) detectee(s)`, findings.length?'warn':'ok');
+  await updateMemStats();
+  updateBadge();
+  toast(findings.length+' finding(s)', findings.length?'warn':'ok');
 }
 
-function stopScan() {
-  stopFlag=true;
-  scanning=false;
+function stopScan() { STOP=true; SCANNING=false; }
+
+function showStack(s) {
+  var card = document.getElementById('stack-card');
+  var info = document.getElementById('stack-info');
+  if (!s || s.name==='unknown') { card.style.display='none'; return; }
+  card.style.display='block';
+  var priHtml = s.pri.slice(0,4).map(function(f){
+    var c = DNA[f]?DNA[f].col:'var(--t)';
+    return '<span class="badge" style="background:rgba(255,255,255,.05);color:'+c+';border-color:var(--b2)">'+f.toUpperCase()+'</span>';
+  }).join(' ');
+  info.innerHTML =
+    '<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">' +
+    '<span class="badge bpurp">'+s.name.toUpperCase()+' detected</span>' +
+    '<span style="font-size:.7rem;color:var(--t2)">Priority:</span>'+priHtml+
+    '</div><p style="font-size:.68rem;color:var(--t2);margin-top:6px">These families will be tested first. Others follow.</p>';
 }
 
-// ?? Pattern learning ??????????????????????????????????????
-async function learnPattern(stack, attackId, payload) {
-  const existing = await dbGet('dna_learned', stack) || {id:stack, patterns:{}};
-  if (!existing.patterns[attackId]) existing.patterns[attackId]=[];
-  if (!existing.patterns[attackId].includes(payload))
-    existing.patterns[attackId].push(payload);
-  await dbPut('dna_learned', existing);
+// -- Pattern learning ------------------------------------------------------
+async function learnPattern(stack, attk, payload) {
+  var ex = await get('learned', stack) || {id:stack, patterns:{}};
+  if (!ex.patterns[attk]) ex.patterns[attk]=[];
+  if (ex.patterns[attk].indexOf(payload)<0) ex.patterns[attk].push(payload);
+  await put('learned', ex);
 }
 
-// ?? Findings ??????????????????????????????????????????????
+// -- Findings --------------------------------------------------------------
 async function renderFindings() {
-  const all   = await dbGetAll('findings');
-  const expl  = await dbGetAll('explored');
-  const found = currentProj ? all.filter(f=>f.project===currentProj.domain) : all;
+  var fnd  = await all('findings');
+  var expl = await all('explored');
+  var list = PROJ ? fnd.filter(function(f){return f.proj===PROJ.domain;}) : fnd;
 
-  document.getElementById('s-total').textContent   = found.length;
-  document.getElementById('s-crit').textContent    = found.filter(f=>['sqli','cmdi','ssti'].includes(f.subFamily)).length;
-  document.getElementById('s-hybrid').textContent  = found.filter(f=>f.is_hybrid).length;
-  document.getElementById('s-explored').textContent= expl.length;
+  document.getElementById('s-total').textContent = list.length;
+  document.getElementById('s-crit').textContent  = list.filter(function(f){return ['sqli','cmdi','ssti'].indexOf(f.sub)>=0;}).length;
+  document.getElementById('s-hyb').textContent   = list.filter(function(f){return f.isHyb;}).length;
+  document.getElementById('s-expl').textContent  = expl.length;
 
-  const tbody=document.getElementById('findings-body');
-  if (!found.length) {
-    tbody.innerHTML='<tr><td colspan="6" style="color:var(--muted);text-align:center;padding:24px">Aucune faille - lancez un scan.</td></tr>';
+  var tbody = document.getElementById('findings-body');
+  if (!list.length) {
+    tbody.innerHTML = '<tr><td colspan="6" style="color:var(--t2);text-align:center;padding:20px">No findings - run a scan.</td></tr>';
     return;
   }
 
-  tbody.innerHTML=found.slice().reverse().map(f=>{
-    const icon   = f.is_hybrid?'[HYB] HYBRIDE':f.is_mutation?`[MUT] ${f.mutName||'MUT'}`:'[SED] SEED';
-    const dna    = ATTACK_DNA[f.subFamily];
-    const col    = dna?.color||'var(--red)';
-    const sigs   = (f.triggered||[]).map(s=>`<span class="badge badge-err" style="font-size:.6rem">${s}</span>`).join(' ');
-    const dt     = new Date(f.ts).toLocaleTimeString('fr-FR');
-    return `<tr>
-      <td><span style="color:${col};font-size:.76rem">${f.family.toUpperCase()}</span></td>
-      <td class="td-payload">${esc(f.payload.slice(0,55))}</td>
-      <td>${sigs}</td>
-      <td class="td-url">${esc(f.url.slice(0,50))}</td>
-      <td style="font-size:.68rem;color:var(--muted)">${icon}</td>
-      <td style="font-size:.68rem;color:var(--muted)">${dt}</td>
-    </tr>`;
-  }).join('');
-
-  updateNavBadge();
+  tbody.innerHTML = '';
+  list.slice().reverse().forEach(function(f) {
+    var icon = f.isHyb?'HYBRID':f.isMut?'MUT':'SEED';
+    var dna  = DNA[f.sub];
+    var col  = dna ? dna.col : 'var(--r)';
+    var sigs = (f.trig||[]).map(function(s){
+      return '<span class="badge berr" style="font-size:.6rem">'+esc(s)+'</span>';
+    }).join(' ');
+    var d   = new Date(f.ts);
+    var dt  = ('0'+d.getHours()).slice(-2)+':'+('0'+d.getMinutes()).slice(-2);
+    var tr  = document.createElement('tr');
+    tr.innerHTML =
+      '<td><span style="color:'+col+';font-size:.74rem">'+esc(f.fam.toUpperCase())+'</span></td>'+
+      '<td style="color:var(--o);word-break:break-all;max-width:220px;font-size:.7rem">'+esc(f.pay.slice(0,50))+'</td>'+
+      '<td>'+sigs+'</td>'+
+      '<td style="color:var(--g);font-size:.67rem;word-break:break-all;max-width:180px">'+esc(f.url.slice(0,45))+'</td>'+
+      '<td style="font-size:.67rem;color:var(--t2)">'+esc(icon)+'</td>'+
+      '<td style="font-size:.67rem;color:var(--t2)">'+dt+'</td>';
+    tbody.appendChild(tr);
+  });
+  updateBadge();
 }
 
-function updateNavBadge() {
-  dbGetAll('findings').then(all=>{
-    const el=document.getElementById('nav-findings-count');
-    if (all.length) { el.textContent=all.length; el.style.display=''; }
+function updateBadge() {
+  all('findings').then(function(f){
+    var el=document.getElementById('nb-findings');
+    if (f.length){el.textContent=f.length;el.style.display='inline-block';}
     else el.style.display='none';
   });
 }
 
 async function exportFindings() {
-  const all=await dbGetAll('findings');
-  const blob=new Blob([JSON.stringify(all,null,2)],{type:'application/json'});
-  const a=document.createElement('a');
-  a.href=URL.createObjectURL(blob);
-  a.download=`zombie-findings-${Date.now()}.json`;
+  var fnd = await all('findings');
+  var blob= new Blob([JSON.stringify(fnd,null,2)],{type:'application/json'});
+  var a   = document.createElement('a');
+  a.href  = URL.createObjectURL(blob);
+  a.download='zombie-findings-'+Date.now()+'.json';
   a.click();
 }
 
 async function clearFindings() {
-  await dbClear('findings');
+  await clr('findings');
   await renderFindings();
-  toast('Failles supprimees','warn');
+  toast('Findings cleared','warn');
 }
 
-// ?? DNA tab ???????????????????????????????????????????????
+// -- DNA tab ---------------------------------------------------------------
 function renderDNA() {
-  // Grid
-  document.getElementById('dna-grid').innerHTML=
-    Object.entries(ATTACK_DNA).map(([id,dna])=>`
-      <div class="dna-card">
-        <div class="dna-id" style="color:${dna.color}">${id.toUpperCase()}</div>
-        <div class="dna-name">${dna.name}</div>
-        <div class="dna-meta">${dna.seeds.length} seeds ? pool: ${dna.mutation_pool}</div>
-        <div class="dna-meta" style="margin-top:3px">
-          ${dna.signatures.map(s=>`<span class="badge badge-info" style="font-size:.58rem">${s}</span>`).join(' ')}
-        </div>
-      </div>
-    `).join('');
+  var grid = document.getElementById('dna-grid');
+  grid.innerHTML = '';
+  Object.keys(DNA).forEach(function(id){
+    var dna=DNA[id];
+    var d=document.createElement('div');
+    d.className='dc';
+    d.innerHTML=
+      '<div class="dc-id" style="color:'+dna.col+'">'+id.toUpperCase()+'</div>'+
+      '<div class="dc-name">'+esc(dna.name)+'</div>'+
+      '<div class="dc-meta">'+dna.seeds.length+' seeds - pool: '+esc(dna.pool)+'</div>'+
+      '<div class="dc-meta" style="margin-top:4px">'+
+        dna.sigs.map(function(s){return '<span class="badge binfo" style="font-size:.58rem">'+s+'</span>';}).join(' ')+
+      '</div>';
+    grid.appendChild(d);
+  });
 
-  // Combos
-  const combos=computeCombos();
-  document.getElementById('combos-display').innerHTML=combos.length
-    ? combos.map(c=>`
-        <span style="color:${ATTACK_DNA[c.a1].color}">${c.a1.toUpperCase()}</span>
-        <span style="color:var(--muted)"> ? </span>
-        <span style="color:${ATTACK_DNA[c.a2].color}">${c.a2.toUpperCase()}</span>
-        <span style="color:var(--muted);font-size:.72rem"> > ${c.shared.join(', ')}</span><br/>
-      `).join('')
-    : '<span style="color:var(--muted)">Aucun combo.</span>';
+  var combos = getCombos();
+  var co = document.getElementById('combos-out');
+  co.innerHTML = '';
+  if (!combos.length) { co.textContent='No combos.'; return; }
+  combos.forEach(function(c){
+    var d=document.createElement('div');
+    d.innerHTML=
+      '<span style="color:'+DNA[c.a1].col+'">'+c.a1.toUpperCase()+'</span>'+
+      '<span style="color:var(--t2)"> + </span>'+
+      '<span style="color:'+DNA[c.a2].col+'">'+c.a2.toUpperCase()+'</span>'+
+      '<span style="color:var(--t2);font-size:.7rem"> via '+c.shared.join(', ')+'</span>';
+    co.appendChild(d);
+  });
 
-  // Mutation rules
-  document.getElementById('mutation-display').innerHTML=
-    Object.entries(MUTATION_RULES).map(([type,rules])=>`
-      <div style="margin-bottom:14px">
-        <div style="color:var(--acc);font-size:.68rem;letter-spacing:.12em;margin-bottom:7px">${type.toUpperCase()}</div>
-        <div style="display:flex;flex-wrap:wrap;gap:5px">
-          ${rules.map(r=>`<span class="badge badge-info" style="font-size:.65rem">${r.name}</span>`).join('')}
-        </div>
-      </div>
-    `).join('');
+  var mo = document.getElementById('mut-out');
+  mo.innerHTML = '';
+  Object.keys(MUT).forEach(function(type){
+    var rules=MUT[type];
+    var d=document.createElement('div');
+    d.style.marginBottom='12px';
+    var tags=rules.map(function(r){return '<span class="badge binfo" style="font-size:.62rem">'+r.n+'</span>';}).join(' ');
+    d.innerHTML='<div style="color:var(--g);font-size:.65rem;letter-spacing:.12em;margin-bottom:6px">'+type.toUpperCase()+'</div>'+tags;
+    mo.appendChild(d);
+  });
 }
 
-// ?? Memory ????????????????????????????????????????????????
-async function updateMemoryStats() {
-  const findings = await dbGetAll('findings');
-  const explored = await dbGetAll('explored');
-  const learned  = await dbGetAll('dna_learned');
+// -- Memory ----------------------------------------------------------------
+async function updateMemStats() {
+  var fnd = await all('findings');
+  var expl= await all('explored');
+  var lrn = await all('learned');
+  document.getElementById('m-f').textContent = fnd.length;
+  document.getElementById('m-e').textContent = expl.length;
+  document.getElementById('m-l').textContent = lrn.reduce(function(acc,l){return acc+Object.keys(l.patterns||{}).length;},0);
 
-  document.getElementById('m-findings').textContent = findings.length;
-  document.getElementById('m-explored').textContent = explored.length;
-  document.getElementById('m-learned').textContent  =
-    learned.reduce((acc,l)=>acc+Object.keys(l.patterns||{}).length,0);
-
-  const el=document.getElementById('learned-display');
-  if (!learned.length) {
-    el.textContent='Aucun pattern appris - lancez des scans.';
-    return;
-  }
-  el.innerHTML=learned.map(l=>`
-    <div style="border:1px solid var(--border);border-radius:6px;padding:12px;margin-bottom:10px">
-      <div class="stack-chip" style="margin-bottom:8px">Stack: ${esc(l.id)}</div>
-      ${Object.entries(l.patterns||{}).map(([atk,payloads])=>`
-        <div style="margin:4px 0;font-size:.74rem">
-          <span style="color:${ATTACK_DNA[atk]?.color||'var(--orange)'}">${atk.toUpperCase()}</span>
-          <span style="color:var(--muted)"> - ${payloads.length} pattern(s) efficace(s)</span>
-        </div>
-      `).join('')}
-    </div>
-  `).join('');
+  var lo = document.getElementById('learned-out');
+  if (!lrn.length) { lo.textContent='No patterns yet - run some scans.'; return; }
+  lo.innerHTML='';
+  lrn.forEach(function(l){
+    var d=document.createElement('div');
+    d.style.cssText='border:1px solid var(--b1);border-radius:6px;padding:10px;margin-bottom:8px';
+    var keys=Object.keys(l.patterns||{});
+    var rows=keys.map(function(atk){
+      var c=DNA[atk]?DNA[atk].col:'var(--o)';
+      return '<div style="margin:3px 0;font-size:.72rem"><span style="color:'+c+'">'+atk.toUpperCase()+'</span><span style="color:var(--t2)"> - '+l.patterns[atk].length+' effective pattern(s)</span></div>';
+    }).join('');
+    d.innerHTML='<div class="badge bpurp" style="margin-bottom:7px">Stack: '+esc(l.id)+'</div>'+rows;
+    lo.appendChild(d);
+  });
 }
 
-async function clearAllMemory() {
-  for (const s of ['findings','explored','dna_learned']) await dbClear(s);
-  await updateMemoryStats();
+async function clearAllMem() {
+  await clr('findings'); await clr('explored'); await clr('learned');
+  await updateMemStats();
   await renderFindings();
-  toast('Memoire videe','warn');
+  toast('Memory cleared','warn');
 }
 
-// ?? Utils ?????????????????????????????????????????????????
-function sleep(ms) { return new Promise(r=>setTimeout(r,ms)); }
-function esc(s='') { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-function hashStr(s){ let h=0; for(const c of s)h=(Math.imul(31,h)+c.charCodeAt(0))|0; return 'h'+Math.abs(h); }
-
-// ?? Init ??????????????????????????????????????????????????
+// -- Init ------------------------------------------------------------------
 async function init() {
-  // Open DB
   try {
-    db = await openDB();
-    document.getElementById('db-dot').className='status-dot online';
-    document.getElementById('db-status').textContent='IndexedDB OK';
+    DB = await openDB();
+    document.getElementById('db-dot').className = 'dot ok';
+    document.getElementById('db-label').textContent = 'IndexedDB OK';
   } catch(e) {
-    document.getElementById('db-status').textContent='DB ERROR';
-    console.error(e);
+    document.getElementById('db-label').textContent = 'DB ERROR';
     return;
   }
 
-  // Nav clicks
-  document.querySelectorAll('.nav-item').forEach(item=>{
-    item.addEventListener('click', ()=>{
-      navigate(item.dataset.page);
-      if (item.dataset.page==='findings') renderFindings();
-      if (item.dataset.page==='memory')   updateMemoryStats();
+  // Nav
+  document.querySelectorAll('.ni').forEach(function(ni){
+    ni.addEventListener('click', function(){
+      navigate(ni.dataset.page);
+      if (ni.dataset.page==='findings') renderFindings();
+      if (ni.dataset.page==='memory')   updateMemStats();
     });
   });
 
-  // Button bindings
+  // Buttons
   document.getElementById('btn-create').addEventListener('click', createProject);
-  document.getElementById('btn-download-pp').addEventListener('click', downloadPP);
+  document.getElementById('btn-dlpp').addEventListener('click', downloadPP);
   document.getElementById('btn-verify').addEventListener('click', verifyOwnership);
-  document.getElementById('btn-start-scan').addEventListener('click', startScan);
-  document.getElementById('btn-stop-scan').addEventListener('click', stopScan);
+  document.getElementById('btn-scan').addEventListener('click', startScan);
+  document.getElementById('btn-stop').addEventListener('click', stopScan);
   document.getElementById('btn-export').addEventListener('click', exportFindings);
-  document.getElementById('btn-clear-findings').addEventListener('click', clearFindings);
-  document.getElementById('btn-refresh-mem').addEventListener('click', updateMemoryStats);
-  document.getElementById('btn-clear-all').addEventListener('click', clearAllMemory);
+  document.getElementById('btn-clr-f').addEventListener('click', clearFindings);
+  document.getElementById('btn-ref-mem').addEventListener('click', updateMemStats);
+  document.getElementById('btn-clr-all').addEventListener('click', clearAllMem);
 
-  // Initial renders
   await renderProjects();
   await renderFindings();
   renderDNA();
-  await updateMemoryStats();
-  updateNavBadge();
+  await updateMemStats();
+  lucide.createIcons();
 }
 
 init();
-
-})(); // end IIFE
 </script>
 </body>
 </html>

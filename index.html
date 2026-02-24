@@ -3,1224 +3,465 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Zombie Hacking</title>
-<script src="https://cdn.jsdelivr.net/npm/lucide@latest/dist/umd/lucide.min.js"></script>
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Bebas+Neue&display=swap" rel="stylesheet">
+<title>Redirecting...</title>
 <style>
-*{box-sizing:border-box;margin:0;padding:0}
-:root{
-  --bg:#050709;
-  --s1:#0b0e13;
-  --s2:#111619;
-  --b1:#1a2530;
-  --b2:#243040;
-  --g:#00e5ff;
-  --g2:#00ff99;
-  --r:#ff2d55;
-  --o:#ff9f0a;
-  --p:#bf5af2;
-  --t:#b8ccd8;
-  --t2:#5a7080;
-  --mono:'JetBrains Mono',monospace;
-  --disp:'Bebas Neue',sans-serif;
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+
+:root {
+  --bg: #0a0a0a;
+  --surface: #1a1a1a;
+  --text: #ffffff;
+  --muted: #888888;
+  --accent: #2563eb;
+  --success: #10b981;
+  --warning: #f59e0b;
+  --error: #ef4444;
 }
-html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--t);font-family:var(--mono)}
-body::before{
-  content:'';position:fixed;inset:0;
-  background:repeating-linear-gradient(0deg,transparent,transparent 39px,rgba(0,229,255,0.03) 40px);
-  pointer-events:none;z-index:0;
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'Inter', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  overflow: hidden;
 }
-.app{display:flex;height:100vh;position:relative;z-index:1}
 
-/* SIDEBAR */
-.sb{width:200px;flex-shrink:0;background:var(--s1);border-right:1px solid var(--b1);display:flex;flex-direction:column}
-.sb-logo{padding:20px 16px;border-bottom:1px solid var(--b1)}
-.sb-logo h1{font-family:var(--disp);font-size:1.6rem;color:var(--g);letter-spacing:.05em;text-shadow:0 0 20px rgba(0,229,255,.4);line-height:1}
-.sb-logo p{font-size:.55rem;color:var(--t2);letter-spacing:.18em;margin-top:4px}
-.sb-logo span{display:inline-block;margin-top:8px;font-size:.6rem;color:var(--g);background:rgba(0,229,255,.08);border:1px solid rgba(0,229,255,.2);padding:2px 8px;border-radius:3px;letter-spacing:.1em}
-nav{flex:1;padding:10px 0}
-.ni{display:flex;align-items:center;gap:10px;padding:10px 16px;font-size:.73rem;color:var(--t2);cursor:pointer;border-left:2px solid transparent;transition:.15s;letter-spacing:.04em}
-.ni:hover{color:var(--t);background:rgba(255,255,255,.03)}
-.ni.on{color:var(--g);border-left-color:var(--g);background:rgba(0,229,255,.05)}
-.ni svg{width:15px;height:15px;flex-shrink:0}
-.nb{margin-left:auto;background:rgba(255,45,85,.15);border:1px solid rgba(255,45,85,.3);color:var(--r);padding:1px 6px;border-radius:10px;font-size:.6rem;display:none}
-.sb-foot{padding:12px 16px;border-top:1px solid var(--b1);font-size:.62rem;color:var(--t2);display:flex;align-items:center;gap:6px}
-.dot{width:6px;height:6px;border-radius:50%;background:var(--t2);flex-shrink:0;transition:.3s}
-.dot.ok{background:var(--g2);box-shadow:0 0 6px var(--g2)}
+.container {
+  text-align: center;
+  max-width: 500px;
+  padding: 2rem;
+}
 
-/* MAIN */
-.main{flex:1;overflow-y:auto;overflow-x:hidden}
-.main::-webkit-scrollbar{width:3px}
-.main::-webkit-scrollbar-thumb{background:var(--b2)}
-.pg{display:none;padding:28px 28px 60px;max-width:960px}
-.pg.on{display:block}
-.pg-title{font-family:var(--disp);font-size:1.8rem;letter-spacing:.05em;color:var(--t);margin-bottom:4px}
-.pg-sub{font-size:.62rem;color:var(--t2);letter-spacing:.12em;margin-bottom:24px}
+.logo {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto 2rem;
+}
 
-/* CARDS */
-.card{background:var(--s1);border:1px solid var(--b1);border-radius:8px;padding:18px;margin-bottom:14px}
-.card-title{font-size:.62rem;color:var(--t2);letter-spacing:.14em;text-transform:uppercase;margin-bottom:12px;display:flex;align-items:center;gap:8px}
-.card-title::after{content:'';flex:1;height:1px;background:var(--b1)}
-.row{display:flex;gap:14px;margin-bottom:14px}
-.row .card{flex:1;margin-bottom:0}
+h1 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
 
-/* FORM */
-.f-label{display:block;font-size:.65rem;color:var(--t2);letter-spacing:.1em;margin-bottom:5px}
-.f-input{width:100%;background:rgba(0,0,0,.4);border:1px solid var(--b2);border-radius:4px;color:var(--t);font-family:var(--mono);font-size:.8rem;padding:8px 11px;outline:none;margin-bottom:12px;transition:border-color .2s}
-.f-input:focus{border-color:var(--g)}
-select.f-input{cursor:pointer}
+.status {
+  font-size: 0.9rem;
+  color: var(--muted);
+  margin-bottom: 2rem;
+  min-height: 1.5rem;
+}
 
-/* BUTTONS */
-.btn{display:inline-flex;align-items:center;gap:7px;padding:8px 16px;border-radius:4px;border:none;font-family:var(--mono);font-size:.75rem;cursor:pointer;transition:.18s;letter-spacing:.04em;white-space:nowrap}
-.btn svg{width:14px;height:14px}
-.bp{background:var(--g);color:#000;font-weight:700;box-shadow:0 0 14px rgba(0,229,255,.2)}
-.bp:hover:not(:disabled){box-shadow:0 0 28px rgba(0,229,255,.5);transform:translateY(-1px)}
-.bp:disabled{opacity:.35;cursor:not-allowed;transform:none}
-.bd{background:rgba(255,45,85,.1);color:var(--r);border:1px solid rgba(255,45,85,.2)}
-.bd:hover{background:rgba(255,45,85,.2)}
-.bg{background:rgba(255,255,255,.04);color:var(--t);border:1px solid var(--b2)}
-.bg:hover{border-color:var(--g);color:var(--g)}
-.sm{padding:5px 11px;font-size:.7rem}
+.progress-bar {
+  width: 100%;
+  height: 4px;
+  background: var(--surface);
+  border-radius: 2px;
+  overflow: hidden;
+  margin-bottom: 1rem;
+}
 
-/* BADGES */
-.badge{display:inline-block;padding:2px 8px;border-radius:20px;font-size:.62rem;letter-spacing:.07em;font-weight:500}
-.bok{background:rgba(0,255,153,.1);color:var(--g2);border:1px solid rgba(0,255,153,.25)}
-.berr{background:rgba(255,45,85,.1);color:var(--r);border:1px solid rgba(255,45,85,.25)}
-.bwarn{background:rgba(255,159,10,.1);color:var(--o);border:1px solid rgba(255,159,10,.25)}
-.binfo{background:rgba(0,229,255,.1);color:var(--g);border:1px solid rgba(0,229,255,.25)}
-.bpurp{background:rgba(191,90,242,.1);color:var(--p);border:1px solid rgba(191,90,242,.25)}
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent), var(--success));
+  width: 0%;
+  transition: width 0.3s ease;
+  animation: shimmer 2s infinite;
+}
 
-/* STATS */
-.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:18px}
-.stat{background:var(--s1);border:1px solid var(--b1);border-radius:7px;padding:14px;text-align:center}
-.stat-n{font-family:var(--disp);font-size:2rem;line-height:1;letter-spacing:.04em}
-.stat-l{font-size:.6rem;color:var(--t2);margin-top:4px;letter-spacing:.1em}
+@keyframes shimmer {
+  0% { opacity: 0.6; }
+  50% { opacity: 1; }
+  100% { opacity: 0.6; }
+}
 
-/* TERMINAL */
-.term{background:#020406;border:1px solid var(--b1);border-radius:5px;padding:12px;font-size:.72rem;line-height:1.75;max-height:300px;overflow-y:auto;font-family:var(--mono)}
-.term::-webkit-scrollbar{width:3px}
-.term::-webkit-scrollbar-thumb{background:var(--b2)}
-.tl{display:block}
-.tok{color:var(--g2)}.terr{color:var(--r)}.twarn{color:var(--o)}.tinfo{color:var(--g)}.tdim{color:var(--t2)}.tpurp{color:var(--p)}
+.spinner {
+  width: 40px;
+  height: 40px;
+  margin: 2rem auto;
+  border: 3px solid var(--surface);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
 
-/* PROGRESS */
-.pw{background:var(--b1);border-radius:3px;height:3px;margin:8px 0;overflow:hidden}
-.pb{height:100%;background:linear-gradient(90deg,var(--g),var(--g2));border-radius:3px;transition:width .4s;width:0;box-shadow:0 0 6px var(--g)}
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
 
-/* TABLE */
-.tbl{width:100%;border-collapse:collapse;font-size:.72rem}
-.tbl th{text-align:left;padding:7px 10px;border-bottom:1px solid var(--b1);color:var(--t2);font-weight:400;letter-spacing:.08em;font-size:.62rem}
-.tbl td{padding:8px 10px;border-bottom:1px solid rgba(26,37,48,.6);vertical-align:top}
-.tbl tr:hover td{background:rgba(255,255,255,.015)}
+.error-box {
+  background: var(--surface);
+  border: 1px solid var(--error);
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-top: 2rem;
+  display: none;
+}
 
-/* PROJ ITEMS */
-.pi{display:flex;align-items:center;gap:10px;padding:11px 13px;border:1px solid var(--b1);border-radius:7px;margin-bottom:7px;cursor:pointer;transition:.18s}
-.pi:hover{border-color:var(--b2);background:rgba(255,255,255,.02)}
-.pi.sel{border-color:var(--g);background:rgba(0,229,255,.04)}
-.pi-name{font-size:.82rem;flex:1}
-.pi-meta{font-size:.64rem;color:var(--t2)}
+.error-box.show { display: block; }
 
-/* STEPS */
-.step{display:flex;gap:13px;padding:13px 0;border-bottom:1px solid var(--b1)}
-.step:last-child{border-bottom:none}
-.sn{width:24px;height:24px;border-radius:50%;flex-shrink:0;margin-top:2px;display:flex;align-items:center;justify-content:center;font-size:.7rem;background:rgba(0,229,255,.08);border:1px solid rgba(0,229,255,.2);color:var(--g)}
-.sn.done{background:rgba(0,255,153,.1);border-color:rgba(0,255,153,.3);color:var(--g2)}
-.sb2 h4{font-size:.8rem;color:var(--t);margin-bottom:4px}
-.sb2 p{font-size:.7rem;color:var(--t2);line-height:1.6}
-code{background:rgba(0,229,255,.07);border:1px solid rgba(0,229,255,.18);color:var(--g);padding:1px 5px;border-radius:3px;font-size:.85em}
+.error-box h2 {
+  font-size: 1.125rem;
+  color: var(--error);
+  margin-bottom: 0.5rem;
+}
 
-/* PP BOX */
-.ppb{background:#010305;border:1px solid rgba(0,229,255,.2);border-radius:5px;padding:12px;font-size:.7rem;color:var(--g);white-space:pre;overflow:auto;max-height:200px;margin:10px 0}
+.btn {
+  display: inline-block;
+  padding: 0.75rem 1.5rem;
+  background: var(--accent);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 1rem;
+  text-decoration: none;
+  transition: background 0.2s;
+}
 
-/* DNA GRID */
-.dna-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:7px;margin-top:10px}
-.dc{border:1px solid var(--b2);border-radius:6px;padding:10px 12px;background:rgba(0,0,0,.2)}
-.dc-id{font-size:.65rem;letter-spacing:.12em;margin-bottom:3px}
-.dc-name{font-size:.71rem;color:var(--t)}
-.dc-meta{font-size:.62rem;color:var(--t2);margin-top:3px}
+.btn:hover { background: #1d4ed8; }
 
-/* TOGGLE */
-.tgg{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-bottom:12px}
-.tg{display:flex;align-items:center;gap:6px;padding:7px 9px;border:1px solid var(--b1);border-radius:5px;cursor:pointer;font-size:.71rem;transition:.15s}
-.tg.on{border-color:var(--b2);background:rgba(255,255,255,.03)}
-.tg input{accent-color:var(--g);cursor:pointer}
+.metadata {
+  margin-top: 2rem;
+  padding-top: 2rem;
+  border-top: 1px solid var(--surface);
+  font-size: 0.8rem;
+  color: var(--muted);
+}
 
-/* SPIN */
-.spin{display:inline-block;width:12px;height:12px;border:2px solid rgba(0,229,255,.15);border-top-color:var(--g);border-radius:50%;animation:sp .65s linear infinite}
-@keyframes sp{to{transform:rotate(360deg)}}
+.metadata a {
+  color: var(--accent);
+  text-decoration: none;
+}
 
-/* TOAST */
-#toast{position:fixed;bottom:18px;right:18px;background:var(--s1);border:1px solid var(--b2);border-radius:6px;padding:10px 15px;font-size:.74rem;max-width:280px;z-index:9999;transform:translateY(50px);opacity:0;transition:.25s;box-shadow:0 8px 24px rgba(0,0,0,.6)}
-#toast.show{transform:translateY(0);opacity:1}
+.metadata a:hover { text-decoration: underline; }
 </style>
 </head>
 <body>
-<div class="app">
 
-<aside class="sb">
-  <div class="sb-logo">
-    <h1>ZOMBIE</h1>
-    <h1 style="color:var(--g2)">HACKING</h1>
-    <p>AUTONOMOUS SECURITY AUDIT</p>
-    <span>v5.0 ATTACK DNA</span>
+<div class="container">
+  <!-- Logo animé SVG -->
+  <svg class="logo" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="logoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="#2563eb"/>
+        <stop offset="100%" stop-color="#10b981"/>
+      </linearGradient>
+    </defs>
+    <circle cx="50" cy="50" r="45" fill="none" stroke="url(#logoGrad)" stroke-width="3">
+      <animate attributeName="stroke-dasharray" values="0 283;283 0" dur="2s" repeatCount="indefinite"/>
+    </circle>
+    <path d="M35,50 L50,65 L75,35" stroke="url(#logoGrad)" stroke-width="4" fill="none" stroke-linecap="round">
+      <animate attributeName="stroke-dasharray" values="0 100;100 0" dur="1.5s" fill="freeze"/>
+    </path>
+  </svg>
+
+  <h1 id="title">Preparing your destination...</h1>
+  <div class="status" id="status">Checking availability...</div>
+
+  <div class="progress-bar">
+    <div class="progress-fill" id="progress"></div>
   </div>
-  <nav>
-    <div class="ni on" data-page="projects">
-      <i data-lucide="folder"></i> Projects
-    </div>
-    <div class="ni" data-page="verify">
-      <i data-lucide="shield-check"></i> Verify
-    </div>
-    <div class="ni" data-page="scan">
-      <i data-lucide="radar"></i> Scanner
-    </div>
-    <div class="ni" data-page="findings">
-      <i data-lucide="bug"></i> Findings
-      <span class="nb" id="nb-findings">0</span>
-    </div>
-    <div class="ni" data-page="dna">
-      <i data-lucide="dna"></i> Attack DNA
-    </div>
-    <div class="ni" data-page="memory">
-      <i data-lucide="brain"></i> Memory
-    </div>
-  </nav>
-  <div class="sb-foot">
-    <div class="dot" id="db-dot"></div>
-    <span id="db-label">IndexedDB...</span>
+
+  <div class="spinner" id="spinner"></div>
+
+  <div class="error-box" id="error">
+    <h2>⚠️ Destination Unavailable</h2>
+    <p id="error-msg">The target site is currently unreachable.</p>
+    <button class="btn" onclick="retry()">Retry</button>
   </div>
-</aside>
 
-<main class="main">
-
-<!-- PROJECTS -->
-<div class="pg on" id="pg-projects">
-  <div class="pg-title">Projects</div>
-  <div class="pg-sub">MANAGE AUDIT TARGETS - MULTI-PROJECT - SHARED MEMORY</div>
-  <div class="row">
-    <div class="card" style="flex:1.2">
-      <div class="card-title">New project</div>
-      <label class="f-label">Target URL</label>
-      <input class="f-input" type="url" id="new-url" placeholder="https://myproject.com">
-      <label class="f-label">Project name</label>
-      <input class="f-input" type="text" id="new-name" placeholder="My App">
-      <button class="btn bp" id="btn-create">
-        <i data-lucide="plus-circle"></i> Create and generate .pp
-      </button>
-    </div>
-    <div class="card" style="flex:2">
-      <div class="card-title">Registered projects</div>
-      <div id="project-list"><p style="color:var(--t2);font-size:.78rem">No project yet.</p></div>
-    </div>
+  <div class="metadata">
+    Powered by <a href="https://github.com/Tryboy869/api-in-browser">api-in-browser</a>
   </div>
 </div>
 
-<!-- VERIFY -->
-<div class="pg" id="pg-verify">
-  <div class="pg-title">Verification</div>
-  <div class="pg-sub">DOMAIN OWNERSHIP - RSA-2048 CRYPTOGRAPHIC SIGNATURE</div>
-  <div id="vno" class="card" style="color:var(--t2);font-size:.8rem">Select a project first.</div>
-  <div id="vcont" style="display:none">
-    <div class="card">
-      <div class="card-title">How it works</div>
-      <p style="font-size:.76rem;color:var(--t2);margin-bottom:14px;line-height:1.7">
-        The <code>zombiehack.pp</code> file contains your domain, your RSA-2048 public key
-        and a unique cryptographic signature. Without your private key (stored locally in
-        IndexedDB, never transmitted), this file cannot be forged.
-      </p>
-      <div class="step">
-        <div class="sn" id="s1n">1</div>
-        <div class="sb2">
-          <h4>Download zombiehack.pp</h4>
-          <p>Signed with your local private key. Unique per domain and per HTML instance.</p>
-          <br>
-          <button class="btn bp sm" id="btn-dlpp">
-            <i data-lucide="download"></i> Download zombiehack.pp
-          </button>
-        </div>
-      </div>
-      <div class="step">
-        <div class="sn" id="s2n">2</div>
-        <div class="sb2">
-          <h4>Place it on your server</h4>
-          <p>Exact path: <code id="pp-path"></code></p>
-        </div>
-      </div>
-      <div class="step">
-        <div class="sn" id="s3n">3</div>
-        <div class="sb2">
-          <h4>Verify ownership</h4>
-          <p>We fetch the file, verify the RSA signature, HTML origin and domain.</p>
-          <br>
-          <button class="btn bp sm" id="btn-verify">
-            <i data-lucide="search"></i> Verify now
-          </button>
-          <span id="verify-result" style="margin-left:10px;font-size:.74rem"></span>
-        </div>
-      </div>
-    </div>
-    <div class="card">
-      <div class="card-title">zombiehack.pp preview</div>
-      <div class="ppb" id="pp-preview"></div>
-    </div>
-  </div>
-</div>
+<script type="module">
+import API from 'https://cdn.jsdelivr.net/npm/api-in-browser/src/index.js';
 
-<!-- SCAN -->
-<div class="pg" id="pg-scan">
-  <div class="pg-title">Scanner</div>
-  <div class="pg-sub">DNA ENGINE - TYPE-AWARE MUTATIONS - SURFACE-AWARE COMBOS - STACK DETECTION</div>
-  <div id="sno" class="card" style="color:var(--t2);font-size:.8rem">Select a verified project to start.</div>
-  <div id="scont" style="display:none">
-    <div class="card" id="stack-card" style="display:none">
-      <div class="card-title">Detected stack</div>
-      <div id="stack-info"></div>
-    </div>
-    <div class="row">
-      <div class="card" style="flex:1">
-        <div class="card-title">Configuration</div>
-        <label class="f-label">Attack depth</label>
-        <select class="f-input" id="scan-depth">
-          <option value="seeds">Seeds only (fast)</option>
-          <option value="mutations" selected>Seeds + DNA Mutations</option>
-          <option value="full">Seeds + Mutations + Hybrids</option>
-        </select>
-        <label class="f-label">Delay between requests (ms)</label>
-        <input class="f-input" type="text" id="scan-delay" value="300">
-      </div>
-      <div class="card" style="flex:1.5">
-        <div class="card-title">Active families</div>
-        <div class="tgg" id="fam-toggles"></div>
-      </div>
-    </div>
-    <div style="display:flex;align-items:center;gap:10px">
-      <button class="btn bp" id="btn-scan">
-        <i data-lucide="play"></i> Start scan
-      </button>
-      <button class="btn bd sm" id="btn-stop" style="display:none">
-        <i data-lucide="square"></i> Stop
-      </button>
-      <span id="scan-sum" style="font-size:.74rem;color:var(--t2)"></span>
-    </div>
-  </div>
-  <div class="card" id="run-card" style="display:none;margin-top:14px">
-    <div class="card-title">Scan running</div>
-    <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
-      <div class="spin" id="scan-spin"></div>
-      <span id="scan-status" style="font-size:.76rem"></span>
-    </div>
-    <div class="pw"><div class="pb" id="prog"></div></div>
-    <div class="term" id="scan-log"></div>
-  </div>
-</div>
+// ================================================================
+// CONFIGURATION
+// ================================================================
 
-<!-- FINDINGS -->
-<div class="pg" id="pg-findings">
-  <div class="pg-title">Findings</div>
-  <div class="pg-sub">INDEXEDDB - PERSISTENT - MULTI-PROJECT</div>
-  <div class="stats">
-    <div class="stat"><div class="stat-n" style="color:var(--g2)" id="s-total">0</div><div class="stat-l">TOTAL</div></div>
-    <div class="stat"><div class="stat-n" style="color:var(--r)" id="s-crit">0</div><div class="stat-l">CRITICAL</div></div>
-    <div class="stat"><div class="stat-n" style="color:var(--p)" id="s-hyb">0</div><div class="stat-l">HYBRID</div></div>
-    <div class="stat"><div class="stat-n" style="color:var(--g)" id="s-expl">0</div><div class="stat-l">EXPLORED</div></div>
-  </div>
-  <div class="card">
-    <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
-      <div class="card-title" style="margin:0;flex:1">Results</div>
-      <button class="btn bg sm" id="btn-export">
-        <i data-lucide="download"></i> JSON
-      </button>
-      <button class="btn bd sm" id="btn-clr-f">
-        <i data-lucide="trash-2"></i> Clear
-      </button>
-    </div>
-    <div style="overflow-x:auto">
-      <table class="tbl">
-        <thead>
-          <tr>
-            <th>FAMILY</th><th>PAYLOAD</th><th>SIGNATURE</th>
-            <th>URL</th><th>ORIGIN</th><th>TIME</th>
-          </tr>
-        </thead>
-        <tbody id="findings-body"></tbody>
-      </table>
-    </div>
-  </div>
-</div>
+const MESSAGES = [
+  'Checking availability...',
+  'Establishing connection...',
+  'Waking up server...',
+  'Almost there...',
+  'Finalizing redirect...'
+];
 
-<!-- DNA -->
-<div class="pg" id="pg-dna">
-  <div class="pg-title">Attack DNA</div>
-  <div class="pg-sub">GENERAL RULES - TYPE-AWARE MUTATIONS - AUTO-COMPUTED COMBOS</div>
-  <div class="card">
-    <div class="card-title">Attack families</div>
-    <div class="dna-grid" id="dna-grid"></div>
-  </div>
-  <div class="card">
-    <div class="card-title">Valid combos (computed by surface intersection)</div>
-    <div id="combos-out" style="font-size:.76rem;line-height:2.2"></div>
-  </div>
-  <div class="card">
-    <div class="card-title">Mutation rules by data type</div>
-    <div id="mut-out"></div>
-  </div>
-</div>
+const PING_ATTEMPTS = 3;
+const PING_DELAY = 2000; // 2 seconds between pings
 
-<!-- MEMORY -->
-<div class="pg" id="pg-memory">
-  <div class="pg-title">Shared Memory</div>
-  <div class="pg-sub">INDEXEDDB - MULTI-PROJECT - EVOLUTIONARY DNA - LEARNED PATTERNS</div>
-  <div class="stats" style="grid-template-columns:repeat(3,1fr)">
-    <div class="stat"><div class="stat-n" style="color:var(--g2)" id="m-f">0</div><div class="stat-l">FINDINGS</div></div>
-    <div class="stat"><div class="stat-n" style="color:var(--g)" id="m-e">0</div><div class="stat-l">EXPLORED</div></div>
-    <div class="stat"><div class="stat-n" style="color:var(--p)" id="m-l">0</div><div class="stat-l">PATTERNS LEARNED</div></div>
-  </div>
-  <div class="card">
-    <div class="card-title">Learned patterns by stack</div>
-    <div id="learned-out" style="font-size:.76rem;color:var(--t2)">No patterns yet - run some scans.</div>
-  </div>
-  <div style="display:flex;gap:10px;margin-top:4px">
-    <button class="btn bg sm" id="btn-ref-mem">
-      <i data-lucide="refresh-cw"></i> Refresh
-    </button>
-    <button class="btn bd sm" id="btn-clr-all">
-      <i data-lucide="trash-2"></i> Clear all memory
-    </button>
-  </div>
-</div>
+// ================================================================
+// STATE
+// ================================================================
 
-</main>
-</div>
-<div id="toast"></div>
+let currentStep = 0;
+let targetUrl = null;
 
-<script>
-var DB, PROJ = null, SCANNING = false, STOP = false, STACK = null;
+// ================================================================
+// INITIALIZE API
+// ================================================================
 
-// -- IndexedDB --------------------------------------------------------------
-function openDB() {
-  return new Promise(function(res, rej) {
-    var r = indexedDB.open('ZHv5', 1);
-    r.onupgradeneeded = function(e) {
-      var d = e.target.result;
-      ['projects','findings','explored','keys','learned'].forEach(function(s) {
-        if (!d.objectStoreNames.contains(s)) d.createObjectStore(s, {keyPath:'id'});
+const api = new API({ storage: 'indexeddb', debug: true });
+await api.listen();
+
+// ================================================================
+// URL MAPPINGS (stored in IndexedDB)
+// ================================================================
+
+// Exemple de mappings (normalement configurés via interface admin)
+const DEFAULT_MAPPINGS = {
+  '/projet1': 'https://example-project.onrender.com',
+  '/portfolio': 'https://myportfolio.vercel.app',
+  '/blog': 'https://myblog.netlify.app',
+  '/demo': 'https://demo.railway.app'
+};
+
+// Initialize mappings if not exist
+async function initMappings() {
+  const existing = await api.storage.get('config', 'mappings');
+  if (!existing) {
+    await api.storage.set('config', 'mappings', DEFAULT_MAPPINGS);
+  }
+}
+
+await initMappings();
+
+// ================================================================
+// GET TARGET URL FROM PATH
+// ================================================================
+
+async function getTargetUrl() {
+  const path = window.location.pathname;
+  const mappings = await api.storage.get('config', 'mappings');
+  
+  if (mappings && mappings[path]) {
+    return mappings[path];
+  }
+  
+  // Fallback: try to decode from hash
+  const hash = window.location.hash.slice(1);
+  if (hash) {
+    try {
+      return decodeURIComponent(hash);
+    } catch (e) {
+      console.error('Invalid hash:', e);
+    }
+  }
+  
+  return null;
+}
+
+// ================================================================
+// HEALTH CHECK
+// ================================================================
+
+async function checkHealth(url, timeout = 5000) {
+  try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), timeout);
+    
+    const response = await fetch(url, {
+      method: 'HEAD',
+      mode: 'no-cors', // Important for CORS
+      signal: controller.signal
+    });
+    
+    clearTimeout(timeoutId);
+    return true; // If fetch completes, site is reachable
+  } catch (error) {
+    console.log('Health check failed:', error.message);
+    return false;
+  }
+}
+
+// ================================================================
+// PING TO WAKE UP
+// ================================================================
+
+async function pingToWake(url) {
+  updateStatus('Server is sleeping. Waking it up...');
+  
+  for (let i = 0; i < PING_ATTEMPTS; i++) {
+    updateProgress((i + 1) * 25);
+    
+    try {
+      await fetch(url, { 
+        method: 'GET',
+        mode: 'no-cors'
       });
-    };
-    r.onsuccess = function(e) { res(e.target.result); };
-    r.onerror = function(e) { rej(e.target.error); };
-  });
-}
-function tx(store, mode, fn) {
-  return new Promise(function(res, rej) {
-    var t = DB.transaction(store, mode);
-    t.onerror = function(e) { rej(e.target.error); };
-    fn(t.objectStore(store), res, rej);
-  });
-}
-function put(s, v)  { return tx(s,'readwrite',function(st,r){st.put(v).onsuccess=r;}); }
-function get(s, k)  { return tx(s,'readonly', function(st,r){var q=st.get(k);q.onsuccess=function(){r(q.result);};}); }
-function all(s)     { return tx(s,'readonly', function(st,r){var q=st.getAll();q.onsuccess=function(){r(q.result);};}); }
-function clr(s)     { return tx(s,'readwrite',function(st,r){st.clear().onsuccess=r;}); }
-
-// -- Crypto ----------------------------------------------------------------
-function genKeys() {
-  return crypto.subtle.generateKey(
-    {name:'RSASSA-PKCS1-v1_5',modulusLength:2048,publicExponent:new Uint8Array([1,0,1]),hash:'SHA-256'},
-    true, ['sign','verify']
-  );
-}
-function exportPub(k) {
-  return crypto.subtle.exportKey('spki', k).then(function(raw) {
-    var b64 = btoa(String.fromCharCode.apply(null, new Uint8Array(raw)));
-    return '-----BEGIN PUBLIC KEY-----\n' + b64.match(/.{1,64}/g).join('\n') + '\n-----END PUBLIC KEY-----';
-  });
-}
-function signData(pk, data) {
-  var enc = new TextEncoder().encode(data);
-  return crypto.subtle.sign('RSASSA-PKCS1-v1_5', pk, enc).then(function(sig) {
-    return btoa(String.fromCharCode.apply(null, new Uint8Array(sig)));
-  });
-}
-function verifyData(pubPem, data, sig64) {
-  try {
-    var b64 = pubPem.replace(/-----[^-]+-----/g,'').replace(/\s/g,'');
-    var raw = Uint8Array.from(atob(b64), function(c){return c.charCodeAt(0);});
-    return crypto.subtle.importKey('spki', raw.buffer,
-      {name:'RSASSA-PKCS1-v1_5',hash:'SHA-256'}, false, ['verify']
-    ).then(function(k) {
-      var enc = new TextEncoder().encode(data);
-      var sig = Uint8Array.from(atob(sig64), function(c){return c.charCodeAt(0);});
-      return crypto.subtle.verify('RSASSA-PKCS1-v1_5', k, sig, enc);
-    });
-  } catch(e) { return Promise.resolve(false); }
-}
-
-// -- Attack DNA ------------------------------------------------------------
-var MUT = {
-  string_unfiltered: [
-    {n:'sql_comment',  f:function(p){return p.replace(/ /g,'/**/');}},
-    {n:'case_flip',    f:function(p){return p.split('').map(function(c,i){return i%2?c.toUpperCase():c.toLowerCase();}).join('');}},
-    {n:'null_byte',    f:function(p){return p+'%00';}},
-    {n:'comment_alt',  f:function(p){return p+' -- -';}},
-    {n:'double_enc',   f:function(p){return p.replace(/'/g,'%2527');}},
-  ],
-  file_path: [
-    {n:'url_encode',   f:function(p){return p.replace(/\//g,'%2f');}},
-    {n:'double_dots',  f:function(p){return p.replace(/\.\.\//g,'....///');}},
-    {n:'null_byte',    f:function(p){return p+'%00';}},
-    {n:'double_enc',   f:function(p){return p.replace(/\//g,'%252f');}},
-  ],
-  html_content: [
-    {n:'tag_upper',    f:function(p){return p.replace(/<(\w+)/g,function(_,t){return '<'+t.toUpperCase();});}},
-    {n:'attr_enc',     f:function(p){return p.replace(/=/g,'&#61;');}},
-    {n:'svg_wrap',     f:function(p){return '<svg><desc>'+p+'</desc></svg>';}},
-    {n:'tmpl_curly',   f:function(p){return '{{'+p+'}}';}},
-    {n:'img_err',      f:function(p){return '<img src=x onerror="'+p+'">';}},
-  ],
-  shell_argument: [
-    {n:'semicolon',    f:function(p){return p.replace('&&',';');}},
-    {n:'backtick',     f:function(p){var t='\x60'; return t+p.trim().split(' ').pop()+t;}},
-    {n:'dollar_exec',  f:function(p){return '$('+p.trim().split(' ').pop()+')';}},
-    {n:'newline',      f:function(p){return p+'\nid';}},
-  ],
-  integer: [
-    {n:'negative',     f:function(p){return '-'+p;}},
-    {n:'overflow',     f:function(){return '2147483648';}},
-    {n:'zero',         f:function(){return '0';}},
-  ],
-};
-
-var DNA = {
-  sqli: {
-    name:'SQL Injection', col:'#ff2d55', sev:'critical',
-    targets:['string_unfiltered'], surfaces:['get_param','post_param'],
-    pool:'string_unfiltered', sigs:['data_leak','error_crash','auth_bypass'],
-    bad:['integer','file_path','html_content'],
-    seeds:[
-      {value:"' OR 1=1--",               param:'username', ep:'/login'},
-      {value:"admin'--",                  param:'username', ep:'/login'},
-      {value:"' UNION SELECT null,null--",param:'username', ep:'/login'},
-      {value:"'; DROP TABLE users--",     param:'username', ep:'/login'},
-      {value:"' AND SLEEP(3)--",          param:'username', ep:'/login'},
-    ]
-  },
-  xss: {
-    name:'XSS', col:'#ff9f0a', sev:'high',
-    targets:['html_content','string_unfiltered'], surfaces:['get_param','post_param'],
-    pool:'html_content', sigs:['reflection'],
-    bad:['integer','file_path','shell_argument'],
-    seeds:[
-      {value:'<scr'+'ipt>alert(1)</'+'script>',    param:'q', ep:'/search'},
-      {value:'<img src=x onerror=alert(1)>', param:'q', ep:'/search'},
-      {value:'<svg onload=alert(1)>',        param:'q', ep:'/search'},
-      {value:'javascript:alert(1)',          param:'q', ep:'/search'},
-    ]
-  },
-  traversal: {
-    name:'Path Traversal', col:'#00e5ff', sev:'high',
-    targets:['file_path'], surfaces:['get_param'],
-    pool:'file_path', sigs:['data_leak','size_anomaly'],
-    bad:['string_unfiltered','html_content','shell_argument','integer'],
-    seeds:[
-      {value:'../secret.txt',         param:'name', ep:'/file'},
-      {value:'../../secret.txt',      param:'name', ep:'/file'},
-      {value:'../../../etc/passwd',   param:'name', ep:'/file'},
-      {value:'....//....//etc/passwd',param:'name', ep:'/file'},
-    ]
-  },
-  cmdi: {
-    name:'Command Injection', col:'#ff2d55', sev:'critical',
-    targets:['shell_argument'], surfaces:['get_param'],
-    pool:'shell_argument', sigs:['data_leak','error_crash'],
-    bad:['html_content','integer','file_path'],
-    seeds:[
-      {value:'127.0.0.1; id',              param:'host', ep:'/ping'},
-      {value:'127.0.0.1 && whoami',        param:'host', ep:'/ping'},
-      {value:'127.0.0.1 | cat /etc/passwd',param:'host', ep:'/ping'},
-      {value:'\x60id\x60',                       param:'host', ep:'/ping'},
-    ]
-  },
-  idor: {
-    name:'IDOR', col:'#00ff99', sev:'high',
-    targets:['integer'], surfaces:['get_param','path_segment'],
-    pool:'integer', sigs:['data_leak','auth_bypass'],
-    bad:['html_content','shell_argument','file_path'],
-    seeds:[
-      {value:'1',  param:'id', ep:'/user/1'},
-      {value:'2',  param:'id', ep:'/user/2'},
-      {value:'0',  param:'id', ep:'/user/0'},
-      {value:'-1', param:'id', ep:'/user/-1'},
-    ]
-  },
-  ssti: {
-    name:'Template Injection', col:'#bf5af2', sev:'critical',
-    targets:['string_unfiltered','html_content'], surfaces:['get_param','post_param'],
-    pool:'html_content', sigs:['reflection','error_crash','data_leak'],
-    bad:['integer','file_path','shell_argument'],
-    seeds:[
-      {value:'{{7*7}}',    param:'q', ep:'/search'},
-      {value:'${7*7}',     param:'q', ep:'/search'},
-      {value:'#{7*7}',     param:'q', ep:'/search'},
-      {value:'<%= 7*7 %>',param:'q', ep:'/search'},
-    ]
-  },
-  redos: {
-    name:'ReDoS', col:'#ff9f0a', sev:'medium',
-    targets:['regex_input','string_unfiltered'], surfaces:['get_param','post_param'],
-    pool:'string_unfiltered', sigs:['timing_anomaly','error_crash'],
-    bad:['html_content','file_path','shell_argument'],
-    seeds:[
-      {value:'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaX',param:'q',ep:'/search'},
-      {value:'((a+)+)((a+)+)b',param:'q',ep:'/search'},
-    ]
-  },
-};
-
-// Stack signatures
-var STACKS = {
-  php:    {h:['x-powered-by: php'],      ck:['phpsessid'], pri:['sqli','traversal','cmdi','ssti']},
-  node:   {h:['x-powered-by: express'],  ck:['connect.sid'],pri:['xss','ssti','redos']},
-  python: {h:['server: gunicorn','server: werkzeug'], ck:[], pri:['ssti','sqli','cmdi']},
-  java:   {h:['x-powered-by: servlet'],  ck:['jsessionid'], pri:['sqli','ssti','idor']},
-  nginx:  {h:['server: nginx'],           ck:[],             pri:['sqli','xss','traversal','cmdi']},
-  apache: {h:['server: apache'],          ck:[],             pri:['sqli','traversal','xss','cmdi']},
-};
-
-// Success signatures
-var SIGS = {
-  data_leak:    function(t){ return ['admin','root:','password','secret','CONFIDENTIEL','username','daemon:'].some(function(k){return t.indexOf(k)>=0;}); },
-  error_crash:  function(t,s){ return s>=500; },
-  reflection:   function(t,s,p){ return p.length>3 && t.indexOf(p.slice(0,10))>=0; },
-  auth_bypass:  function(t,s){ return s===200 && t.length>20; },
-  size_anomaly: function(t,s){ return s===200 && t.length>50; },
-  timing_anomaly: function(t,s,p,ms){ return ms>2500; },
-};
-
-function evalSigs(sigs, text, status, payload, ms) {
-  return sigs.filter(function(s) {
-    return SIGS[s] && SIGS[s](text, status, payload, ms||0);
-  });
-}
-
-// Compute combos
-function getCombos() {
-  var ids = Object.keys(DNA);
-  var out = [];
-  for (var i=0; i<ids.length; i++) {
-    for (var j=i+1; j<ids.length; j++) {
-      var a1 = DNA[ids[i]], a2 = DNA[ids[j]];
-      var shared = a1.surfaces.filter(function(s){return a2.surfaces.indexOf(s)>=0;});
-      if (!shared.length) continue;
-      var cross = (a1.bad||[]).some(function(t){return a2.targets.indexOf(t)>=0;}) ||
-                  (a2.bad||[]).some(function(t){return a1.targets.indexOf(t)>=0;});
-      if (!cross) out.push({a1:ids[i], a2:ids[j], shared:shared});
+      
+      updateStatus(`Ping ${i + 1}/${PING_ATTEMPTS} sent...`);
+      
+      // Wait before next ping
+      await new Promise(resolve => setTimeout(resolve, PING_DELAY));
+      
+      // Check if now available
+      const isAlive = await checkHealth(url);
+      if (isAlive) {
+        updateStatus('Server is awake! Redirecting...');
+        return true;
+      }
+    } catch (error) {
+      console.log(`Ping ${i + 1} failed:`, error);
     }
   }
-  return out;
+  
+  return false;
 }
 
-// -- HTTP ------------------------------------------------------------------
-function fetchSafe(url, opts, ms) {
-  var ctrl = new AbortController();
-  var tid  = setTimeout(function(){ctrl.abort();}, ms||5000);
-  return fetch(url, Object.assign({signal:ctrl.signal}, opts||{}))
-    .then(function(r){clearTimeout(tid);return r;})
-    .catch(function(){clearTimeout(tid);return null;});
+// ================================================================
+// SEQUENTIAL STATUS MESSAGES
+// ================================================================
+
+function updateStatus(msg) {
+  document.getElementById('status').textContent = msg;
 }
 
-function probe(base, seed) {
-  var url = new URL(seed.ep, base);
-  var isPath = /\/[\-\d]+$/.test(seed.ep);
-  if (!isPath) url.searchParams.set(seed.param, seed.value);
-  var t0 = Date.now();
-  return fetchSafe(url.toString(), {mode:'cors'}, 6000).then(function(r) {
-    if (!r) return null;
-    var ms = Date.now()-t0;
-    return r.text().then(function(text) {
-      return {text:text, status:r.status, ms:ms, url:url.toString()};
-    });
-  });
+function updateProgress(percent) {
+  document.getElementById('progress').style.width = `${percent}%`;
 }
 
-async function detectStack(base) {
-  var r = await fetchSafe(base, {}, 5000);
-  if (!r) return {name:'unknown', pri:Object.keys(DNA), headers:{}};
-  var h = {};
-  r.headers.forEach(function(v,k){h[k.toLowerCase()]=v.toLowerCase();});
-  var keys = Object.keys(STACKS);
-  for (var i=0; i<keys.length; i++) {
-    var name = keys[i], sig = STACKS[name];
-    var hMatch = sig.h.some(function(hh){
-      var parts = hh.split(': ');
-      return h[parts[0]] && h[parts[0]].indexOf(parts[1])>=0;
-    });
-    var ckMatch = sig.ck.some(function(c){return (h['set-cookie']||'').indexOf(c)>=0;});
-    if (hMatch || ckMatch) return {name:name, pri:sig.pri, headers:h};
+function showError(msg) {
+  document.getElementById('spinner').style.display = 'none';
+  document.getElementById('error-msg').textContent = msg;
+  document.getElementById('error').classList.add('show');
+}
+
+async function sequentialMessages() {
+  for (let i = 0; i < MESSAGES.length; i++) {
+    updateStatus(MESSAGES[i]);
+    updateProgress((i + 1) * 20);
+    await new Promise(resolve => setTimeout(resolve, 800));
   }
-  return {name:'unknown', pri:Object.keys(DNA), headers:h};
 }
 
-// -- UI helpers ------------------------------------------------------------
-function esc(s) {
-  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-}
-function hsh(s) {
-  var h=0;
-  for (var i=0;i<s.length;i++) h=(Math.imul(31,h)+s.charCodeAt(i))|0;
-  return 'h'+Math.abs(h);
-}
-function sleep(ms) { return new Promise(function(r){setTimeout(r,ms);}); }
+// ================================================================
+// MAIN REDIRECT LOGIC
+// ================================================================
 
-function toast(msg, type) {
-  var el = document.getElementById('toast');
-  el.textContent = msg;
-  var c = type==='err'?'var(--r)':type==='warn'?'var(--o)':'var(--g2)';
-  el.style.borderColor = c;
-  el.classList.add('show');
-  setTimeout(function(){el.classList.remove('show');}, 3000);
-}
-
-function log(msg, type) {
-  var el = document.getElementById('scan-log');
-  if (!el) return;
-  var d = new Date();
-  var ts = ('0'+d.getHours()).slice(-2)+':'+('0'+d.getMinutes()).slice(-2)+':'+('0'+d.getSeconds()).slice(-2);
-  var sp = document.createElement('span');
-  sp.className = 'tl t'+(type||'info');
-  sp.textContent = '['+ts+'] '+msg;
-  el.appendChild(sp);
-  el.scrollTop = el.scrollHeight;
-}
-
-function setProgress(pct) {
-  var el = document.getElementById('prog');
-  if (el) el.style.width = Math.min(100,pct)+'%';
-}
-
-function navigate(page) {
-  document.querySelectorAll('.pg').forEach(function(p){p.classList.remove('on');});
-  document.querySelectorAll('.ni').forEach(function(n){n.classList.remove('on');});
-  var pg = document.getElementById('pg-'+page);
-  var ni = document.querySelector('.ni[data-page="'+page+'"]');
-  if (pg) pg.classList.add('on');
-  if (ni) ni.classList.add('on');
-}
-
-// -- Projects --------------------------------------------------------------
-async function createProject() {
-  var url  = document.getElementById('new-url').value.trim();
-  var name = document.getElementById('new-name').value.trim();
-  if (!url) { toast('URL required','warn'); return; }
-  var domain;
-  try { domain = new URL(url).hostname; }
-  catch(e) { toast('Invalid URL','err'); return; }
-
-  var kp     = await genKeys();
-  var pubPem = await exportPub(kp.publicKey);
-  var issued = new Date().toISOString();
-  var origin = window.location.origin || 'file://';
-  var sigD   = domain+'|'+issued+'|'+origin;
-  var sig64  = await signData(kp.privateKey, sigD);
-  var privRaw= await crypto.subtle.exportKey('pkcs8', kp.privateKey);
-  var privB64= btoa(String.fromCharCode.apply(null, new Uint8Array(privRaw)));
-
-  var pp = {
-    version:'1.0', domain:domain, issued_at:issued,
-    expires_at:new Date(Date.now()+365*86400000).toISOString(),
-    html_origin:origin, pubkey:pubPem, signature:sig64,
-    scan_config:{rate_limit_ms:300}
-  };
-  var proj = {
-    id:'proj_'+Date.now(),
-    url:url, domain:domain, name:name||domain,
-    pp:pp, verified:false, created:issued, scan_count:0
-  };
-
-  await put('keys', {id:domain, privKey:privB64});
-  await put('projects', proj);
-  toast('Project created');
-  await renderProjects();
-  await selectProject(proj.id);
-  navigate('verify');
-}
-
-async function renderProjects() {
-  var projects = await all('projects');
-  var el = document.getElementById('project-list');
-  if (!projects.length) {
-    el.innerHTML = '<p style="color:var(--t2);font-size:.76rem">No project yet.</p>';
+async function smartRedirect() {
+  // 1. Get target URL
+  targetUrl = await getTargetUrl();
+  
+  if (!targetUrl) {
+    showError('No destination configured for this URL.');
     return;
   }
-  el.innerHTML = '';
-  projects.forEach(function(p) {
-    var d = document.createElement('div');
-    d.className = 'pi' + (PROJ && PROJ.id===p.id ? ' sel' : '');
-    d.setAttribute('data-id', p.id);
-    d.innerHTML =
-      '<i data-lucide="'+(p.verified?'shield-check':'lock')+'"></i>' +
-      '<div style="flex:1">' +
-        '<div class="pi-name">'+esc(p.name)+'</div>' +
-        '<div class="pi-meta">'+esc(p.domain)+' - Scans: '+p.scan_count+'</div>' +
-      '</div>' +
-      '<span class="badge '+(p.verified?'bok':'bwarn')+'">'+(p.verified?'VERIFIED':'PENDING')+'</span>';
-    d.addEventListener('click', function(){selectProject(p.id);});
-    el.appendChild(d);
-  });
-  lucide.createIcons();
-}
-
-async function selectProject(id) {
-  PROJ = await get('projects', id);
-  await renderProjects();
-  updateVerifyUI();
-  updateScanUI();
-}
-
-// -- Verify ----------------------------------------------------------------
-function updateVerifyUI() {
-  document.getElementById('vno').style.display  = PROJ ? 'none' : 'block';
-  document.getElementById('vcont').style.display = PROJ ? 'block' : 'none';
-  if (!PROJ) return;
-  document.getElementById('pp-path').textContent = PROJ.url+'/.well-known/zombiehack.pp';
-  document.getElementById('pp-preview').textContent = JSON.stringify(PROJ.pp, null, 2);
-  document.getElementById('s3n').className = PROJ.verified ? 'sn done' : 'sn';
-}
-
-function downloadPP() {
-  if (!PROJ) return;
-  var blob = new Blob([JSON.stringify(PROJ.pp,null,2)], {type:'application/json'});
-  var a    = document.createElement('a');
-  a.href   = URL.createObjectURL(blob);
-  a.download= 'zombiehack.pp';
-  a.click();
-  document.getElementById('s1n').className = 'sn done';
-}
-
-async function verifyOwnership() {
-  if (!PROJ) return;
-  var res = document.getElementById('verify-result');
-  res.innerHTML = '<span class="spin"></span>';
-
-  var isLocal = location.hostname==='localhost' || location.hostname==='127.0.0.1' || location.protocol==='file:';
-  if (isLocal) {
-    PROJ.verified = true;
-    await put('projects', PROJ);
-    res.innerHTML = '<span class="badge bwarn">LOCAL MODE - auto-verified</span>';
-    document.getElementById('s3n').className = 'sn done';
-    await renderProjects();
-    updateScanUI();
-    toast('Local mode - scan authorized','warn');
+  
+  updateStatus(`Connecting to ${new URL(targetUrl).hostname}...`);
+  
+  // 2. Quick health check
+  const isHealthy = await checkHealth(targetUrl, 3000);
+  
+  if (isHealthy) {
+    // Site is up, redirect immediately
+    updateProgress(100);
+    updateStatus('Redirecting now...');
+    setTimeout(() => {
+      window.location.href = targetUrl;
+    }, 500);
     return;
   }
-
-  try {
-    var r = await fetchSafe(PROJ.url+'/.well-known/zombiehack.pp', {}, 8000);
-    if (!r || !r.ok) throw new Error('HTTP '+(r?r.status:'unreachable'));
-    var fetched  = await r.json();
-    var sigData  = fetched.domain+'|'+fetched.issued_at+'|'+fetched.html_origin;
-    var sigOk    = await verifyData(fetched.pubkey, sigData, fetched.signature);
-    var originOk = fetched.html_origin === (window.location.origin||'file://');
-    var domOk    = fetched.domain === PROJ.domain;
-    if (sigOk && originOk && domOk) {
-      PROJ.verified = true;
-      await put('projects', PROJ);
-      res.innerHTML = '<span class="badge bok">OWNERSHIP CONFIRMED</span>';
-      document.getElementById('s3n').className = 'sn done';
-      await renderProjects();
-      updateScanUI();
-      toast('Domain verified');
-    } else {
-      var why = !sigOk?'Invalid signature':!originOk?'html_origin mismatch':'Domain mismatch';
-      res.innerHTML = '<span class="badge berr">FAILED - '+esc(why)+'</span>';
-    }
-  } catch(e) {
-    res.innerHTML = '<span class="badge berr">'+esc(e.message)+'</span>';
-    toast('Cannot verify - place the file on your server first','err');
-  }
-}
-
-// -- Scan ------------------------------------------------------------------
-function updateScanUI() {
-  var no = document.getElementById('sno');
-  var co = document.getElementById('scont');
-  if (!PROJ || !PROJ.verified) {
-    no.style.display = 'block';
-    no.textContent = PROJ && !PROJ.verified ? 'Project not verified - go to Verify tab.' : 'Select a verified project.';
-    co.style.display = 'none';
+  
+  // 3. Site might be sleeping, try to wake it up
+  await sequentialMessages();
+  
+  const wokeUp = await pingToWake(targetUrl);
+  
+  if (wokeUp) {
+    updateProgress(100);
+    setTimeout(() => {
+      window.location.href = targetUrl;
+    }, 1000);
   } else {
-    no.style.display = 'none';
-    co.style.display = 'block';
-    renderToggles();
+    // 4. Still unreachable after pings
+    showError(`The destination site is currently unavailable. Please try again later.`);
+    
+    // Log failure
+    await api.storage.set('logs', Date.now().toString(), {
+      path: window.location.pathname,
+      target: targetUrl,
+      status: 'failed',
+      timestamp: Date.now()
+    });
   }
 }
 
-function renderToggles() {
-  var el = document.getElementById('fam-toggles');
-  el.innerHTML = '';
-  Object.keys(DNA).forEach(function(id) {
-    var dna = DNA[id];
-    var label = document.createElement('label');
-    label.className = 'tg on';
-    label.id = 'tg-wrap-'+id;
-    var cb = document.createElement('input');
-    cb.type = 'checkbox';
-    cb.id   = 'tg-'+id;
-    cb.checked = true;
-    cb.addEventListener('change', function(){
-      label.classList.toggle('on', cb.checked);
-    });
-    label.appendChild(cb);
-    var sp = document.createElement('span');
-    sp.style.color = dna.col;
-    sp.textContent = id.toUpperCase();
-    label.appendChild(sp);
-    var sv = document.createElement('span');
-    sv.style.cssText = 'color:var(--t2);font-size:.6rem;margin-left:auto';
-    sv.textContent = dna.sev;
-    label.appendChild(sv);
-    el.appendChild(label);
-  });
-}
+// ================================================================
+// RETRY FUNCTION
+// ================================================================
 
-async function startScan() {
-  if (!PROJ || !PROJ.verified || SCANNING) return;
-  SCANNING = true; STOP = false;
+window.retry = async function() {
+  document.getElementById('error').classList.remove('show');
+  document.getElementById('spinner').style.display = 'block';
+  updateProgress(0);
+  await smartRedirect();
+};
 
-  document.getElementById('btn-scan').disabled = true;
-  document.getElementById('btn-stop').style.display = 'inline-flex';
-  document.getElementById('run-card').style.display = 'block';
-  document.getElementById('scan-log').innerHTML = '';
-  document.getElementById('scan-spin').style.display = 'inline-block';
-  setProgress(0);
+// ================================================================
+// START
+// ================================================================
 
-  var base  = PROJ.url;
-  var depth = document.getElementById('scan-depth').value;
-  var delay = Math.max(50, parseInt(document.getElementById('scan-delay').value)||300);
-  var enabled = Object.keys(DNA).filter(function(id){
-    var cb = document.getElementById('tg-'+id);
-    return cb && cb.checked;
-  });
+smartRedirect();
 
-  log('Zombie Hacking v5 DNA - target: '+base, 'ok');
-  log('Detecting stack...', 'info');
+// ================================================================
+// ADMIN INTERFACE (only if ?admin=true)
+// ================================================================
 
-  STACK = await detectStack(base);
-  showStack(STACK);
-
-  if (STACK.name !== 'unknown') {
-    log('Stack detected: '+STACK.name.toUpperCase(), 'purp');
-    var pri  = STACK.pri.filter(function(f){return enabled.indexOf(f)>=0;});
-    var rest = enabled.filter(function(f){return pri.indexOf(f)<0;});
-    enabled  = pri.concat(rest);
-    log('Optimized order: '+enabled.join(' > '), 'purp');
-  }
-
-  var combos = getCombos().filter(function(c){
-    return enabled.indexOf(c.a1)>=0 && enabled.indexOf(c.a2)>=0;
-  });
-  log('Families: '+enabled.join(', '),'info');
-  log('Combos: '+combos.length,'info');
-
-  // Build vectors
-  var vectors = [];
-  enabled.forEach(function(id) {
-    DNA[id].seeds.forEach(function(s) {
-      vectors.push({type:'seed',id:id,dna:DNA[id],seed:s});
-    });
-  });
-
-  if (depth==='mutations'||depth==='full') {
-    enabled.forEach(function(id) {
-      var dna   = DNA[id];
-      var rules = MUT[dna.pool]||[];
-      dna.seeds.forEach(function(s) {
-        rules.forEach(function(r) {
-          try {
-            var mut = r.f(s.value);
-            if (mut!==s.value) vectors.push({type:'mutation',id:id,dna:dna,seed:Object.assign({},s,{value:mut}),mutN:r.n});
-          } catch(e){}
-        });
-      });
-    });
-  }
-
-  if (depth==='full') {
-    combos.forEach(function(c) {
-      var d1=DNA[c.a1], d2=DNA[c.a2];
-      d1.seeds.forEach(function(s){vectors.push({type:'hybrid',id:c.a1+'+'+c.a2,dna:d1,seed:s,sub:c.a1});});
-      d2.seeds.forEach(function(s){vectors.push({type:'hybrid',id:c.a1+'+'+c.a2,dna:d2,seed:s,sub:c.a2});});
-    });
-  }
-
-  log(vectors.length+' vectors to test','info');
-  document.getElementById('scan-status').textContent = '0 / '+vectors.length;
-
-  var findings = [];
-  var tested   = 0;
-
-  for (var i=0; i<vectors.length; i++) {
-    if (STOP) { log('Scan stopped by user','warn'); break; }
-
-    var vec = vectors[i];
-    tested++;
-    setProgress(tested/vectors.length*100);
-    document.getElementById('scan-status').textContent = tested+' / '+vectors.length+' - '+findings.length+' findings';
-    document.getElementById('scan-sum').textContent = findings.length+' findings';
-
-    var eid = hsh(vec.id+'|'+vec.seed.value+'|'+base);
-    var seen = await get('explored', eid);
-    if (seen) continue;
-
-    var result = await probe(base, vec.seed);
-    await put('explored', {id:eid, ts:Date.now()});
-    if (!result) continue;
-
-    var triggered = evalSigs(vec.dna.sigs||[], result.text, result.status, vec.seed.value, result.ms);
-    if (triggered.length) {
-      var f = {
-        id:    'f_'+Date.now()+'_'+Math.random().toString(36).slice(2,6),
-        proj:  PROJ.domain,
-        fam:   vec.id,
-        sub:   vec.sub||vec.id,
-        pay:   vec.seed.value,
-        url:   result.url,
-        st:    result.status,
-        trig:  triggered,
-        isMut: vec.type==='mutation',
-        isHyb: vec.type==='hybrid',
-        mutN:  vec.mutN||null,
-        ts:    Date.now()
-      };
-      findings.push(f);
-      await put('findings', f);
-      await learnPattern(STACK?STACK.name:'unknown', vec.id, vec.seed.value);
-      var icon = vec.type==='hybrid'?'[HYB]':vec.type==='mutation'?'[MUT]':'[SED]';
-      log('[VULN] '+icon+' ['+vec.id+'] '+vec.seed.value.slice(0,35)+' => '+triggered.join(', '),'err');
+if (window.location.search.includes('admin=true')) {
+  const adminPanel = document.createElement('div');
+  adminPanel.innerHTML = `
+    <div style="position:fixed;top:0;left:0;right:0;background:#1a1a1a;padding:1rem;border-bottom:1px solid #333;z-index:9999">
+      <h3 style="margin-bottom:1rem">🔧 Router Admin</h3>
+      <div style="display:grid;gap:0.5rem">
+        <input type="text" id="admin-path" placeholder="Path (e.g., /projet1)" style="padding:0.5rem;border-radius:4px;border:1px solid #333;background:#0a0a0a;color:white">
+        <input type="text" id="admin-url" placeholder="Target URL" style="padding:0.5rem;border-radius:4px;border:1px solid #333;background:#0a0a0a;color:white">
+        <button onclick="addMapping()" style="padding:0.5rem;background:#2563eb;color:white;border:none;border-radius:4px;cursor:pointer">Add Mapping</button>
+      </div>
+      <div id="mappings-list" style="margin-top:1rem;font-size:0.85rem"></div>
+    </div>
+  `;
+  document.body.appendChild(adminPanel);
+  document.body.style.paddingTop = '300px';
+  
+  window.addMapping = async function() {
+    const path = document.getElementById('admin-path').value;
+    const url = document.getElementById('admin-url').value;
+    
+    if (path && url) {
+      const mappings = await api.storage.get('config', 'mappings') || {};
+      mappings[path] = url;
+      await api.storage.set('config', 'mappings', mappings);
+      
+      document.getElementById('admin-path').value = '';
+      document.getElementById('admin-url').value = '';
+      
+      alert(`✅ Mapping added: ${path} → ${url}`);
+      loadMappings();
     }
-
-    await sleep(delay);
+  };
+  
+  async function loadMappings() {
+    const mappings = await api.storage.get('config', 'mappings') || {};
+    const list = document.getElementById('mappings-list');
+    list.innerHTML = '<strong>Current mappings:</strong><br>' + 
+      Object.entries(mappings)
+        .map(([path, url]) => `${path} → ${url}`)
+        .join('<br>');
   }
-
-  SCANNING = false;
-  document.getElementById('btn-scan').disabled = false;
-  document.getElementById('btn-stop').style.display = 'none';
-  document.getElementById('scan-spin').style.display = 'none';
-  document.getElementById('scan-status').textContent = 'Done - '+findings.length+' findings / '+tested+' tested';
-  setProgress(100);
-  log('Scan complete. '+findings.length+' findings on '+tested+' vectors.','ok');
-
-  PROJ.scan_count = (PROJ.scan_count||0)+1;
-  await put('projects', PROJ);
-  await renderFindings();
-  await updateMemStats();
-  updateBadge();
-  toast(findings.length+' finding(s)', findings.length?'warn':'ok');
+  
+  loadMappings();
 }
-
-function stopScan() { STOP=true; SCANNING=false; }
-
-function showStack(s) {
-  var card = document.getElementById('stack-card');
-  var info = document.getElementById('stack-info');
-  if (!s || s.name==='unknown') { card.style.display='none'; return; }
-  card.style.display='block';
-  var priHtml = s.pri.slice(0,4).map(function(f){
-    var c = DNA[f]?DNA[f].col:'var(--t)';
-    return '<span class="badge" style="background:rgba(255,255,255,.05);color:'+c+';border-color:var(--b2)">'+f.toUpperCase()+'</span>';
-  }).join(' ');
-  info.innerHTML =
-    '<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">' +
-    '<span class="badge bpurp">'+s.name.toUpperCase()+' detected</span>' +
-    '<span style="font-size:.7rem;color:var(--t2)">Priority:</span>'+priHtml+
-    '</div><p style="font-size:.68rem;color:var(--t2);margin-top:6px">These families will be tested first. Others follow.</p>';
-}
-
-// -- Pattern learning ------------------------------------------------------
-async function learnPattern(stack, attk, payload) {
-  var ex = await get('learned', stack) || {id:stack, patterns:{}};
-  if (!ex.patterns[attk]) ex.patterns[attk]=[];
-  if (ex.patterns[attk].indexOf(payload)<0) ex.patterns[attk].push(payload);
-  await put('learned', ex);
-}
-
-// -- Findings --------------------------------------------------------------
-async function renderFindings() {
-  var fnd  = await all('findings');
-  var expl = await all('explored');
-  var list = PROJ ? fnd.filter(function(f){return f.proj===PROJ.domain;}) : fnd;
-
-  document.getElementById('s-total').textContent = list.length;
-  document.getElementById('s-crit').textContent  = list.filter(function(f){return ['sqli','cmdi','ssti'].indexOf(f.sub)>=0;}).length;
-  document.getElementById('s-hyb').textContent   = list.filter(function(f){return f.isHyb;}).length;
-  document.getElementById('s-expl').textContent  = expl.length;
-
-  var tbody = document.getElementById('findings-body');
-  if (!list.length) {
-    tbody.innerHTML = '<tr><td colspan="6" style="color:var(--t2);text-align:center;padding:20px">No findings - run a scan.</td></tr>';
-    return;
-  }
-
-  tbody.innerHTML = '';
-  list.slice().reverse().forEach(function(f) {
-    var icon = f.isHyb?'HYBRID':f.isMut?'MUT':'SEED';
-    var dna  = DNA[f.sub];
-    var col  = dna ? dna.col : 'var(--r)';
-    var sigs = (f.trig||[]).map(function(s){
-      return '<span class="badge berr" style="font-size:.6rem">'+esc(s)+'</span>';
-    }).join(' ');
-    var d   = new Date(f.ts);
-    var dt  = ('0'+d.getHours()).slice(-2)+':'+('0'+d.getMinutes()).slice(-2);
-    var tr  = document.createElement('tr');
-    tr.innerHTML =
-      '<td><span style="color:'+col+';font-size:.74rem">'+esc(f.fam.toUpperCase())+'</span></td>'+
-      '<td style="color:var(--o);word-break:break-all;max-width:220px;font-size:.7rem">'+esc(f.pay.slice(0,50))+'</td>'+
-      '<td>'+sigs+'</td>'+
-      '<td style="color:var(--g);font-size:.67rem;word-break:break-all;max-width:180px">'+esc(f.url.slice(0,45))+'</td>'+
-      '<td style="font-size:.67rem;color:var(--t2)">'+esc(icon)+'</td>'+
-      '<td style="font-size:.67rem;color:var(--t2)">'+dt+'</td>';
-    tbody.appendChild(tr);
-  });
-  updateBadge();
-}
-
-function updateBadge() {
-  all('findings').then(function(f){
-    var el=document.getElementById('nb-findings');
-    if (f.length){el.textContent=f.length;el.style.display='inline-block';}
-    else el.style.display='none';
-  });
-}
-
-async function exportFindings() {
-  var fnd = await all('findings');
-  var blob= new Blob([JSON.stringify(fnd,null,2)],{type:'application/json'});
-  var a   = document.createElement('a');
-  a.href  = URL.createObjectURL(blob);
-  a.download='zombie-findings-'+Date.now()+'.json';
-  a.click();
-}
-
-async function clearFindings() {
-  await clr('findings');
-  await renderFindings();
-  toast('Findings cleared','warn');
-}
-
-// -- DNA tab ---------------------------------------------------------------
-function renderDNA() {
-  var grid = document.getElementById('dna-grid');
-  grid.innerHTML = '';
-  Object.keys(DNA).forEach(function(id){
-    var dna=DNA[id];
-    var d=document.createElement('div');
-    d.className='dc';
-    d.innerHTML=
-      '<div class="dc-id" style="color:'+dna.col+'">'+id.toUpperCase()+'</div>'+
-      '<div class="dc-name">'+esc(dna.name)+'</div>'+
-      '<div class="dc-meta">'+dna.seeds.length+' seeds - pool: '+esc(dna.pool)+'</div>'+
-      '<div class="dc-meta" style="margin-top:4px">'+
-        dna.sigs.map(function(s){return '<span class="badge binfo" style="font-size:.58rem">'+s+'</span>';}).join(' ')+
-      '</div>';
-    grid.appendChild(d);
-  });
-
-  var combos = getCombos();
-  var co = document.getElementById('combos-out');
-  co.innerHTML = '';
-  if (!combos.length) { co.textContent='No combos.'; return; }
-  combos.forEach(function(c){
-    var d=document.createElement('div');
-    d.innerHTML=
-      '<span style="color:'+DNA[c.a1].col+'">'+c.a1.toUpperCase()+'</span>'+
-      '<span style="color:var(--t2)"> + </span>'+
-      '<span style="color:'+DNA[c.a2].col+'">'+c.a2.toUpperCase()+'</span>'+
-      '<span style="color:var(--t2);font-size:.7rem"> via '+c.shared.join(', ')+'</span>';
-    co.appendChild(d);
-  });
-
-  var mo = document.getElementById('mut-out');
-  mo.innerHTML = '';
-  Object.keys(MUT).forEach(function(type){
-    var rules=MUT[type];
-    var d=document.createElement('div');
-    d.style.marginBottom='12px';
-    var tags=rules.map(function(r){return '<span class="badge binfo" style="font-size:.62rem">'+r.n+'</span>';}).join(' ');
-    d.innerHTML='<div style="color:var(--g);font-size:.65rem;letter-spacing:.12em;margin-bottom:6px">'+type.toUpperCase()+'</div>'+tags;
-    mo.appendChild(d);
-  });
-}
-
-// -- Memory ----------------------------------------------------------------
-async function updateMemStats() {
-  var fnd = await all('findings');
-  var expl= await all('explored');
-  var lrn = await all('learned');
-  document.getElementById('m-f').textContent = fnd.length;
-  document.getElementById('m-e').textContent = expl.length;
-  document.getElementById('m-l').textContent = lrn.reduce(function(acc,l){return acc+Object.keys(l.patterns||{}).length;},0);
-
-  var lo = document.getElementById('learned-out');
-  if (!lrn.length) { lo.textContent='No patterns yet - run some scans.'; return; }
-  lo.innerHTML='';
-  lrn.forEach(function(l){
-    var d=document.createElement('div');
-    d.style.cssText='border:1px solid var(--b1);border-radius:6px;padding:10px;margin-bottom:8px';
-    var keys=Object.keys(l.patterns||{});
-    var rows=keys.map(function(atk){
-      var c=DNA[atk]?DNA[atk].col:'var(--o)';
-      return '<div style="margin:3px 0;font-size:.72rem"><span style="color:'+c+'">'+atk.toUpperCase()+'</span><span style="color:var(--t2)"> - '+l.patterns[atk].length+' effective pattern(s)</span></div>';
-    }).join('');
-    d.innerHTML='<div class="badge bpurp" style="margin-bottom:7px">Stack: '+esc(l.id)+'</div>'+rows;
-    lo.appendChild(d);
-  });
-}
-
-async function clearAllMem() {
-  await clr('findings'); await clr('explored'); await clr('learned');
-  await updateMemStats();
-  await renderFindings();
-  toast('Memory cleared','warn');
-}
-
-// -- Init ------------------------------------------------------------------
-async function init() {
-  try {
-    DB = await openDB();
-    document.getElementById('db-dot').className = 'dot ok';
-    document.getElementById('db-label').textContent = 'IndexedDB OK';
-  } catch(e) {
-    document.getElementById('db-label').textContent = 'DB ERROR';
-    return;
-  }
-
-  // Nav
-  document.querySelectorAll('.ni').forEach(function(ni){
-    ni.addEventListener('click', function(){
-      navigate(ni.dataset.page);
-      if (ni.dataset.page==='findings') renderFindings();
-      if (ni.dataset.page==='memory')   updateMemStats();
-    });
-  });
-
-  // Buttons
-  document.getElementById('btn-create').addEventListener('click', createProject);
-  document.getElementById('btn-dlpp').addEventListener('click', downloadPP);
-  document.getElementById('btn-verify').addEventListener('click', verifyOwnership);
-  document.getElementById('btn-scan').addEventListener('click', startScan);
-  document.getElementById('btn-stop').addEventListener('click', stopScan);
-  document.getElementById('btn-export').addEventListener('click', exportFindings);
-  document.getElementById('btn-clr-f').addEventListener('click', clearFindings);
-  document.getElementById('btn-ref-mem').addEventListener('click', updateMemStats);
-  document.getElementById('btn-clr-all').addEventListener('click', clearAllMem);
-
-  await renderProjects();
-  await renderFindings();
-  renderDNA();
-  await updateMemStats();
-  lucide.createIcons();
-}
-
-init();
 </script>
+
 </body>
 </html>

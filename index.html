@@ -3,19 +3,18 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Redirecting...</title>
+<title>Custom Domain Redirect Generator</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
 
 :root {
   --bg: #0a0a0a;
   --surface: #1a1a1a;
+  --border: #333;
   --text: #ffffff;
-  --muted: #888888;
+  --muted: #888;
   --accent: #2563eb;
   --success: #10b981;
-  --warning: #f59e0b;
-  --error: #ef4444;
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -24,18 +23,423 @@ body {
   font-family: 'Inter', sans-serif;
   background: var(--bg);
   color: var(--text);
+  min-height: 100vh;
+  padding: 2rem;
+}
+
+.container { max-width: 700px; margin: 0 auto; }
+
+.header {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.logo {
+  width: 60px;
+  height: 60px;
+  margin: 0 auto 1.5rem;
+}
+
+h1 {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+}
+
+.subtitle {
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 2rem;
+  margin-bottom: 2rem;
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+input, select {
+  width: 100%;
+  padding: 0.875rem;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text);
+  font-size: 0.9375rem;
+}
+
+input:focus, select:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.hint {
+  font-size: 0.8125rem;
+  color: var(--muted);
+  margin-top: 0.375rem;
+}
+
+.domain-preview {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1rem;
+  margin-top: 1rem;
+  display: none;
+}
+
+.domain-preview.show { display: block; }
+
+.domain-preview-url {
+  font-family: 'Courier New', monospace;
+  color: var(--accent);
+  font-size: 1.125rem;
+  word-break: break-all;
+}
+
+.btn {
+  width: 100%;
+  padding: 1rem;
+  background: var(--accent);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.9375rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn:hover { background: #1d4ed8; }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.btn-success {
+  background: var(--success);
+  margin-top: 1rem;
+}
+
+.btn-success:hover { background: #059669; }
+
+.result {
+  display: none;
+}
+
+.result.show { display: block; }
+
+.result h3 {
+  color: var(--success);
+  font-size: 1.125rem;
+  margin-bottom: 1rem;
+}
+
+.steps {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-top: 1rem;
+}
+
+.step {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.step:last-child {
+  margin-bottom: 0;
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+.step-number {
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  background: var(--accent);
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.875rem;
+}
+
+.step-content h4 {
+  font-size: 0.9375rem;
+  margin-bottom: 0.25rem;
+}
+
+.step-content p {
+  font-size: 0.8125rem;
+  color: var(--muted);
+}
+
+.code-block {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1rem;
+  margin-top: 0.5rem;
+  font-family: 'Courier New', monospace;
+  font-size: 0.8125rem;
+  color: var(--success);
+}
+
+.warning {
+  background: rgba(245, 158, 11, 0.1);
+  border: 1px solid #f59e0b;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-top: 1rem;
+  font-size: 0.875rem;
+}
+
+.warning strong {
+  color: #f59e0b;
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div class="header">
+    <svg class="logo" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#2563eb"/>
+          <stop offset="100%" stop-color="#10b981"/>
+        </linearGradient>
+      </defs>
+      <circle cx="50" cy="50" r="45" fill="none" stroke="url(#grad)" stroke-width="4"/>
+      <path d="M30,50 L45,65 L70,35" stroke="url(#grad)" stroke-width="5" fill="none" stroke-linecap="round"/>
+    </svg>
+
+    <h1>🌐 Custom Domain Generator</h1>
+    <p class="subtitle">Create professional redirect pages for any domain you own</p>
+  </div>
+
+  <div class="card">
+    <form onsubmit="generateRedirect(event)">
+      <div class="form-group">
+        <label>🎯 Your ugly URL (destination)</label>
+        <input 
+          type="url" 
+          id="target-url" 
+          placeholder="https://my-project-abc123.onrender.com"
+          required
+          oninput="updatePreview()"
+        >
+        <div class="hint">The real URL where you want to redirect users</div>
+      </div>
+
+      <div class="form-group">
+        <label>✨ Your custom domain name</label>
+        <input 
+          type="text" 
+          id="custom-domain" 
+          placeholder="monapp.dev"
+          required
+          pattern="[a-z0-9.-]+"
+          oninput="updatePreview()"
+        >
+        <div class="hint">The professional domain you own (without https://)</div>
+      </div>
+
+      <div class="form-group">
+        <label>⚙️ Extension</label>
+        <select id="extension">
+          <option value=".dev">.dev</option>
+          <option value=".com">.com</option>
+          <option value=".app">.app</option>
+          <option value=".io">.io</option>
+          <option value=".co">.co</option>
+          <option value=".net">.net</option>
+          <option value=".org">.org</option>
+          <option value="">Custom (already in domain name)</option>
+        </select>
+        <div class="hint">Or leave "Custom" if you already wrote the full domain</div>
+      </div>
+
+      <div class="domain-preview" id="preview">
+        <div style="font-size:0.8125rem;color:var(--muted);margin-bottom:0.5rem">
+          Your custom URL will be:
+        </div>
+        <div class="domain-preview-url" id="preview-url">https://monapp.dev</div>
+      </div>
+
+      <button type="submit" class="btn">Generate Redirect Page</button>
+    </form>
+  </div>
+
+  <div class="card result" id="result">
+    <h3>✅ Your redirect page is ready!</h3>
+    
+    <button class="btn btn-success" onclick="downloadFile()">
+      📥 Download index.html
+    </button>
+
+    <div class="warning">
+      <strong>⚠️ Important:</strong> This file will only work once deployed to your custom domain with proper DNS configuration.
+    </div>
+
+    <div class="steps">
+      <div class="step">
+        <div class="step-number">1</div>
+        <div class="step-content">
+          <h4>Download the file</h4>
+          <p>Click the button above to download your personalized index.html</p>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-number">2</div>
+        <div class="step-content">
+          <h4>Deploy to CDN</h4>
+          <p>Upload this file to Netlify, Vercel, or Cloudflare Pages</p>
+          <div class="code-block">
+            # Example with Vercel<br>
+            vercel deploy<br>
+            vercel domains add <span id="step-domain">monapp.dev</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-number">3</div>
+        <div class="step-content">
+          <h4>Configure DNS</h4>
+          <p>Point your domain to the CDN</p>
+          <div class="code-block">
+            Type: CNAME<br>
+            Name: @<br>
+            Value: your-project.vercel.app
+          </div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-number">4</div>
+        <div class="step-content">
+          <h4>Test your URL</h4>
+          <p>Visit <span style="color:var(--accent)" id="final-url">https://monapp.dev</span> and you'll be redirected!</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+let currentDomain = '';
+let currentTarget = '';
+
+// ================================================================
+// UPDATE PREVIEW
+// ================================================================
+
+function updatePreview() {
+  const domain = document.getElementById('custom-domain').value.trim();
+  const extension = document.getElementById('extension').value;
+  const target = document.getElementById('target-url').value.trim();
+
+  if (domain) {
+    const fullDomain = domain + (extension && !domain.includes('.') ? extension : '');
+    document.getElementById('preview-url').textContent = `https://${fullDomain}`;
+    document.getElementById('preview').classList.add('show');
+    currentDomain = fullDomain;
+    currentTarget = target;
+  } else {
+    document.getElementById('preview').classList.remove('show');
+  }
+}
+
+// ================================================================
+// GENERATE REDIRECT
+// ================================================================
+
+function generateRedirect(event) {
+  event.preventDefault();
+
+  const domain = document.getElementById('custom-domain').value.trim();
+  const extension = document.getElementById('extension').value;
+  const target = document.getElementById('target-url').value.trim();
+
+  const fullDomain = domain + (extension && !domain.includes('.') ? extension : '');
+
+  currentDomain = fullDomain;
+  currentTarget = target;
+
+  // Update result display
+  document.getElementById('step-domain').textContent = fullDomain;
+  document.getElementById('final-url').textContent = `https://${fullDomain}`;
+  
+  // Show result
+  document.getElementById('result').classList.add('show');
+  document.getElementById('result').scrollIntoView({ behavior: 'smooth' });
+}
+
+// ================================================================
+// DOWNLOAD FILE
+// ================================================================
+
+function downloadFile() {
+  const htmlContent = generateHTML(currentDomain, currentTarget);
+  
+  const blob = new Blob([htmlContent], { type: 'text/html' });
+  const url = URL.createObjectURL(blob);
+  
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'index.html';
+  a.click();
+  
+  URL.revokeObjectURL(url);
+}
+
+// ================================================================
+// GENERATE HTML TEMPLATE
+// ================================================================
+
+function generateHTML(domain, targetUrl) {
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="refresh" content="3;url=${targetUrl}">
+<title>Redirecting to ${domain}</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap');
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'Inter', sans-serif;
+  background: #0a0a0a;
+  color: white;
   display: flex;
   align-items: center;
   justify-content: center;
   min-height: 100vh;
-  overflow: hidden;
-}
-
-.container {
   text-align: center;
-  max-width: 500px;
   padding: 2rem;
 }
+
+.container { max-width: 500px; }
 
 .logo {
   width: 80px;
@@ -50,41 +454,17 @@ h1 {
 }
 
 .status {
+  color: #888;
   font-size: 0.9rem;
-  color: var(--muted);
   margin-bottom: 2rem;
-  min-height: 1.5rem;
-}
-
-.progress-bar {
-  width: 100%;
-  height: 4px;
-  background: var(--surface);
-  border-radius: 2px;
-  overflow: hidden;
-  margin-bottom: 1rem;
-}
-
-.progress-fill {
-  height: 100%;
-  background: linear-gradient(90deg, var(--accent), var(--success));
-  width: 0%;
-  transition: width 0.3s ease;
-  animation: shimmer 2s infinite;
-}
-
-@keyframes shimmer {
-  0% { opacity: 0.6; }
-  50% { opacity: 1; }
-  100% { opacity: 0.6; }
 }
 
 .spinner {
-  width: 40px;
-  height: 40px;
+  width: 50px;
+  height: 50px;
   margin: 2rem auto;
-  border: 3px solid var(--surface);
-  border-top-color: var(--accent);
+  border: 4px solid #1a1a1a;
+  border-top-color: #2563eb;
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
 }
@@ -93,373 +473,87 @@ h1 {
   to { transform: rotate(360deg); }
 }
 
-.error-box {
-  background: var(--surface);
-  border: 1px solid var(--error);
-  border-radius: 12px;
-  padding: 1.5rem;
-  margin-top: 2rem;
-  display: none;
+.progress-bar {
+  width: 100%;
+  height: 6px;
+  background: #1a1a1a;
+  border-radius: 3px;
+  overflow: hidden;
+  margin-bottom: 1rem;
 }
 
-.error-box.show { display: block; }
-
-.error-box h2 {
-  font-size: 1.125rem;
-  color: var(--error);
-  margin-bottom: 0.5rem;
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #2563eb, #10b981);
+  width: 0%;
+  animation: progress 3s ease-out forwards;
 }
 
-.btn {
-  display: inline-block;
-  padding: 0.75rem 1.5rem;
-  background: var(--accent);
-  color: white;
-  border: none;
-  border-radius: 8px;
+@keyframes progress {
+  to { width: 100%; }
+}
+
+.domain {
+  color: #2563eb;
   font-weight: 600;
-  cursor: pointer;
+  font-size: 1.125rem;
   margin-top: 1rem;
-  text-decoration: none;
-  transition: background 0.2s;
 }
-
-.btn:hover { background: #1d4ed8; }
-
-.metadata {
-  margin-top: 2rem;
-  padding-top: 2rem;
-  border-top: 1px solid var(--surface);
-  font-size: 0.8rem;
-  color: var(--muted);
-}
-
-.metadata a {
-  color: var(--accent);
-  text-decoration: none;
-}
-
-.metadata a:hover { text-decoration: underline; }
 </style>
 </head>
 <body>
 
 <div class="container">
-  <!-- Logo animé SVG -->
   <svg class="logo" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
     <defs>
-      <linearGradient id="logoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
         <stop offset="0%" stop-color="#2563eb"/>
         <stop offset="100%" stop-color="#10b981"/>
       </linearGradient>
     </defs>
-    <circle cx="50" cy="50" r="45" fill="none" stroke="url(#logoGrad)" stroke-width="3">
+    <circle cx="50" cy="50" r="45" fill="none" stroke="url(#grad)" stroke-width="4">
       <animate attributeName="stroke-dasharray" values="0 283;283 0" dur="2s" repeatCount="indefinite"/>
     </circle>
-    <path d="M35,50 L50,65 L75,35" stroke="url(#logoGrad)" stroke-width="4" fill="none" stroke-linecap="round">
-      <animate attributeName="stroke-dasharray" values="0 100;100 0" dur="1.5s" fill="freeze"/>
-    </path>
+    <path d="M30,50 L45,65 L70,35" stroke="url(#grad)" stroke-width="5" fill="none" stroke-linecap="round"/>
   </svg>
 
-  <h1 id="title">Preparing your destination...</h1>
-  <div class="status" id="status">Checking availability...</div>
+  <h1>Preparing your destination...</h1>
+  <div class="status" id="status">Verifying connection...</div>
 
   <div class="progress-bar">
-    <div class="progress-fill" id="progress"></div>
+    <div class="progress-fill"></div>
   </div>
 
-  <div class="spinner" id="spinner"></div>
+  <div class="spinner"></div>
 
-  <div class="error-box" id="error">
-    <h2>⚠️ Destination Unavailable</h2>
-    <p id="error-msg">The target site is currently unreachable.</p>
-    <button class="btn" onclick="retry()">Retry</button>
-  </div>
-
-  <div class="metadata">
-    Powered by <a href="https://github.com/Tryboy869/api-in-browser">api-in-browser</a>
-  </div>
+  <div class="domain">${domain}</div>
 </div>
 
-<script type="module">
-import API from 'https://cdn.jsdelivr.net/npm/api-in-browser/src/index.js';
-
-// ================================================================
-// CONFIGURATION
-// ================================================================
-
+<script>
 const MESSAGES = [
-  'Checking availability...',
-  'Establishing connection...',
-  'Waking up server...',
-  'Almost there...',
-  'Finalizing redirect...'
+  'Verifying connection...',
+  'Establishing secure link...',
+  'Loading content...',
+  'Redirecting now...'
 ];
 
-const PING_ATTEMPTS = 3;
-const PING_DELAY = 2000; // 2 seconds between pings
+let step = 0;
 
-// ================================================================
-// STATE
-// ================================================================
-
-let currentStep = 0;
-let targetUrl = null;
-
-// ================================================================
-// INITIALIZE API
-// ================================================================
-
-const api = new API({ storage: 'indexeddb', debug: true });
-await api.listen();
-
-// ================================================================
-// URL MAPPINGS (stored in IndexedDB)
-// ================================================================
-
-// Exemple de mappings (normalement configurés via interface admin)
-const DEFAULT_MAPPINGS = {
-  '/projet1': 'https://example-project.onrender.com',
-  '/portfolio': 'https://myportfolio.vercel.app',
-  '/blog': 'https://myblog.netlify.app',
-  '/demo': 'https://demo.railway.app'
-};
-
-// Initialize mappings if not exist
-async function initMappings() {
-  const existing = await api.storage.get('config', 'mappings');
-  if (!existing) {
-    await api.storage.set('config', 'mappings', DEFAULT_MAPPINGS);
+setInterval(() => {
+  if (step < MESSAGES.length) {
+    document.getElementById('status').textContent = MESSAGES[step];
+    step++;
   }
-}
+}, 750);
 
-await initMappings();
+// Fallback redirect if meta refresh fails
+setTimeout(() => {
+  window.location.href = '${targetUrl}';
+}, 3000);
+</script>
 
-// ================================================================
-// GET TARGET URL FROM PATH
-// ================================================================
-
-async function getTargetUrl() {
-  const path = window.location.pathname;
-  const mappings = await api.storage.get('config', 'mappings');
-  
-  if (mappings && mappings[path]) {
-    return mappings[path];
-  }
-  
-  // Fallback: try to decode from hash
-  const hash = window.location.hash.slice(1);
-  if (hash) {
-    try {
-      return decodeURIComponent(hash);
-    } catch (e) {
-      console.error('Invalid hash:', e);
-    }
-  }
-  
-  return null;
-}
-
-// ================================================================
-// HEALTH CHECK
-// ================================================================
-
-async function checkHealth(url, timeout = 5000) {
-  try {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), timeout);
-    
-    const response = await fetch(url, {
-      method: 'HEAD',
-      mode: 'no-cors', // Important for CORS
-      signal: controller.signal
-    });
-    
-    clearTimeout(timeoutId);
-    return true; // If fetch completes, site is reachable
-  } catch (error) {
-    console.log('Health check failed:', error.message);
-    return false;
-  }
-}
-
-// ================================================================
-// PING TO WAKE UP
-// ================================================================
-
-async function pingToWake(url) {
-  updateStatus('Server is sleeping. Waking it up...');
-  
-  for (let i = 0; i < PING_ATTEMPTS; i++) {
-    updateProgress((i + 1) * 25);
-    
-    try {
-      await fetch(url, { 
-        method: 'GET',
-        mode: 'no-cors'
-      });
-      
-      updateStatus(`Ping ${i + 1}/${PING_ATTEMPTS} sent...`);
-      
-      // Wait before next ping
-      await new Promise(resolve => setTimeout(resolve, PING_DELAY));
-      
-      // Check if now available
-      const isAlive = await checkHealth(url);
-      if (isAlive) {
-        updateStatus('Server is awake! Redirecting...');
-        return true;
-      }
-    } catch (error) {
-      console.log(`Ping ${i + 1} failed:`, error);
-    }
-  }
-  
-  return false;
-}
-
-// ================================================================
-// SEQUENTIAL STATUS MESSAGES
-// ================================================================
-
-function updateStatus(msg) {
-  document.getElementById('status').textContent = msg;
-}
-
-function updateProgress(percent) {
-  document.getElementById('progress').style.width = `${percent}%`;
-}
-
-function showError(msg) {
-  document.getElementById('spinner').style.display = 'none';
-  document.getElementById('error-msg').textContent = msg;
-  document.getElementById('error').classList.add('show');
-}
-
-async function sequentialMessages() {
-  for (let i = 0; i < MESSAGES.length; i++) {
-    updateStatus(MESSAGES[i]);
-    updateProgress((i + 1) * 20);
-    await new Promise(resolve => setTimeout(resolve, 800));
-  }
-}
-
-// ================================================================
-// MAIN REDIRECT LOGIC
-// ================================================================
-
-async function smartRedirect() {
-  // 1. Get target URL
-  targetUrl = await getTargetUrl();
-  
-  if (!targetUrl) {
-    showError('No destination configured for this URL.');
-    return;
-  }
-  
-  updateStatus(`Connecting to ${new URL(targetUrl).hostname}...`);
-  
-  // 2. Quick health check
-  const isHealthy = await checkHealth(targetUrl, 3000);
-  
-  if (isHealthy) {
-    // Site is up, redirect immediately
-    updateProgress(100);
-    updateStatus('Redirecting now...');
-    setTimeout(() => {
-      window.location.href = targetUrl;
-    }, 500);
-    return;
-  }
-  
-  // 3. Site might be sleeping, try to wake it up
-  await sequentialMessages();
-  
-  const wokeUp = await pingToWake(targetUrl);
-  
-  if (wokeUp) {
-    updateProgress(100);
-    setTimeout(() => {
-      window.location.href = targetUrl;
-    }, 1000);
-  } else {
-    // 4. Still unreachable after pings
-    showError(`The destination site is currently unavailable. Please try again later.`);
-    
-    // Log failure
-    await api.storage.set('logs', Date.now().toString(), {
-      path: window.location.pathname,
-      target: targetUrl,
-      status: 'failed',
-      timestamp: Date.now()
-    });
-  }
-}
-
-// ================================================================
-// RETRY FUNCTION
-// ================================================================
-
-window.retry = async function() {
-  document.getElementById('error').classList.remove('show');
-  document.getElementById('spinner').style.display = 'block';
-  updateProgress(0);
-  await smartRedirect();
-};
-
-// ================================================================
-// START
-// ================================================================
-
-smartRedirect();
-
-// ================================================================
-// ADMIN INTERFACE (only if ?admin=true)
-// ================================================================
-
-if (window.location.search.includes('admin=true')) {
-  const adminPanel = document.createElement('div');
-  adminPanel.innerHTML = `
-    <div style="position:fixed;top:0;left:0;right:0;background:#1a1a1a;padding:1rem;border-bottom:1px solid #333;z-index:9999">
-      <h3 style="margin-bottom:1rem">🔧 Router Admin</h3>
-      <div style="display:grid;gap:0.5rem">
-        <input type="text" id="admin-path" placeholder="Path (e.g., /projet1)" style="padding:0.5rem;border-radius:4px;border:1px solid #333;background:#0a0a0a;color:white">
-        <input type="text" id="admin-url" placeholder="Target URL" style="padding:0.5rem;border-radius:4px;border:1px solid #333;background:#0a0a0a;color:white">
-        <button onclick="addMapping()" style="padding:0.5rem;background:#2563eb;color:white;border:none;border-radius:4px;cursor:pointer">Add Mapping</button>
-      </div>
-      <div id="mappings-list" style="margin-top:1rem;font-size:0.85rem"></div>
-    </div>
-  `;
-  document.body.appendChild(adminPanel);
-  document.body.style.paddingTop = '300px';
-  
-  window.addMapping = async function() {
-    const path = document.getElementById('admin-path').value;
-    const url = document.getElementById('admin-url').value;
-    
-    if (path && url) {
-      const mappings = await api.storage.get('config', 'mappings') || {};
-      mappings[path] = url;
-      await api.storage.set('config', 'mappings', mappings);
-      
-      document.getElementById('admin-path').value = '';
-      document.getElementById('admin-url').value = '';
-      
-      alert(`✅ Mapping added: ${path} → ${url}`);
-      loadMappings();
-    }
-  };
-  
-  async function loadMappings() {
-    const mappings = await api.storage.get('config', 'mappings') || {};
-    const list = document.getElementById('mappings-list');
-    list.innerHTML = '<strong>Current mappings:</strong><br>' + 
-      Object.entries(mappings)
-        .map(([path, url]) => `${path} → ${url}`)
-        .join('<br>');
-  }
-  
-  loadMappings();
+</body>
+</html>`;
 }
 </script>
 

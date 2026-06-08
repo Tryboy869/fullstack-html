@@ -1,561 +1,628 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Custom Domain Redirect Generator</title>
-<style>
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Auth Demo · GitHub DB</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-:root {
-  --bg: #0a0a0a;
-  --surface: #1a1a1a;
-  --border: #333;
-  --text: #ffffff;
-  --muted: #888;
-  --accent: #2563eb;
-  --success: #10b981;
-}
+    :root {
+      --bg: #0a0a0f;
+      --surface: #12121a;
+      --surface2: #1a1a26;
+      --border: #2a2a3e;
+      --accent: #6c63ff;
+      --accent2: #ff6584;
+      --text: #e8e8f0;
+      --muted: #6b6b8a;
+      --success: #4ade80;
+      --error: #f87171;
+      --font-display: 'Syne', sans-serif;
+      --font-mono: 'DM Mono', monospace;
+    }
 
-* { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body {
+      height: 100%;
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-display);
+      overflow-x: hidden;
+    }
 
-body {
-  font-family: 'Inter', sans-serif;
-  background: var(--bg);
-  color: var(--text);
-  min-height: 100vh;
-  padding: 2rem;
-}
+    /* BACKGROUND GRID */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(var(--border) 1px, transparent 1px),
+        linear-gradient(90deg, var(--border) 1px, transparent 1px);
+      background-size: 48px 48px;
+      opacity: 0.3;
+      pointer-events: none;
+      z-index: 0;
+    }
 
-.container { max-width: 700px; margin: 0 auto; }
+    /* GLOW ORBS */
+    body::after {
+      content: '';
+      position: fixed;
+      top: -20%;
+      left: -10%;
+      width: 60vw;
+      height: 60vw;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(108,99,255,0.12) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
 
-.header {
-  text-align: center;
-  margin-bottom: 3rem;
-}
+    .orb2 {
+      position: fixed;
+      bottom: -20%;
+      right: -10%;
+      width: 50vw;
+      height: 50vw;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(255,101,132,0.08) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
 
-.logo {
-  width: 60px;
-  height: 60px;
-  margin: 0 auto 1.5rem;
-}
+    /* LAYOUT */
+    .page {
+      position: relative;
+      z-index: 1;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
 
-h1 {
-  font-size: 2rem;
-  margin-bottom: 0.5rem;
-}
+    /* CARD */
+    .card {
+      width: 100%;
+      max-width: 420px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 40px;
+      position: relative;
+      animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
 
-.subtitle {
-  color: var(--muted);
-  font-size: 0.95rem;
-}
+    .card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 20px;
+      padding: 1px;
+      background: linear-gradient(135deg, rgba(108,99,255,0.4), transparent 50%, rgba(255,101,132,0.2));
+      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+      pointer-events: none;
+    }
 
-.card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  padding: 2rem;
-  margin-bottom: 2rem;
-}
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
 
-.form-group {
-  margin-bottom: 1.5rem;
-}
+    /* LOGO / HEADER */
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 32px;
+    }
+    .logo-icon {
+      width: 36px;
+      height: 36px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      flex-shrink: 0;
+    }
+    .logo-text {
+      font-size: 13px;
+      font-family: var(--font-mono);
+      color: var(--muted);
+      letter-spacing: 0.05em;
+    }
+    .logo-text strong {
+      display: block;
+      font-size: 15px;
+      color: var(--text);
+      font-weight: 500;
+      letter-spacing: 0;
+    }
 
-label {
-  display: block;
-  font-size: 0.875rem;
-  font-weight: 600;
-  margin-bottom: 0.5rem;
-}
+    /* TABS */
+    .tabs {
+      display: flex;
+      background: var(--surface2);
+      border-radius: 10px;
+      padding: 4px;
+      margin-bottom: 32px;
+      gap: 4px;
+    }
+    .tab {
+      flex: 1;
+      padding: 9px;
+      border: none;
+      border-radius: 7px;
+      font-family: var(--font-display);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      background: transparent;
+      color: var(--muted);
+      letter-spacing: 0.02em;
+    }
+    .tab.active {
+      background: var(--accent);
+      color: #fff;
+      box-shadow: 0 4px 16px rgba(108,99,255,0.35);
+    }
 
-input, select {
-  width: 100%;
-  padding: 0.875rem;
-  background: var(--bg);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  color: var(--text);
-  font-size: 0.9375rem;
-}
+    /* FORM */
+    .form-group {
+      margin-bottom: 18px;
+    }
+    label {
+      display: block;
+      font-size: 11px;
+      font-family: var(--font-mono);
+      color: var(--muted);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+    input {
+      width: 100%;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 16px;
+      font-family: var(--font-mono);
+      font-size: 14px;
+      color: var(--text);
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(108,99,255,0.15);
+    }
+    input::placeholder { color: var(--muted); opacity: 0.5; }
 
-input:focus, select:focus {
-  outline: none;
-  border-color: var(--accent);
-}
+    /* BUTTON */
+    .btn {
+      width: 100%;
+      padding: 13px;
+      border: none;
+      border-radius: 10px;
+      font-family: var(--font-display);
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 0.03em;
+      cursor: pointer;
+      transition: all 0.2s;
+      position: relative;
+      overflow: hidden;
+      margin-top: 8px;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent), #8b5cf6);
+      color: #fff;
+      box-shadow: 0 4px 20px rgba(108,99,255,0.3);
+    }
+    .btn-primary:hover:not(:disabled) {
+      transform: translateY(-1px);
+      box-shadow: 0 8px 28px rgba(108,99,255,0.45);
+    }
+    .btn-primary:active:not(:disabled) { transform: translateY(0); }
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    .btn-secondary {
+      background: var(--surface2);
+      color: var(--muted);
+      border: 1px solid var(--border);
+      margin-top: 10px;
+    }
+    .btn-secondary:hover { background: var(--border); color: var(--text); }
 
-.hint {
-  font-size: 0.8125rem;
-  color: var(--muted);
-  margin-top: 0.375rem;
-}
+    /* SPINNER */
+    .spinner {
+      display: inline-block;
+      width: 14px;
+      height: 14px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      vertical-align: middle;
+      margin-right: 8px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
 
-.domain-preview {
-  background: var(--bg);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 1rem;
-  margin-top: 1rem;
-  display: none;
-}
+    /* ALERT */
+    .alert {
+      padding: 12px 16px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-family: var(--font-mono);
+      margin-bottom: 20px;
+      display: none;
+      animation: fadeIn 0.3s ease;
+    }
+    .alert.show { display: flex; align-items: center; gap: 10px; }
+    .alert-error { background: rgba(248,113,113,0.1); border: 1px solid rgba(248,113,113,0.3); color: var(--error); }
+    .alert-success { background: rgba(74,222,128,0.1); border: 1px solid rgba(74,222,128,0.3); color: var(--success); }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
 
-.domain-preview.show { display: block; }
+    /* DASHBOARD */
+    #dashboard { display: none; }
+    #dashboard.visible { display: block; }
+    #auth-panel { display: block; }
+    #auth-panel.hidden { display: none; }
 
-.domain-preview-url {
-  font-family: 'Courier New', monospace;
-  color: var(--accent);
-  font-size: 1.125rem;
-  word-break: break-all;
-}
+    .dash-header {
+      margin-bottom: 28px;
+    }
+    .dash-greeting {
+      font-size: 26px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      line-height: 1.2;
+      margin-bottom: 4px;
+    }
+    .dash-greeting span {
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .dash-sub {
+      font-size: 13px;
+      font-family: var(--font-mono);
+      color: var(--muted);
+    }
 
-.btn {
-  width: 100%;
-  padding: 1rem;
-  background: var(--accent);
-  color: white;
-  border: none;
-  border-radius: 8px;
-  font-weight: 600;
-  font-size: 0.9375rem;
-  cursor: pointer;
-  transition: background 0.2s;
-}
+    .info-grid {
+      display: grid;
+      gap: 10px;
+      margin-bottom: 24px;
+    }
+    .info-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 16px;
+    }
+    .info-row .key {
+      font-size: 11px;
+      font-family: var(--font-mono);
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+    .info-row .val {
+      font-size: 13px;
+      font-family: var(--font-mono);
+      color: var(--text);
+      font-weight: 500;
+    }
 
-.btn:hover { background: #1d4ed8; }
-.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .status-dot {
+      display: inline-block;
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--success);
+      margin-right: 6px;
+      box-shadow: 0 0 6px var(--success);
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
 
-.btn-success {
-  background: var(--success);
-  margin-top: 1rem;
-}
+    .token-preview {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 16px;
+      margin-bottom: 24px;
+    }
+    .token-preview .key {
+      font-size: 10px;
+      font-family: var(--font-mono);
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 6px;
+    }
+    .token-preview .val {
+      font-size: 11px;
+      font-family: var(--font-mono);
+      color: var(--accent);
+      word-break: break-all;
+      opacity: 0.8;
+    }
 
-.btn-success:hover { background: #059669; }
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 24px 0;
+    }
 
-.result {
-  display: none;
-}
-
-.result.show { display: block; }
-
-.result h3 {
-  color: var(--success);
-  font-size: 1.125rem;
-  margin-bottom: 1rem;
-}
-
-.steps {
-  background: var(--bg);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 1.5rem;
-  margin-top: 1rem;
-}
-
-.step {
-  display: flex;
-  gap: 1rem;
-  margin-bottom: 1rem;
-  padding-bottom: 1rem;
-  border-bottom: 1px solid var(--border);
-}
-
-.step:last-child {
-  margin-bottom: 0;
-  padding-bottom: 0;
-  border-bottom: none;
-}
-
-.step-number {
-  flex-shrink: 0;
-  width: 32px;
-  height: 32px;
-  background: var(--accent);
-  color: white;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 700;
-  font-size: 0.875rem;
-}
-
-.step-content h4 {
-  font-size: 0.9375rem;
-  margin-bottom: 0.25rem;
-}
-
-.step-content p {
-  font-size: 0.8125rem;
-  color: var(--muted);
-}
-
-.code-block {
-  background: var(--bg);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 1rem;
-  margin-top: 0.5rem;
-  font-family: 'Courier New', monospace;
-  font-size: 0.8125rem;
-  color: var(--success);
-}
-
-.warning {
-  background: rgba(245, 158, 11, 0.1);
-  border: 1px solid #f59e0b;
-  border-radius: 8px;
-  padding: 1rem;
-  margin-top: 1rem;
-  font-size: 0.875rem;
-}
-
-.warning strong {
-  color: #f59e0b;
-}
-</style>
+    /* LOADING STATE */
+    #loading-screen {
+      position: fixed;
+      inset: 0;
+      background: var(--bg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      transition: opacity 0.4s, visibility 0.4s;
+    }
+    #loading-screen.hidden {
+      opacity: 0;
+      visibility: hidden;
+    }
+    .loading-inner {
+      text-align: center;
+    }
+    .loading-icon {
+      font-size: 32px;
+      margin-bottom: 16px;
+      animation: bounce 1s ease infinite;
+    }
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-8px); }
+    }
+    .loading-text {
+      font-size: 12px;
+      font-family: var(--font-mono);
+      color: var(--muted);
+      letter-spacing: 0.1em;
+    }
+  </style>
 </head>
 <body>
 
-<div class="container">
-  <div class="header">
-    <svg class="logo" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-      <defs>
-        <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stop-color="#2563eb"/>
-          <stop offset="100%" stop-color="#10b981"/>
-        </linearGradient>
-      </defs>
-      <circle cx="50" cy="50" r="45" fill="none" stroke="url(#grad)" stroke-width="4"/>
-      <path d="M30,50 L45,65 L70,35" stroke="url(#grad)" stroke-width="5" fill="none" stroke-linecap="round"/>
-    </svg>
-
-    <h1>🌐 Custom Domain Generator</h1>
-    <p class="subtitle">Create professional redirect pages for any domain you own</p>
+<!-- LOADING SCREEN -->
+<div id="loading-screen">
+  <div class="loading-inner">
+    <div class="loading-icon">⟳</div>
+    <div class="loading-text">CHECKING SESSION...</div>
   </div>
+</div>
 
+<div class="orb2"></div>
+
+<div class="page">
   <div class="card">
-    <form onsubmit="generateRedirect(event)">
-      <div class="form-group">
-        <label>🎯 Your ugly URL (destination)</label>
-        <input 
-          type="url" 
-          id="target-url" 
-          placeholder="https://my-project-abc123.onrender.com"
-          required
-          oninput="updatePreview()"
-        >
-        <div class="hint">The real URL where you want to redirect users</div>
-      </div>
 
-      <div class="form-group">
-        <label>✨ Your custom domain name</label>
-        <input 
-          type="text" 
-          id="custom-domain" 
-          placeholder="monapp.dev"
-          required
-          pattern="[a-z0-9.-]+"
-          oninput="updatePreview()"
-        >
-        <div class="hint">The professional domain you own (without https://)</div>
-      </div>
-
-      <div class="form-group">
-        <label>⚙️ Extension</label>
-        <select id="extension">
-          <option value=".dev">.dev</option>
-          <option value=".com">.com</option>
-          <option value=".app">.app</option>
-          <option value=".io">.io</option>
-          <option value=".co">.co</option>
-          <option value=".net">.net</option>
-          <option value=".org">.org</option>
-          <option value="">Custom (already in domain name)</option>
-        </select>
-        <div class="hint">Or leave "Custom" if you already wrote the full domain</div>
-      </div>
-
-      <div class="domain-preview" id="preview">
-        <div style="font-size:0.8125rem;color:var(--muted);margin-bottom:0.5rem">
-          Your custom URL will be:
+    <!-- ===== AUTH PANEL ===== -->
+    <div id="auth-panel">
+      <div class="logo">
+        <div class="logo-icon">◈</div>
+        <div class="logo-text">
+          <strong>AuthDemo</strong>
+          github-as-db · v1
         </div>
-        <div class="domain-preview-url" id="preview-url">https://monapp.dev</div>
       </div>
 
-      <button type="submit" class="btn">Generate Redirect Page</button>
-    </form>
-  </div>
+      <div class="tabs">
+        <button class="tab active" id="tab-login" onclick="switchTab('login')">Login</button>
+        <button class="tab" id="tab-register" onclick="switchTab('register')">Register</button>
+      </div>
 
-  <div class="card result" id="result">
-    <h3>✅ Your redirect page is ready!</h3>
-    
-    <button class="btn btn-success" onclick="downloadFile()">
-      📥 Download index.html
-    </button>
+      <div id="alert-box" class="alert"></div>
 
-    <div class="warning">
-      <strong>⚠️ Important:</strong> This file will only work once deployed to your custom domain with proper DNS configuration.
+      <form id="auth-form" onsubmit="handleSubmit(event)">
+        <div class="form-group">
+          <label>Username</label>
+          <input id="input-username" type="text" placeholder="your_username" autocomplete="username" required />
+        </div>
+        <div class="form-group">
+          <label>Password</label>
+          <input id="input-password" type="password" placeholder="••••••••" autocomplete="current-password" required />
+        </div>
+        <button type="submit" class="btn btn-primary" id="submit-btn">
+          Login
+        </button>
+      </form>
     </div>
 
-    <div class="steps">
-      <div class="step">
-        <div class="step-number">1</div>
-        <div class="step-content">
-          <h4>Download the file</h4>
-          <p>Click the button above to download your personalized index.html</p>
+    <!-- ===== DASHBOARD ===== -->
+    <div id="dashboard">
+      <div class="logo">
+        <div class="logo-icon">◈</div>
+        <div class="logo-text">
+          <strong>AuthDemo</strong>
+          github-as-db · v1
         </div>
       </div>
 
-      <div class="step">
-        <div class="step-number">2</div>
-        <div class="step-content">
-          <h4>Deploy to CDN</h4>
-          <p>Upload this file to Netlify, Vercel, or Cloudflare Pages</p>
-          <div class="code-block">
-            # Example with Vercel<br>
-            vercel deploy<br>
-            vercel domains add <span id="step-domain">monapp.dev</span>
-          </div>
+      <div class="dash-header">
+        <div class="dash-greeting">Welcome back, <br/><span id="dash-username">—</span></div>
+        <div class="dash-sub"><span class="status-dot"></span>Session active · GitHub DB</div>
+      </div>
+
+      <div class="info-grid">
+        <div class="info-row">
+          <span class="key">Username</span>
+          <span class="val" id="info-username">—</span>
+        </div>
+        <div class="info-row">
+          <span class="key">Account created</span>
+          <span class="val" id="info-created">—</span>
+        </div>
+        <div class="info-row">
+          <span class="key">Storage</span>
+          <span class="val">⬡ GitHub Repo</span>
         </div>
       </div>
 
-      <div class="step">
-        <div class="step-number">3</div>
-        <div class="step-content">
-          <h4>Configure DNS</h4>
-          <p>Point your domain to the CDN</p>
-          <div class="code-block">
-            Type: CNAME<br>
-            Name: @<br>
-            Value: your-project.vercel.app
-          </div>
-        </div>
+      <div class="token-preview">
+        <div class="key">JWT Token (localStorage)</div>
+        <div class="val" id="token-preview">—</div>
       </div>
 
-      <div class="step">
-        <div class="step-number">4</div>
-        <div class="step-content">
-          <h4>Test your URL</h4>
-          <p>Visit <span style="color:var(--accent)" id="final-url">https://monapp.dev</span> and you'll be redirected!</p>
-        </div>
-      </div>
+      <button class="btn btn-secondary" onclick="logout()">↩ Logout</button>
     </div>
+
   </div>
 </div>
 
 <script>
-let currentDomain = '';
-let currentTarget = '';
+  // ─── CONFIG ───────────────────────────────────────────────
+  // In Vercel, API is at /api/auth
+  // Change this if running locally with a different port
+  const API = '/api/auth';
 
-// ================================================================
-// UPDATE PREVIEW
-// ================================================================
+  // ─── STATE ────────────────────────────────────────────────
+  let currentTab = 'login';
 
-function updatePreview() {
-  const domain = document.getElementById('custom-domain').value.trim();
-  const extension = document.getElementById('extension').value;
-  const target = document.getElementById('target-url').value.trim();
+  // ─── INIT ─────────────────────────────────────────────────
+  window.addEventListener('DOMContentLoaded', async () => {
+    const token = localStorage.getItem('auth_token');
+    if (token) {
+      await verifySession(token);
+    } else {
+      hideLoading();
+    }
+  });
 
-  if (domain) {
-    const fullDomain = domain + (extension && !domain.includes('.') ? extension : '');
-    document.getElementById('preview-url').textContent = `https://${fullDomain}`;
-    document.getElementById('preview').classList.add('show');
-    currentDomain = fullDomain;
-    currentTarget = target;
-  } else {
-    document.getElementById('preview').classList.remove('show');
+  async function verifySession(token) {
+    try {
+      const res = await fetch(`${API}?action=verify`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (res.ok) {
+        const data = await res.json();
+        showDashboard(data.username, data.created_at, token);
+      } else {
+        localStorage.removeItem('auth_token');
+        hideLoading();
+      }
+    } catch {
+      hideLoading();
+    }
   }
-}
 
-// ================================================================
-// GENERATE REDIRECT
-// ================================================================
-
-function generateRedirect(event) {
-  event.preventDefault();
-
-  const domain = document.getElementById('custom-domain').value.trim();
-  const extension = document.getElementById('extension').value;
-  const target = document.getElementById('target-url').value.trim();
-
-  const fullDomain = domain + (extension && !domain.includes('.') ? extension : '');
-
-  currentDomain = fullDomain;
-  currentTarget = target;
-
-  // Update result display
-  document.getElementById('step-domain').textContent = fullDomain;
-  document.getElementById('final-url').textContent = `https://${fullDomain}`;
-  
-  // Show result
-  document.getElementById('result').classList.add('show');
-  document.getElementById('result').scrollIntoView({ behavior: 'smooth' });
-}
-
-// ================================================================
-// DOWNLOAD FILE
-// ================================================================
-
-function downloadFile() {
-  const htmlContent = generateHTML(currentDomain, currentTarget);
-  
-  const blob = new Blob([htmlContent], { type: 'text/html' });
-  const url = URL.createObjectURL(blob);
-  
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = 'index.html';
-  a.click();
-  
-  URL.revokeObjectURL(url);
-}
-
-// ================================================================
-// GENERATE HTML TEMPLATE
-// ================================================================
-
-function generateHTML(domain, targetUrl) {
-  return `<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta http-equiv="refresh" content="3;url=${targetUrl}">
-<title>Redirecting to ${domain}</title>
-<style>
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap');
-
-* { margin: 0; padding: 0; box-sizing: border-box; }
-
-body {
-  font-family: 'Inter', sans-serif;
-  background: #0a0a0a;
-  color: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 100vh;
-  text-align: center;
-  padding: 2rem;
-}
-
-.container { max-width: 500px; }
-
-.logo {
-  width: 80px;
-  height: 80px;
-  margin: 0 auto 2rem;
-}
-
-h1 {
-  font-size: 1.5rem;
-  font-weight: 600;
-  margin-bottom: 1rem;
-}
-
-.status {
-  color: #888;
-  font-size: 0.9rem;
-  margin-bottom: 2rem;
-}
-
-.spinner {
-  width: 50px;
-  height: 50px;
-  margin: 2rem auto;
-  border: 4px solid #1a1a1a;
-  border-top-color: #2563eb;
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
-}
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
-
-.progress-bar {
-  width: 100%;
-  height: 6px;
-  background: #1a1a1a;
-  border-radius: 3px;
-  overflow: hidden;
-  margin-bottom: 1rem;
-}
-
-.progress-fill {
-  height: 100%;
-  background: linear-gradient(90deg, #2563eb, #10b981);
-  width: 0%;
-  animation: progress 3s ease-out forwards;
-}
-
-@keyframes progress {
-  to { width: 100%; }
-}
-
-.domain {
-  color: #2563eb;
-  font-weight: 600;
-  font-size: 1.125rem;
-  margin-top: 1rem;
-}
-</style>
-</head>
-<body>
-
-<div class="container">
-  <svg class="logo" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-    <defs>
-      <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
-        <stop offset="0%" stop-color="#2563eb"/>
-        <stop offset="100%" stop-color="#10b981"/>
-      </linearGradient>
-    </defs>
-    <circle cx="50" cy="50" r="45" fill="none" stroke="url(#grad)" stroke-width="4">
-      <animate attributeName="stroke-dasharray" values="0 283;283 0" dur="2s" repeatCount="indefinite"/>
-    </circle>
-    <path d="M30,50 L45,65 L70,35" stroke="url(#grad)" stroke-width="5" fill="none" stroke-linecap="round"/>
-  </svg>
-
-  <h1>Preparing your destination...</h1>
-  <div class="status" id="status">Verifying connection...</div>
-
-  <div class="progress-bar">
-    <div class="progress-fill"></div>
-  </div>
-
-  <div class="spinner"></div>
-
-  <div class="domain">${domain}</div>
-</div>
-
-<script>
-const MESSAGES = [
-  'Verifying connection...',
-  'Establishing secure link...',
-  'Loading content...',
-  'Redirecting now...'
-];
-
-let step = 0;
-
-setInterval(() => {
-  if (step < MESSAGES.length) {
-    document.getElementById('status').textContent = MESSAGES[step];
-    step++;
+  function hideLoading() {
+    document.getElementById('loading-screen').classList.add('hidden');
   }
-}, 750);
 
-// Fallback redirect if meta refresh fails
-setTimeout(() => {
-  window.location.href = '${targetUrl}';
-}, 3000);
+  // ─── TABS ─────────────────────────────────────────────────
+  function switchTab(tab) {
+    currentTab = tab;
+    clearAlert();
+    document.getElementById('tab-login').classList.toggle('active', tab === 'login');
+    document.getElementById('tab-register').classList.toggle('active', tab === 'register');
+    document.getElementById('submit-btn').textContent = tab === 'login' ? 'Login' : 'Create account';
+    document.getElementById('input-password').autocomplete = tab === 'login' ? 'current-password' : 'new-password';
+  }
+
+  // ─── FORM SUBMIT ──────────────────────────────────────────
+  async function handleSubmit(e) {
+    e.preventDefault();
+    clearAlert();
+
+    const username = document.getElementById('input-username').value.trim();
+    const password = document.getElementById('input-password').value;
+    const btn = document.getElementById('submit-btn');
+
+    btn.disabled = true;
+    btn.innerHTML = `<span class="spinner"></span>${currentTab === 'login' ? 'Authenticating...' : 'Creating account...'}`;
+
+    try {
+      const res = await fetch(`${API}?action=${currentTab}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password })
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        showAlert(data.error || 'Something went wrong', 'error');
+      } else {
+        localStorage.setItem('auth_token', data.token);
+        showDashboard(data.username, data.created_at, data.token);
+      }
+    } catch (err) {
+      showAlert('Network error — check your connection', 'error');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = currentTab === 'login' ? 'Login' : 'Create account';
+    }
+  }
+
+  // ─── DASHBOARD ────────────────────────────────────────────
+  function showDashboard(username, createdAt, token) {
+    hideLoading();
+
+    document.getElementById('auth-panel').classList.add('hidden');
+    document.getElementById('dashboard').classList.add('visible');
+
+    document.getElementById('dash-username').textContent = username;
+    document.getElementById('info-username').textContent = username;
+    document.getElementById('info-created').textContent = formatDate(createdAt);
+
+    // Show token preview (first 40 chars)
+    document.getElementById('token-preview').textContent = token.slice(0, 52) + '…';
+  }
+
+  function logout() {
+    localStorage.removeItem('auth_token');
+    document.getElementById('dashboard').classList.remove('visible');
+    document.getElementById('auth-panel').classList.remove('hidden');
+    document.getElementById('input-username').value = '';
+    document.getElementById('input-password').value = '';
+    switchTab('login');
+  }
+
+  // ─── HELPERS ──────────────────────────────────────────────
+  function showAlert(msg, type) {
+    const box = document.getElementById('alert-box');
+    box.textContent = type === 'error' ? '✕ ' + msg : '✓ ' + msg;
+    box.className = `alert show alert-${type}`;
+  }
+
+  function clearAlert() {
+    const box = document.getElementById('alert-box');
+    box.className = 'alert';
+  }
+
+  function formatDate(iso) {
+    if (!iso) return '—';
+    return new Date(iso).toLocaleDateString('en-US', {
+      year: 'numeric', month: 'short', day: 'numeric',
+      hour: '2-digit', minute: '2-digit'
+    });
+  }
 </script>
-
-</body>
-</html>`;
-}
-</script>
-
 </body>
 </html>

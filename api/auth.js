@@ -2,10 +2,9 @@ const { Octokit } = require("@octokit/rest");
 const crypto = require("crypto");
 
 const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
-const REPO_OWNER = process.env.REPO_OWNER;
-const REPO_NAME = process.env.REPO_NAME;
+const [REPO_OWNER, REPO_NAME] = (process.env.GITHUB_REPO || "").split("/");
 const DB_FILE = "users.json";
-const JWT_SECRET = process.env.JWT_SECRET || "change-me-in-prod";
+const JWT_SECRET = "auth-demo-secret-2024";
 
 const octokit = new Octokit({ auth: GITHUB_TOKEN });
 

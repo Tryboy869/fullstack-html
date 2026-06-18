@@ -1,628 +1,412 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Auth Demo · GitHub DB</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rentme — Test Turso</title>
   <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-    :root {
-      --bg: #0a0a0f;
-      --surface: #12121a;
-      --surface2: #1a1a26;
-      --border: #2a2a3e;
-      --accent: #6c63ff;
-      --accent2: #ff6584;
-      --text: #e8e8f0;
-      --muted: #6b6b8a;
-      --success: #4ade80;
-      --error: #f87171;
-      --font-display: 'Syne', sans-serif;
-      --font-mono: 'DM Mono', monospace;
-    }
-
-    html, body {
-      height: 100%;
-      background: var(--bg);
-      color: var(--text);
-      font-family: var(--font-display);
-      overflow-x: hidden;
-    }
-
-    /* BACKGROUND GRID */
-    body::before {
-      content: '';
-      position: fixed;
-      inset: 0;
-      background-image:
-        linear-gradient(var(--border) 1px, transparent 1px),
-        linear-gradient(90deg, var(--border) 1px, transparent 1px);
-      background-size: 48px 48px;
-      opacity: 0.3;
-      pointer-events: none;
-      z-index: 0;
-    }
-
-    /* GLOW ORBS */
-    body::after {
-      content: '';
-      position: fixed;
-      top: -20%;
-      left: -10%;
-      width: 60vw;
-      height: 60vw;
-      border-radius: 50%;
-      background: radial-gradient(circle, rgba(108,99,255,0.12) 0%, transparent 70%);
-      pointer-events: none;
-      z-index: 0;
-    }
-
-    .orb2 {
-      position: fixed;
-      bottom: -20%;
-      right: -10%;
-      width: 50vw;
-      height: 50vw;
-      border-radius: 50%;
-      background: radial-gradient(circle, rgba(255,101,132,0.08) 0%, transparent 70%);
-      pointer-events: none;
-      z-index: 0;
-    }
-
-    /* LAYOUT */
-    .page {
-      position: relative;
-      z-index: 1;
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #0F0F13;
+      color: #F0F0FF;
       min-height: 100vh;
       display: flex;
+      flex-direction: column;
       align-items: center;
       justify-content: center;
-      padding: 24px;
+      padding: 2rem;
     }
 
-    /* CARD */
+    h1 { font-size: 1.75rem; margin-bottom: 0.5rem; }
+    p { color: #9090B0; margin-bottom: 2rem; font-size: 0.95rem; }
+
     .card {
+      background: #17171F;
+      border: 1px solid #2A2A3A;
+      border-radius: 16px;
+      padding: 2rem;
       width: 100%;
-      max-width: 420px;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 20px;
-      padding: 40px;
-      position: relative;
-      animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+      max-width: 520px;
     }
 
-    .card::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      border-radius: 20px;
-      padding: 1px;
-      background: linear-gradient(135deg, rgba(108,99,255,0.4), transparent 50%, rgba(255,101,132,0.2));
-      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-      -webkit-mask-composite: xor;
-      mask-composite: exclude;
-      pointer-events: none;
-    }
+    .form-group { margin-bottom: 1.25rem; }
 
-    @keyframes slideUp {
-      from { opacity: 0; transform: translateY(24px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
-
-    /* LOGO / HEADER */
-    .logo {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 32px;
-    }
-    .logo-icon {
-      width: 36px;
-      height: 36px;
-      background: linear-gradient(135deg, var(--accent), var(--accent2));
-      border-radius: 10px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 16px;
-      flex-shrink: 0;
-    }
-    .logo-text {
-      font-size: 13px;
-      font-family: var(--font-mono);
-      color: var(--muted);
-      letter-spacing: 0.05em;
-    }
-    .logo-text strong {
-      display: block;
-      font-size: 15px;
-      color: var(--text);
-      font-weight: 500;
-      letter-spacing: 0;
-    }
-
-    /* TABS */
-    .tabs {
-      display: flex;
-      background: var(--surface2);
-      border-radius: 10px;
-      padding: 4px;
-      margin-bottom: 32px;
-      gap: 4px;
-    }
-    .tab {
-      flex: 1;
-      padding: 9px;
-      border: none;
-      border-radius: 7px;
-      font-family: var(--font-display);
-      font-size: 13px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.2s;
-      background: transparent;
-      color: var(--muted);
-      letter-spacing: 0.02em;
-    }
-    .tab.active {
-      background: var(--accent);
-      color: #fff;
-      box-shadow: 0 4px 16px rgba(108,99,255,0.35);
-    }
-
-    /* FORM */
-    .form-group {
-      margin-bottom: 18px;
-    }
     label {
       display: block;
-      font-size: 11px;
-      font-family: var(--font-mono);
-      color: var(--muted);
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      margin-bottom: 8px;
+      font-size: 0.82rem;
+      color: #9090B0;
+      margin-bottom: 0.4rem;
     }
+
     input {
       width: 100%;
-      background: var(--surface2);
-      border: 1px solid var(--border);
+      background: #1E1E2A;
+      border: 1px solid #2A2A3A;
       border-radius: 10px;
-      padding: 12px 16px;
-      font-family: var(--font-mono);
-      font-size: 14px;
-      color: var(--text);
+      padding: 0.75rem 1rem;
+      color: #F0F0FF;
+      font-family: monospace;
+      font-size: 0.88rem;
       outline: none;
-      transition: border-color 0.2s, box-shadow 0.2s;
+      transition: border-color 0.2s;
     }
-    input:focus {
-      border-color: var(--accent);
-      box-shadow: 0 0 0 3px rgba(108,99,255,0.15);
-    }
-    input::placeholder { color: var(--muted); opacity: 0.5; }
 
-    /* BUTTON */
-    .btn {
+    input:focus { border-color: #6C63FF; }
+    input::placeholder { color: #4A4A6A; }
+
+    button {
       width: 100%;
-      padding: 13px;
+      background: #6C63FF;
+      color: white;
       border: none;
       border-radius: 10px;
-      font-family: var(--font-display);
-      font-size: 14px;
-      font-weight: 700;
-      letter-spacing: 0.03em;
+      padding: 0.85rem;
+      font-size: 0.95rem;
+      font-weight: 600;
       cursor: pointer;
-      transition: all 0.2s;
-      position: relative;
-      overflow: hidden;
-      margin-top: 8px;
+      transition: background 0.2s;
     }
-    .btn-primary {
-      background: linear-gradient(135deg, var(--accent), #8b5cf6);
-      color: #fff;
-      box-shadow: 0 4px 20px rgba(108,99,255,0.3);
-    }
-    .btn-primary:hover:not(:disabled) {
-      transform: translateY(-1px);
-      box-shadow: 0 8px 28px rgba(108,99,255,0.45);
-    }
-    .btn-primary:active:not(:disabled) { transform: translateY(0); }
-    .btn:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-    }
-    .btn-secondary {
-      background: var(--surface2);
-      color: var(--muted);
-      border: 1px solid var(--border);
-      margin-top: 10px;
-    }
-    .btn-secondary:hover { background: var(--border); color: var(--text); }
 
-    /* SPINNER */
-    .spinner {
-      display: inline-block;
-      width: 14px;
-      height: 14px;
-      border: 2px solid rgba(255,255,255,0.3);
-      border-top-color: #fff;
-      border-radius: 50%;
-      animation: spin 0.7s linear infinite;
-      vertical-align: middle;
-      margin-right: 8px;
-    }
-    @keyframes spin { to { transform: rotate(360deg); } }
+    button:hover { background: #5A52E0; }
+    button:disabled { opacity: 0.5; cursor: not-allowed; }
 
-    /* ALERT */
-    .alert {
-      padding: 12px 16px;
+    .result {
+      margin-top: 1.5rem;
+      padding: 1rem;
       border-radius: 10px;
-      font-size: 13px;
-      font-family: var(--font-mono);
-      margin-bottom: 20px;
+      font-size: 0.88rem;
       display: none;
-      animation: fadeIn 0.3s ease;
-    }
-    .alert.show { display: flex; align-items: center; gap: 10px; }
-    .alert-error { background: rgba(248,113,113,0.1); border: 1px solid rgba(248,113,113,0.3); color: var(--error); }
-    .alert-success { background: rgba(74,222,128,0.1); border: 1px solid rgba(74,222,128,0.3); color: var(--success); }
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
-
-    /* DASHBOARD */
-    #dashboard { display: none; }
-    #dashboard.visible { display: block; }
-    #auth-panel { display: block; }
-    #auth-panel.hidden { display: none; }
-
-    .dash-header {
-      margin-bottom: 28px;
-    }
-    .dash-greeting {
-      font-size: 26px;
-      font-weight: 800;
-      letter-spacing: -0.02em;
-      line-height: 1.2;
-      margin-bottom: 4px;
-    }
-    .dash-greeting span {
-      background: linear-gradient(135deg, var(--accent), var(--accent2));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-    .dash-sub {
-      font-size: 13px;
-      font-family: var(--font-mono);
-      color: var(--muted);
     }
 
-    .info-grid {
-      display: grid;
-      gap: 10px;
-      margin-bottom: 24px;
+    .result.success {
+      background: rgba(76,175,80,0.15);
+      border: 1px solid rgba(76,175,80,0.3);
+      color: #4CAF50;
+      display: block;
     }
-    .info-row {
+
+    .result.error {
+      background: rgba(255,107,107,0.15);
+      border: 1px solid rgba(255,107,107,0.3);
+      color: #FF6B6B;
+      display: block;
+    }
+
+    .result.info {
+      background: rgba(108,99,255,0.15);
+      border: 1px solid rgba(108,99,255,0.3);
+      color: #A0A0FF;
+      display: block;
+    }
+
+    .log {
+      margin-top: 1rem;
+      background: #0F0F13;
+      border: 1px solid #2A2A3A;
+      border-radius: 8px;
+      padding: 1rem;
+      font-family: monospace;
+      font-size: 0.8rem;
+      color: #9090B0;
+      max-height: 200px;
+      overflow-y: auto;
+      display: none;
+    }
+
+    .log.visible { display: block; }
+    .log-line { margin-bottom: 0.3rem; }
+    .log-line.ok { color: #4CAF50; }
+    .log-line.err { color: #FF6B6B; }
+    .log-line.info { color: #6C63FF; }
+
+    .step {
       display: flex;
-      justify-content: space-between;
       align-items: center;
-      background: var(--surface2);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 12px 16px;
+      gap: 0.75rem;
+      padding: 0.6rem 0;
+      font-size: 0.88rem;
+      border-bottom: 1px solid #2A2A3A;
     }
-    .info-row .key {
-      font-size: 11px;
-      font-family: var(--font-mono);
-      color: var(--muted);
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-    }
-    .info-row .val {
-      font-size: 13px;
-      font-family: var(--font-mono);
-      color: var(--text);
-      font-weight: 500;
-    }
+    .step:last-child { border-bottom: none; }
 
-    .status-dot {
-      display: inline-block;
-      width: 7px;
-      height: 7px;
+    .step-icon {
+      width: 24px;
+      height: 24px;
       border-radius: 50%;
-      background: var(--success);
-      margin-right: 6px;
-      box-shadow: 0 0 6px var(--success);
-      animation: pulse 2s infinite;
-    }
-    @keyframes pulse {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.4; }
-    }
-
-    .token-preview {
-      background: var(--surface2);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 12px 16px;
-      margin-bottom: 24px;
-    }
-    .token-preview .key {
-      font-size: 10px;
-      font-family: var(--font-mono);
-      color: var(--muted);
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      margin-bottom: 6px;
-    }
-    .token-preview .val {
-      font-size: 11px;
-      font-family: var(--font-mono);
-      color: var(--accent);
-      word-break: break-all;
-      opacity: 0.8;
-    }
-
-    .divider {
-      height: 1px;
-      background: var(--border);
-      margin: 24px 0;
-    }
-
-    /* LOADING STATE */
-    #loading-screen {
-      position: fixed;
-      inset: 0;
-      background: var(--bg);
       display: flex;
       align-items: center;
       justify-content: center;
-      z-index: 100;
-      transition: opacity 0.4s, visibility 0.4s;
+      font-size: 0.75rem;
+      font-weight: 700;
+      flex-shrink: 0;
     }
-    #loading-screen.hidden {
-      opacity: 0;
-      visibility: hidden;
+
+    .step-icon.pending { background: #2A2A3A; color: #9090B0; }
+    .step-icon.running { background: rgba(108,99,255,0.3); color: #6C63FF; animation: pulse 1s infinite; }
+    .step-icon.ok { background: rgba(76,175,80,0.3); color: #4CAF50; }
+    .step-icon.fail { background: rgba(255,107,107,0.3); color: #FF6B6B; }
+
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
+
+    .steps { margin-top: 1.5rem; display: none; }
+    .steps.visible { display: block; }
+
+    .hint {
+      margin-top: 1rem;
+      font-size: 0.78rem;
+      color: #6A6A8A;
+      line-height: 1.5;
     }
-    .loading-inner {
-      text-align: center;
-    }
-    .loading-icon {
-      font-size: 32px;
-      margin-bottom: 16px;
-      animation: bounce 1s ease infinite;
-    }
-    @keyframes bounce {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-8px); }
-    }
-    .loading-text {
-      font-size: 12px;
-      font-family: var(--font-mono);
-      color: var(--muted);
-      letter-spacing: 0.1em;
-    }
+
+    .hint a { color: #6C63FF; text-decoration: none; }
   </style>
 </head>
 <body>
 
-<!-- LOADING SCREEN -->
-<div id="loading-screen">
-  <div class="loading-inner">
-    <div class="loading-icon">⟳</div>
-    <div class="loading-text">CHECKING SESSION...</div>
-  </div>
-</div>
+  <h1>Rentme — Test Turso</h1>
+  <p>Verifie que ta base de donnees Turso est correctement configuree</p>
 
-<div class="orb2"></div>
-
-<div class="page">
   <div class="card">
-
-    <!-- ===== AUTH PANEL ===== -->
-    <div id="auth-panel">
-      <div class="logo">
-        <div class="logo-icon">◈</div>
-        <div class="logo-text">
-          <strong>AuthDemo</strong>
-          github-as-db · v1
-        </div>
-      </div>
-
-      <div class="tabs">
-        <button class="tab active" id="tab-login" onclick="switchTab('login')">Login</button>
-        <button class="tab" id="tab-register" onclick="switchTab('register')">Register</button>
-      </div>
-
-      <div id="alert-box" class="alert"></div>
-
-      <form id="auth-form" onsubmit="handleSubmit(event)">
-        <div class="form-group">
-          <label>Username</label>
-          <input id="input-username" type="text" placeholder="your_username" autocomplete="username" required />
-        </div>
-        <div class="form-group">
-          <label>Password</label>
-          <input id="input-password" type="password" placeholder="••••••••" autocomplete="current-password" required />
-        </div>
-        <button type="submit" class="btn btn-primary" id="submit-btn">
-          Login
-        </button>
-      </form>
+    <div class="form-group">
+      <label>TURSO_DATABASE_URL</label>
+      <input type="text" id="db-url"
+        placeholder="libsql://ton-db-ton-org.turso.io"
+        autocomplete="off" spellcheck="false">
     </div>
 
-    <!-- ===== DASHBOARD ===== -->
-    <div id="dashboard">
-      <div class="logo">
-        <div class="logo-icon">◈</div>
-        <div class="logo-text">
-          <strong>AuthDemo</strong>
-          github-as-db · v1
-        </div>
-      </div>
-
-      <div class="dash-header">
-        <div class="dash-greeting">Welcome back, <br/><span id="dash-username">—</span></div>
-        <div class="dash-sub"><span class="status-dot"></span>Session active · GitHub DB</div>
-      </div>
-
-      <div class="info-grid">
-        <div class="info-row">
-          <span class="key">Username</span>
-          <span class="val" id="info-username">—</span>
-        </div>
-        <div class="info-row">
-          <span class="key">Account created</span>
-          <span class="val" id="info-created">—</span>
-        </div>
-        <div class="info-row">
-          <span class="key">Storage</span>
-          <span class="val">⬡ GitHub Repo</span>
-        </div>
-      </div>
-
-      <div class="token-preview">
-        <div class="key">JWT Token (localStorage)</div>
-        <div class="val" id="token-preview">—</div>
-      </div>
-
-      <button class="btn btn-secondary" onclick="logout()">↩ Logout</button>
+    <div class="form-group">
+      <label>TURSO_AUTH_TOKEN</label>
+      <input type="password" id="db-token"
+        placeholder="eyJhbGci..."
+        autocomplete="off">
     </div>
 
+    <button id="test-btn" onclick="runTest()">
+      Tester la connexion
+    </button>
+
+    <div class="steps" id="steps">
+      <div class="step">
+        <div class="step-icon pending" id="icon-1">1</div>
+        <span id="label-1">Validation des champs</span>
+      </div>
+      <div class="step">
+        <div class="step-icon pending" id="icon-2">2</div>
+        <span id="label-2">Connexion a Turso</span>
+      </div>
+      <div class="step">
+        <div class="step-icon pending" id="icon-3">3</div>
+        <span id="label-3">Creation de la table de test</span>
+      </div>
+      <div class="step">
+        <div class="step-icon pending" id="icon-4">4</div>
+        <span id="label-4">Ecriture d'une ligne</span>
+      </div>
+      <div class="step">
+        <div class="step-icon pending" id="icon-5">5</div>
+        <span id="label-5">Lecture de la ligne</span>
+      </div>
+    </div>
+
+    <div class="result" id="result"></div>
+    <div class="log" id="log"></div>
+
+    <div class="hint">
+      Trouve tes credentials sur
+      <a href="https://turso.tech" target="_blank">turso.tech</a>
+      — Dashboard &rsaquo; ton projet &rsaquo; Generate Token
+    </div>
   </div>
-</div>
 
 <script>
-  // ─── CONFIG ───────────────────────────────────────────────
-  // In Vercel, API is at /api/auth
-  // Change this if running locally with a different port
-  const API = '/api/auth';
+  function log(msg, type = 'info') {
+    const logEl = document.getElementById('log');
+    logEl.classList.add('visible');
+    const line = document.createElement('div');
+    line.className = `log-line ${type}`;
+    line.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`;
+    logEl.appendChild(line);
+    logEl.scrollTop = logEl.scrollHeight;
+  }
 
-  // ─── STATE ────────────────────────────────────────────────
-  let currentTab = 'login';
+  function setStep(n, status, label) {
+    const icon = document.getElementById(`icon-${n}`);
+    const labelEl = document.getElementById(`label-${n}`);
+    icon.className = `step-icon ${status}`;
+    const symbols = { pending: n, running: '...', ok: '✓', fail: '✗' };
+    icon.textContent = symbols[status] || n;
+    if (label) labelEl.textContent = label;
+  }
 
-  // ─── INIT ─────────────────────────────────────────────────
-  window.addEventListener('DOMContentLoaded', async () => {
-    const token = localStorage.getItem('auth_token');
-    if (token) {
-      await verifySession(token);
-    } else {
-      hideLoading();
+  function showResult(msg, type) {
+    const el = document.getElementById('result');
+    el.className = `result ${type}`;
+    el.textContent = msg;
+  }
+
+  async function tursoQuery(url, token, sql, args = []) {
+    const httpUrl = url
+      .replace('libsql://', 'https://')
+      .replace('wss://', 'https://')
+      .replace('ws://', 'http://');
+
+    const res = await fetch(`${httpUrl}/v2/pipeline`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify({
+        requests: [
+          {
+            type: 'execute',
+            stmt: {
+              sql,
+              args: args.map(a => {
+                if (typeof a === 'number') return { type: 'integer', value: String(a) };
+                return { type: 'text', value: String(a) };
+              })
+            }
+          },
+          { type: 'close' }
+        ]
+      })
+    });
+
+    if (!res.ok) {
+      const text = await res.text();
+      throw new Error(`HTTP ${res.status}: ${text}`);
     }
-  });
 
-  async function verifySession(token) {
-    try {
-      const res = await fetch(`${API}?action=verify`, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      if (res.ok) {
-        const data = await res.json();
-        showDashboard(data.username, data.created_at, token);
-      } else {
-        localStorage.removeItem('auth_token');
-        hideLoading();
-      }
-    } catch {
-      hideLoading();
+    const data = await res.json();
+
+    if (data.results && data.results[0] && data.results[0].type === 'error') {
+      throw new Error(data.results[0].error.message);
     }
+
+    return data;
   }
 
-  function hideLoading() {
-    document.getElementById('loading-screen').classList.add('hidden');
-  }
+  async function runTest() {
+    const url = document.getElementById('db-url').value.trim();
+    const token = document.getElementById('db-token').value.trim();
+    const btn = document.getElementById('test-btn');
 
-  // ─── TABS ─────────────────────────────────────────────────
-  function switchTab(tab) {
-    currentTab = tab;
-    clearAlert();
-    document.getElementById('tab-login').classList.toggle('active', tab === 'login');
-    document.getElementById('tab-register').classList.toggle('active', tab === 'register');
-    document.getElementById('submit-btn').textContent = tab === 'login' ? 'Login' : 'Create account';
-    document.getElementById('input-password').autocomplete = tab === 'login' ? 'current-password' : 'new-password';
-  }
-
-  // ─── FORM SUBMIT ──────────────────────────────────────────
-  async function handleSubmit(e) {
-    e.preventDefault();
-    clearAlert();
-
-    const username = document.getElementById('input-username').value.trim();
-    const password = document.getElementById('input-password').value;
-    const btn = document.getElementById('submit-btn');
+    // Reset
+    document.getElementById('log').innerHTML = '';
+    document.getElementById('log').classList.remove('visible');
+    document.getElementById('result').className = 'result';
+    document.getElementById('steps').classList.add('visible');
+    for (let i = 1; i <= 5; i++) setStep(i, 'pending');
 
     btn.disabled = true;
-    btn.innerHTML = `<span class="spinner"></span>${currentTab === 'login' ? 'Authenticating...' : 'Creating account...'}`;
+    btn.textContent = 'Test en cours...';
+
+    // STEP 1 - Validation
+    setStep(1, 'running', 'Validation des champs...');
+    await sleep(300);
+
+    if (!url || !token) {
+      setStep(1, 'fail', 'Champs manquants');
+      showResult('Remplis les deux champs avant de tester.', 'error');
+      log('Champs vides detectes', 'err');
+      reset(btn); return;
+    }
+
+    if (!url.includes('turso.io') && !url.includes('libsql://') && !url.includes('localhost')) {
+      setStep(1, 'fail', 'URL invalide');
+      showResult('L\'URL doit ressembler a : libsql://ton-db.turso.io', 'error');
+      log(`URL suspecte : ${url}`, 'err');
+      reset(btn); return;
+    }
+
+    setStep(1, 'ok', 'Champs valides');
+    log('Champs valides', 'ok');
+
+    // STEP 2 - Connexion
+    setStep(2, 'running', 'Connexion a Turso...');
+    log(`Tentative de connexion a ${url}`, 'info');
 
     try {
-      const res = await fetch(`${API}?action=${currentTab}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, password })
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        showAlert(data.error || 'Something went wrong', 'error');
-      } else {
-        localStorage.setItem('auth_token', data.token);
-        showDashboard(data.username, data.created_at, data.token);
-      }
-    } catch (err) {
-      showAlert('Network error — check your connection', 'error');
-    } finally {
-      btn.disabled = false;
-      btn.textContent = currentTab === 'login' ? 'Login' : 'Create account';
+      await tursoQuery(url, token, 'SELECT 1');
+      setStep(2, 'ok', 'Connexion reussie');
+      log('Connexion etablie avec succes', 'ok');
+    } catch (e) {
+      setStep(2, 'fail', 'Connexion echouee');
+      showResult(`Connexion echouee : ${e.message}`, 'error');
+      log(`Erreur connexion : ${e.message}`, 'err');
+      reset(btn); return;
     }
+
+    // STEP 3 - Create table
+    setStep(3, 'running', 'Creation de la table de test...');
+    try {
+      await tursoQuery(url, token,
+        `CREATE TABLE IF NOT EXISTS rentme_test (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          message TEXT,
+          created_at TEXT DEFAULT (datetime('now'))
+        )`
+      );
+      setStep(3, 'ok', 'Table creee');
+      log('Table rentme_test creee ou existante', 'ok');
+    } catch (e) {
+      setStep(3, 'fail', 'Echec creation table');
+      showResult(`Erreur creation table : ${e.message}`, 'error');
+      log(`Erreur : ${e.message}`, 'err');
+      reset(btn); return;
+    }
+
+    // STEP 4 - Write
+    setStep(4, 'running', 'Ecriture d\'une ligne...');
+    try {
+      await tursoQuery(url, token,
+        `INSERT INTO rentme_test (message) VALUES (?)`,
+        ['Test Rentme OK']
+      );
+      setStep(4, 'ok', 'Ecriture reussie');
+      log('Ligne inseree avec succes', 'ok');
+    } catch (e) {
+      setStep(4, 'fail', 'Echec ecriture');
+      showResult(`Erreur ecriture : ${e.message}`, 'error');
+      log(`Erreur : ${e.message}`, 'err');
+      reset(btn); return;
+    }
+
+    // STEP 5 - Read
+    setStep(5, 'running', 'Lecture de la ligne...');
+    try {
+      const data = await tursoQuery(url, token,
+        `SELECT * FROM rentme_test ORDER BY id DESC LIMIT 1`
+      );
+      const result = data.results[0].response.result;
+      const row = result.rows[0];
+      const msg = row[1]?.value || 'lu';
+      setStep(5, 'ok', `Lu : "${msg}"`);
+      log(`Lecture reussie : ${JSON.stringify(row)}`, 'ok');
+
+      showResult(
+        'Turso fonctionne parfaitement. La base de donnees est prete pour Rentme.',
+        'success'
+      );
+    } catch (e) {
+      setStep(5, 'fail', 'Echec lecture');
+      showResult(`Erreur lecture : ${e.message}`, 'error');
+      log(`Erreur : ${e.message}`, 'err');
+      reset(btn); return;
+    }
+
+    reset(btn);
   }
 
-  // ─── DASHBOARD ────────────────────────────────────────────
-  function showDashboard(username, createdAt, token) {
-    hideLoading();
+  function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 
-    document.getElementById('auth-panel').classList.add('hidden');
-    document.getElementById('dashboard').classList.add('visible');
-
-    document.getElementById('dash-username').textContent = username;
-    document.getElementById('info-username').textContent = username;
-    document.getElementById('info-created').textContent = formatDate(createdAt);
-
-    // Show token preview (first 40 chars)
-    document.getElementById('token-preview').textContent = token.slice(0, 52) + '…';
-  }
-
-  function logout() {
-    localStorage.removeItem('auth_token');
-    document.getElementById('dashboard').classList.remove('visible');
-    document.getElementById('auth-panel').classList.remove('hidden');
-    document.getElementById('input-username').value = '';
-    document.getElementById('input-password').value = '';
-    switchTab('login');
-  }
-
-  // ─── HELPERS ──────────────────────────────────────────────
-  function showAlert(msg, type) {
-    const box = document.getElementById('alert-box');
-    box.textContent = type === 'error' ? '✕ ' + msg : '✓ ' + msg;
-    box.className = `alert show alert-${type}`;
-  }
-
-  function clearAlert() {
-    const box = document.getElementById('alert-box');
-    box.className = 'alert';
-  }
-
-  function formatDate(iso) {
-    if (!iso) return '—';
-    return new Date(iso).toLocaleDateString('en-US', {
-      year: 'numeric', month: 'short', day: 'numeric',
-      hour: '2-digit', minute: '2-digit'
-    });
+  function reset(btn) {
+    btn.disabled = false;
+    btn.textContent = 'Tester la connexion';
   }
 </script>
+
 </body>
 </html>
